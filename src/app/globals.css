@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --govuk-blue: #1d70b8;
+  --govuk-dark-blue: #003078;
+  --govuk-black: #0b0c0c;
+  --govuk-dark-grey: #505a5f;
+  --govuk-mid-grey: #b1b4b6;
+  --govuk-light-grey: #f3f2f1;
+  --govuk-white: #ffffff;
+  --govuk-green: #00703c;
+  --govuk-yellow: #ffdd00;
+}
+
+body {
+  color: var(--govuk-black);
+  background: var(--govuk-white);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+/* GOV.UK inspired components */
+@layer components {
+  .govuk-heading-xl {
+    @apply text-3xl font-bold text-govuk-black mb-4;
+    font-weight: 700;
+    line-height: 1.09;
+  }
+  
+  .govuk-heading-l {
+    @apply text-xl font-bold text-govuk-black mb-3;
+    font-weight: 700;
+    line-height: 1.11;
+  }
+  
+  .govuk-heading-m {
+    @apply text-lg font-bold text-govuk-black mb-3;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  
+  .govuk-body {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--govuk-black);
+  }
+  
+  .govuk-caption {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--govuk-dark-grey);
+  }
+  
+  .govuk-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    color: white;
+    background-color: var(--govuk-green);
+    border: 1px solid var(--govuk-green);
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .govuk-button:hover {
+    background-color: rgba(0, 112, 60, 0.9);
+  }
+  
+  .govuk-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--govuk-yellow), 0 0 0 4px rgba(255, 221, 0, 0.5);
+  }
+  
+  .govuk-select {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--govuk-black);
+    border-radius: 0;
+    background-color: white;
+    color: var(--govuk-black);
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  
+  .govuk-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--govuk-yellow), 0 0 0 4px rgba(255, 221, 0, 0.5);
+  }
+  
+  .govuk-input {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--govuk-black);
+    border-radius: 0;
+    background-color: white;
+    color: var(--govuk-black);
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  
+  .govuk-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--govuk-yellow), 0 0 0 4px rgba(255, 221, 0, 0.5);
+  }
+  
+  .govuk-form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .govuk-label {
+    display: block;
+    font-weight: 700;
+    color: var(--govuk-black);
+    margin-bottom: 0.5rem;
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  
+  .govuk-panel {
+    background-color: white;
+    border-left: 4px solid var(--govuk-blue);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* GOV.UK Range Input (Slider) Styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 0;
+  background: var(--govuk-black);
+  border: 3px solid var(--govuk-white);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--govuk-dark-blue);
+}
+
+input[type="range"]::-webkit-slider-thumb:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--govuk-yellow);
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 0;
+  background: var(--govuk-black);
+  border: 3px solid var(--govuk-white);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: var(--govuk-dark-blue);
+}
+
+input[type="range"]::-moz-range-thumb:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--govuk-yellow);
+}
+
+input[type="range"]:disabled {
+  cursor: not-allowed;
+}
+
+input[type="range"]:disabled::-webkit-slider-thumb {
+  background: var(--govuk-mid-grey);
+  cursor: not-allowed;
+}
+
+input[type="range"]:disabled::-moz-range-thumb {
+  background: var(--govuk-mid-grey);
+  cursor: not-allowed;
+}
+
+/* Compact slider styles for children */
+.slider-compact {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  outline: none;
+  border-radius: 0.5rem;
+  height: 4px !important;
+}
+
+.slider-compact::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #1d70b8;
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
+}
+
+.slider-compact::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #1d70b8;
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
+}
+
+.slider-compact::-webkit-slider-track {
+  background: #e5e7eb;
+  height: 4px;
+  border-radius: 0.5rem;
+}
+
+.slider-compact::-moz-range-track {
+  background: #e5e7eb;
+  height: 4px;
+  border-radius: 0.5rem;
+  border: none;
+}
+
+/* Animation for smooth transitions */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
