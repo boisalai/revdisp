@@ -7,8 +7,8 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/revdisp' : '',
-  basePath: process.env.NODE_ENV === 'production' ? '/revdisp' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? process.env.REPO_NAME : '',
+  basePath: process.env.NODE_ENV === 'production' ? process.env.REPO_NAME : '',
 }
 
 module.exports = nextConfig
