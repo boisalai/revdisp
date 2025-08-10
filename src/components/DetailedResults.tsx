@@ -867,7 +867,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
     }
     
-    const calculationSteps: { label: string; value: string }[] = []
+    const calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
     
     // Étape 1: Revenu familial brut
     calculationSteps.push({
