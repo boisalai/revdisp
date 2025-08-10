@@ -6,7 +6,7 @@
 import Decimal from 'decimal.js'
 import { BaseCalculator } from '../core/BaseCalculator'
 import { CalculatorRegistry } from '../core/factory'
-import { Person, Household } from '../models'
+import { Person, Household, HouseholdType } from '../models'
 
 export interface QcTaxResult {
   gross_income: Decimal
@@ -230,7 +230,16 @@ export class QcTaxCalculator extends BaseCalculator {
   calculate(person: Person): Record<string, Decimal> {
     // This method is for individual calculation only
     // For full household calculation, use calculateHousehold()
-    const household = new Household([person])
+    const household = new Household({
+      householdType: HouseholdType.SINGLE,
+      primaryPerson: {
+        age: person.age,
+        grossWorkIncome: person.grossWorkIncome,
+        grossRetirementIncome: person.grossRetirementIncome,
+        isRetired: person.isRetired
+      },
+      numChildren: 0
+    })
     const result = this.calculateForPerson(person, household)
     
     return {
