@@ -46,7 +46,9 @@ export const RAMQValidationTests: ValidationTestCase[] = [
       rrq: 2976,
       fss: 0,
       ramq: 738 // VALEUR ATTENDUE selon calculateur MFQ 2024
-    }
+    },
+    priority: 'high' as const,
+    category: 'single' as const
   },
   
   {
@@ -85,7 +87,9 @@ export const RAMQValidationTests: ValidationTestCase[] = [
       rrq: 2976,
       fss: 0,
       ramq: 744 // VALEUR ATTENDUE selon calculateur MFQ 2025
-    }
+    },
+    priority: 'high' as const,
+    category: 'single' as const
   },
   
   {
@@ -129,7 +133,9 @@ export const RAMQValidationTests: ValidationTestCase[] = [
       rrq: 5952,
       fss: 0,
       ramq: 1475 // 737.50 x 2 (couple) = 1475
-    }
+    },
+    priority: 'high' as const,
+    category: 'couple' as const
   }
 ]
 

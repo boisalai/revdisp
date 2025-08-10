@@ -152,7 +152,8 @@ export async function runFssValidationTest(test: FssValidationTest): Promise<{
     let actualFss = 0
     if (results.cotisations && results.cotisations.fss) {
       // La cotisation FSS est maintenant un string dans results.cotisations.fss
-      actualFss = parseFloat(results.cotisations.fss)
+      const value = results.cotisations.fss
+      actualFss = typeof value === 'string' ? parseFloat(value) : value.toNumber()
     }
     
     // Comparer avec la valeur MFQ

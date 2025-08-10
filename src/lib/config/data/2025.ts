@@ -79,9 +79,10 @@ export const config2025: TaxYearConfig = {
   qpp: {
     basic_exemption: 3500,
     max_pensionable_earnings: 71300, // Officiel 2025
+    max_additional_earnings: 76100, // Estimation indexée
     base_rate: 0.054, // 5.40% base
     additional_rate_first: 0.01, // 1.00% supplémentaire
-    total_rate: 0.064, // 6.40% total (5.40% + 1.00%)
+    additional_rate_second: 0.01, // 1.00% deuxième tranche (identique)
     self_employed_multiplier: 2.0 // Travailleur autonome paie 2×
   },
 

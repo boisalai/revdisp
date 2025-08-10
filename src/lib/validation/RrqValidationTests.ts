@@ -150,7 +150,8 @@ export async function runRrqValidationTest(test: RrqValidationTest): Promise<{
     let actualRrq = 0
     if (results.cotisations && results.cotisations.rrq) {
       // La cotisation RRQ est maintenant un string dans results.cotisations.rrq
-      actualRrq = parseFloat(results.cotisations.rrq)
+      const value = results.cotisations.rrq
+      actualRrq = typeof value === 'string' ? parseFloat(value) : value.toNumber()
     }
     
     // Comparer avec la valeur MFQ

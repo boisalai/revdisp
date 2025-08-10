@@ -153,7 +153,8 @@ export async function runRqapValidationTest(test: RqapValidationTest): Promise<{
     let actualRqap = 0
     if (results.cotisations && results.cotisations.rqap) {
       // La cotisation RQAP est maintenant un string dans results.cotisations.rqap
-      actualRqap = parseFloat(results.cotisations.rqap)
+      const value = results.cotisations.rqap
+      actualRqap = typeof value === 'string' ? parseFloat(value) : value.toNumber()
     }
     
     // Comparer avec la valeur MFQ

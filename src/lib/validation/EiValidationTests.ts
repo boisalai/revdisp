@@ -149,8 +149,9 @@ export async function runEiValidationTest(test: EiValidationTest): Promise<{
     // Extraire la cotisation EI totale (nouvelle structure)
     let actualEi = 0
     if (results.cotisations && results.cotisations.assurance_emploi) {
-      // La cotisation EI est maintenant un string dans results.cotisations.assurance_emploi
-      actualEi = parseFloat(results.cotisations.assurance_emploi)
+      // La cotisation EI peut être un string ou un Decimal
+      const value = results.cotisations.assurance_emploi
+      actualEi = typeof value === 'string' ? parseFloat(value) : value.toNumber()
     }
     
     // Comparer avec la valeur MFQ
