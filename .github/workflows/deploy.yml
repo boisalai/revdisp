@@ -49,12 +49,11 @@ jobs:
     - name: 🏗️ Build application
       env:
         NODE_ENV: production
-        REPO_NAME: /${{ github.event.repository.name }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
         echo "Building for repository: ${{ github.event.repository.name }}"
-        echo "REPO_NAME environment variable: $REPO_NAME"
+        echo "GITHUB_REPOSITORY environment variable: $GITHUB_REPOSITORY"
         npm run build
-        npm run export
         touch out/.nojekyll
         echo "Build completed successfully"
 
