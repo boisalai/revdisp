@@ -133,7 +133,9 @@ export default function CompactCalculator() {
         numChildren: state.numChildren
       })
 
+      console.log('Starting calculation for household:', household)
       const calculationResults = await calculator.calculate(household)
+      console.log('Calculation results:', calculationResults)
       setResults(calculationResults)
       setCurrentHousehold(household)
     } catch (err) {
