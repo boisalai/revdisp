@@ -52,9 +52,10 @@ export const config2024: TaxYearConfig = {
   qpp: {
     basic_exemption: 3500,
     max_pensionable_earnings: 68500,
+    max_additional_earnings: 73200,
     base_rate: 0.054, // 5.40% base
-    additional_rate_first: 0.01, // 1.00% supplémentaire  
-    total_rate: 0.064, // 6.40% total (5.40% + 1.00%)
+    additional_rate_first: 0.01, // 1.00% supplémentaire
+    additional_rate_second: 0.01, // 1.00% deuxième tranche (identique)
     self_employed_multiplier: 2.0
   },
   fss: {
