@@ -314,7 +314,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         }
       }
 
-      const steps = []
+      const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
 
       steps.push({ 
         label: `${label} - ${language === 'fr' ? 'Revenu de travail déclaré' : 'Declared work income'}`, 
@@ -464,7 +464,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         }
       }
 
-      const steps = []
+      const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
       
       steps.push({ 
         label: `${label} - ${language === 'fr' ? 'Revenu de travail déclaré' : 'Declared work income'}`, 
@@ -615,7 +615,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         }
       }
 
-      const steps = []
+      const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
       
       steps.push({ 
         label: `${label} - ${language === 'fr' ? 'Âge' : 'Age'}`, 
@@ -1016,7 +1016,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         }
       }
 
-      const steps = []
+      const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
       
       // 1. Revenu brut
       steps.push({ 
@@ -1168,7 +1168,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       primaryContributions
     )
 
-    let calculationSteps = [...primaryResult.steps]
+    let calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = [...primaryResult.steps]
     let totalTax = primaryResult.tax
 
     // Calculer pour le conjoint si applicable
