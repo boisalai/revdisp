@@ -1234,7 +1234,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         ? 'Impôt sur le revenu provincial calculé selon les paliers fiscaux du Québec. Inclut les crédits d\'impôt non remboursables et les déductions pour cotisations sociales.'
         : 'Provincial income tax calculated according to Quebec tax brackets. Includes non-refundable tax credits and deductions for social contributions.',
       formula: '',
-      currentValue: formatAmount(totalTax),
+      currentValue: totalTax,
       parameters: calculationSteps
     }
   }
