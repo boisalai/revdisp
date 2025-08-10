@@ -1,6 +1,7 @@
 import { ConfigData } from '../types'
 import { config2023 } from './2023'
 import { config2024 } from './2024'
+import { config2025 } from './2025'
 
 /**
  * Configuration fiscale complète pour toutes les années disponibles
@@ -8,7 +9,8 @@ import { config2024 } from './2024'
  */
 export const taxConfigs: ConfigData = {
   2023: config2023,
-  2024: config2024
+  2024: config2024,
+  2025: config2025
 } as const
 
 /**
@@ -40,4 +42,4 @@ export function isYearSupported(year: number): boolean {
 }
 
 // Export des configurations individuelles pour usage direct
-export { config2023, config2024 }
+export { config2023, config2024, config2025 }

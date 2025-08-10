@@ -39,12 +39,6 @@ export class QppCalculator extends BaseCalculator {
   }
 
   private calculateContribution(income: Decimal, isSelfEmployed: boolean = false): Decimal {
-    const base = this.calculateBaseContribution(income, isSelfEmployed)
-    const additional = this.calculateAdditionalContribution(income, isSelfEmployed)
-    return base.plus(additional)
-  }
-
-  private calculateBaseContribution(income: Decimal, isSelfEmployed: boolean = false): Decimal {
     const basicExemption = this.toDecimal(this.getConfigValue('basic_exemption'))
     
     if (income.lessThanOrEqualTo(basicExemption)) {
@@ -54,7 +48,8 @@ export class QppCalculator extends BaseCalculator {
     const maxEarnings = this.toDecimal(this.getConfigValue('max_pensionable_earnings'))
     const pensionableEarnings = Decimal.min(income, maxEarnings).minus(basicExemption)
     
-    let rate = this.toDecimal(this.getConfigValue('base_rate'))
+    // Utilise le taux total : 6.40% (5.40% base + 1.00% supplémentaire)
+    let rate = this.toDecimal(this.getConfigValue('total_rate') || 0.064)
     if (isSelfEmployed) {
       rate = rate.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
     }
@@ -62,51 +57,6 @@ export class QppCalculator extends BaseCalculator {
     return pensionableEarnings.times(rate)
   }
 
-  private calculateAdditionalContribution(income: Decimal, isSelfEmployed: boolean = false): Decimal {
-    const basicExemption = this.toDecimal(this.getConfigValue('basic_exemption'))
-    
-    if (income.lessThanOrEqualTo(basicExemption)) {
-      return new Decimal(0)
-    }
-
-    const maxPensionable = this.toDecimal(this.getConfigValue('max_pensionable_earnings'))
-    let contribution = new Decimal(0)
-
-    // 2024: nouvelle structure à deux paliers
-    if (this.taxYear === 2024) {
-      // Premier palier (jusqu'au MGA)
-      const firstTierEarnings = Decimal.min(income, maxPensionable).minus(basicExemption)
-      let firstTierRate = this.toDecimal(this.getConfigValue('additional_rate_first'))
-      if (isSelfEmployed) {
-        firstTierRate = firstTierRate.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
-      }
-      contribution = firstTierEarnings.times(firstTierRate)
-
-      // Deuxième palier (entre MGA et maximum additionnel)
-      if (income.greaterThan(maxPensionable)) {
-        const maxAdditional = this.toDecimal(this.getConfigValue('max_additional_earnings'))
-        const secondTierEarnings = Decimal.min(
-          income.minus(maxPensionable),
-          maxAdditional.minus(maxPensionable)
-        )
-        let secondTierRate = this.toDecimal(this.getConfigValue('additional_rate_second'))
-        if (isSelfEmployed) {
-          secondTierRate = secondTierRate.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
-        }
-        contribution = contribution.plus(secondTierEarnings.times(secondTierRate))
-      }
-    } else {
-      // 2023: structure simple - utilise le premier taux additionnel
-      const pensionableEarnings = Decimal.min(income, maxPensionable).minus(basicExemption)
-      let rate = this.toDecimal(this.getConfigValue('additional_rate_first'))
-      if (isSelfEmployed) {
-        rate = rate.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
-      }
-      contribution = pensionableEarnings.times(rate)
-    }
-
-    return contribution
-  }
 }
 
 // Register the calculator

@@ -1,0 +1,760 @@
+{
+  "title": "Calculateur : Calcul de votre revenu disponible, Outils de calcul, Ministère des Finances du Québec",
+  "url": "https://www.finances.gouv.qc.ca/ministere/outils_services/outils_calcul/revenu_disponible/outil_revenu.asp",
+  "selects": [
+    {
+      "id": "Situation",
+      "name": "Situation",
+      "options": [
+        {
+          "value": "Personne vivant seule",
+          "text": "Personne vivant seule"
+        },
+        {
+          "value": "Famille monoparentale",
+          "text": "Famille monoparentale"
+        },
+        {
+          "value": "Couple",
+          "text": "Couple"
+        },
+        {
+          "value": "Retraité vivant seul",
+          "text": "Retraité vivant seul"
+        },
+        {
+          "value": "Couple de retraités",
+          "text": "Couple de retraités"
+        }
+      ]
+    },
+    {
+      "id": "NbEnfants",
+      "name": "NbEnfants",
+      "options": [
+        {
+          "value": "Aucun enfant",
+          "text": "Aucun enfant"
+        },
+        {
+          "value": "Un enfant",
+          "text": "Un enfant"
+        },
+        {
+          "value": "Deux enfants",
+          "text": "Deux enfants"
+        },
+        {
+          "value": "Trois enfants",
+          "text": "Trois enfants"
+        },
+        {
+          "value": "Quatre enfants",
+          "text": "Quatre enfants"
+        },
+        {
+          "value": "Cinq enfants",
+          "text": "Cinq enfants"
+        }
+      ]
+    },
+    {
+      "id": "type_garde1",
+      "name": "type_garde1",
+      "options": [
+        {
+          "value": "Subventionné",
+          "text": "Subventionné"
+        },
+        {
+          "value": "Non subventionné",
+          "text": "Non subventionné"
+        }
+      ]
+    },
+    {
+      "id": "type_garde2",
+      "name": "type_garde2",
+      "options": [
+        {
+          "value": "Subventionné",
+          "text": "Subventionné"
+        },
+        {
+          "value": "Non subventionné",
+          "text": "Non subventionné"
+        }
+      ]
+    },
+    {
+      "id": "type_garde3",
+      "name": "type_garde3",
+      "options": [
+        {
+          "value": "Subventionné",
+          "text": "Subventionné"
+        },
+        {
+          "value": "Non subventionné",
+          "text": "Non subventionné"
+        }
+      ]
+    },
+    {
+      "id": "type_garde4",
+      "name": "type_garde4",
+      "options": [
+        {
+          "value": "Subventionné",
+          "text": "Subventionné"
+        },
+        {
+          "value": "Non subventionné",
+          "text": "Non subventionné"
+        }
+      ]
+    },
+    {
+      "id": "type_garde5",
+      "name": "type_garde5",
+      "options": [
+        {
+          "value": "Subventionné",
+          "text": "Subventionné"
+        },
+        {
+          "value": "Non subventionné",
+          "text": "Non subventionné"
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "Revenu1",
+      "name": "Revenu1",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeAdulte1",
+      "name": "AgeAdulte1",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "Revenu2",
+      "name": "Revenu2",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeAdulte2",
+      "name": "AgeAdulte2",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeEnfant1",
+      "name": "AgeEnfant1",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais1",
+      "name": "Frais1",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeEnfant2",
+      "name": "AgeEnfant2",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais2",
+      "name": "Frais2",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeEnfant3",
+      "name": "AgeEnfant3",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais3",
+      "name": "Frais3",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeEnfant4",
+      "name": "AgeEnfant4",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais4",
+      "name": "Frais4",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "AgeEnfant5",
+      "name": "AgeEnfant5",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais5",
+      "name": "Frais5",
+      "type": "number",
+      "placeholder": ""
+    },
+    {
+      "id": "RD_old",
+      "name": "RD_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "RD_new",
+      "name": "RD_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "RD_ecart",
+      "name": "RD_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_total_old",
+      "name": "QC_total_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_total_new",
+      "name": "QC_total_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_total_ecart",
+      "name": "QC_total_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_impot_old",
+      "name": "QC_impot_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_impot_new",
+      "name": "QC_impot_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_impot_ecart",
+      "name": "QC_impot_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_adr_old",
+      "name": "QC_adr_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_adr_new",
+      "name": "QC_adr_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_adr_ecart",
+      "name": "QC_adr_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_sae_old",
+      "name": "QC_sae_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_sae_new",
+      "name": "QC_sae_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_sae_ecart",
+      "name": "QC_sae_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "SFS_old",
+      "name": "SFS_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "SFS_new",
+      "name": "SFS_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "SFS_ecart",
+      "name": "SFS_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_pt_old",
+      "name": "QC_pt_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_pt_new",
+      "name": "QC_pt_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_pt_ecart",
+      "name": "QC_pt_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_sol_old",
+      "name": "QC_sol_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_sol_new",
+      "name": "QC_sol_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_sol_ecart",
+      "name": "QC_sol_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_garde_old",
+      "name": "QC_garde_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_garde_new",
+      "name": "QC_garde_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_garde_ecart",
+      "name": "QC_garde_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_al_old",
+      "name": "QC_al_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_al_new",
+      "name": "QC_al_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_al_ecart",
+      "name": "QC_al_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_medic_old",
+      "name": "QC_medic_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_medic_new",
+      "name": "QC_medic_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_medic_ecart",
+      "name": "QC_medic_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_aines_old",
+      "name": "QC_aines_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_aines_new",
+      "name": "QC_aines_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_aines_ecart",
+      "name": "QC_aines_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_total_old",
+      "name": "CA_total_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_total_new",
+      "name": "CA_total_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_total_ecart",
+      "name": "CA_total_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_impot_old",
+      "name": "CA_impot_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_impot_new",
+      "name": "CA_impot_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_impot_ecart",
+      "name": "CA_impot_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_ace_old",
+      "name": "CA_ace_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_ace_new",
+      "name": "CA_ace_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_ace_ecart",
+      "name": "CA_ace_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_tps_old",
+      "name": "CA_tps_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_tps_new",
+      "name": "CA_tps_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_tps_ecart",
+      "name": "CA_tps_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_pfrt_old",
+      "name": "CA_pfrt_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_pfrt_new",
+      "name": "CA_pfrt_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_pfrt_ecart",
+      "name": "CA_pfrt_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_psv_old",
+      "name": "CA_psv_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_psv_new",
+      "name": "CA_psv_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_psv_ecart",
+      "name": "CA_psv_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_medic_old",
+      "name": "CA_medic_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_medic_new",
+      "name": "CA_medic_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_medic_ecart",
+      "name": "CA_medic_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "Cotisation_old",
+      "name": "Cotisation_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "Cotisation_new",
+      "name": "Cotisation_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "Cotisation_ecart",
+      "name": "Cotisation_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_ae_old",
+      "name": "CA_ae_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_ae_new",
+      "name": "CA_ae_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_ae_ecart",
+      "name": "CA_ae_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_rqap_old",
+      "name": "QC_rqap_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_rqap_new",
+      "name": "QC_rqap_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_rqap_ecart",
+      "name": "QC_rqap_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_rrq_old",
+      "name": "CA_rrq_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_rrq_new",
+      "name": "CA_rrq_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "CA_rrq_ecart",
+      "name": "CA_rrq_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_fss_old",
+      "name": "QC_fss_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_fss_new",
+      "name": "QC_fss_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_fss_ecart",
+      "name": "QC_fss_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_ramq_old",
+      "name": "QC_ramq_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_ramq_new",
+      "name": "QC_ramq_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "QC_ramq_ecart",
+      "name": "QC_ramq_ecart",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais_garde_old",
+      "name": "Frais_garde_old",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais_garde_new",
+      "name": "Frais_garde_new",
+      "type": "text",
+      "placeholder": ""
+    },
+    {
+      "id": "Frais_garde_ecart",
+      "name": "Frais_garde_ecart",
+      "type": "text",
+      "placeholder": ""
+    }
+  ],
+  "buttons": [
+    {
+      "id": "lien-tooltipRetraite",
+      "name": "",
+      "text": "",
+      "type": "submit"
+    },
+    {
+      "id": "x-tooltipRetraite",
+      "name": "",
+      "text": "",
+      "type": "submit"
+    },
+    {
+      "id": "x-feuille-tooltipRetraite",
+      "name": "",
+      "text": "",
+      "type": "submit"
+    },
+    {
+      "id": "lien-tooltipPremier",
+      "name": "",
+      "text": "",
+      "type": "submit"
+    },
+    {
+      "id": "x-tooltipPremier",
+      "name": "",
+      "text": "",
+      "type": "submit"
+    },
+    {
+      "id": "x-feuille-tooltipPremier",
+      "name": "",
+      "text": "",
+      "type": "submit"
+    },
+    {
+      "id": "bouton-blocQC",
+      "name": "",
+      "text": "+",
+      "type": "button"
+    },
+    {
+      "id": "bouton-blocFED",
+      "name": "",
+      "text": "+",
+      "type": "button"
+    },
+    {
+      "id": "bouton-blocCOT",
+      "name": "",
+      "text": "+",
+      "type": "button"
+    },
+    {
+      "id": "acceptButton",
+      "name": "",
+      "text": "Accepter les témoins",
+      "type": "submit"
+    },
+    {
+      "id": "rejectButton",
+      "name": "",
+      "text": "Refuser les témoins",
+      "type": "submit"
+    },
+    {
+      "id": "btn-back-to-top",
+      "name": "",
+      "text": "  ",
+      "type": "button"
+    }
+  ]
+}

@@ -25,12 +25,22 @@ export const config2024: TaxYearConfig = {
       qpip: 1.0
     }
   },
+  /**
+   * Assurance-emploi fédérale pour les résidents du Québec
+   * 
+   * Taux réduit pour le Québec (RQAP): 1.32%
+   * Taux employeur: 1.85% (1.4 × taux employé)
+   * Maximum de la rémunération assurable: 63 200 $
+   * 
+   * Source: Commission de l'assurance-emploi du Canada
+   */
   employment_insurance: {
     max_insurable_earnings: 63200,
-    employee_rate: 0.0132,
-    max_employee_contribution: 834.24,
+    employee_rate: 0.0132, // 1.32% (taux réduit pour le Québec)
+    max_employee_contribution: 834.24, // 63200 × 1.32%
     min_insurable_earnings: 2000,
-    employer_rate_multiplier: 1.4
+    employer_rate_multiplier: 1.4, // Employeur paie 1.4× le taux employé
+    quebec_reduction: 0.0034 // Réduction de 0.34% pour les résidents du Québec
   },
   qpip: {
     max_insurable_earnings: 94000,
@@ -42,10 +52,9 @@ export const config2024: TaxYearConfig = {
   qpp: {
     basic_exemption: 3500,
     max_pensionable_earnings: 68500,
-    max_additional_earnings: 73200,
-    base_rate: 0.054,
-    additional_rate_first: 0.01,
-    additional_rate_second: 0.04,
+    base_rate: 0.054, // 5.40% base
+    additional_rate_first: 0.01, // 1.00% supplémentaire  
+    total_rate: 0.064, // 6.40% total (5.40% + 1.00%)
     self_employed_multiplier: 2.0
   },
   fss: {
@@ -56,7 +65,7 @@ export const config2024: TaxYearConfig = {
     max_contribution: 1000
   },
   ramq: {
-    max_contribution: 731,
+    max_contribution: 737.50,
     exemption_single: 19790,
     exemption_couple: 32080,
     exemption_single_one_child: 32080,

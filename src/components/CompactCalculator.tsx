@@ -38,7 +38,7 @@ interface CalculatorState {
 export default function CompactCalculator() {
   const [state, setState] = useState<CalculatorState>({
     language: 'fr',
-    taxYear: 2024,
+    taxYear: 2025,
     householdType: HouseholdType.SINGLE,
     primaryPerson: {
       age: 35,
@@ -52,6 +52,7 @@ export default function CompactCalculator() {
   })
 
   const [results, setResults] = useState<CalculationResults | null>(null)
+  const [currentHousehold, setCurrentHousehold] = useState<Household | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -100,7 +101,8 @@ export default function CompactCalculator() {
       primaryPerson: {
         ...prev.primaryPerson,
         isRetired: isRetiredHousehold,
-        age: isRetiredHousehold ? Math.max(65, prev.primaryPerson.age) : prev.primaryPerson.age
+        age: isRetiredHousehold ? Math.max(65, prev.primaryPerson.age) : prev.primaryPerson.age,
+        grossRetirementIncome: isRetiredHousehold ? (prev.primaryPerson.grossRetirementIncome || 50000) : prev.primaryPerson.grossRetirementIncome
       }
     }))
   }, [isRetiredHousehold])
@@ -133,6 +135,7 @@ export default function CompactCalculator() {
 
       const calculationResults = await calculator.calculate(household)
       setResults(calculationResults)
+      setCurrentHousehold(household)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de calcul')
       console.error('Calculation error:', err)
@@ -232,6 +235,7 @@ export default function CompactCalculator() {
               onChange={(e) => setState(prev => ({ ...prev, taxYear: Number(e.target.value) }))}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             >
+              <option value={2025}>2025</option>
               <option value={2024}>2024</option>
               <option value={2023}>2023</option>
             </select>
@@ -463,6 +467,8 @@ export default function CompactCalculator() {
         <div className="bg-white rounded-lg shadow-sm border p-4">
           <DetailedResults 
             results={results} 
+            household={currentHousehold || undefined}
+            taxYear={state.taxYear}
             language={state.language} 
             formatCurrency={formatCurrency} 
           />

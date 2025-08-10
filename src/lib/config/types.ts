@@ -29,6 +29,7 @@ export interface EmploymentInsuranceConfig {
   max_employee_contribution: number
   min_insurable_earnings: number
   employer_rate_multiplier: number
+  quebec_reduction?: number // Réduction RQAP pour les résidents du Québec
 }
 
 export interface QpipConfig {

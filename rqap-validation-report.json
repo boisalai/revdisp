@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-08-10T18:13:49.292Z",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "warnings": 0,
+    "failed": 0
+  },
+  "results": [
+    {
+      "testId": "rqap_2024_single_25k",
+      "taxYear": 2024,
+      "expected": 123.5,
+      "actual": 123.5,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 2
+    },
+    {
+      "testId": "rqap_2024_single_50k",
+      "taxYear": 2024,
+      "expected": 247,
+      "actual": 247,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 2
+    },
+    {
+      "testId": "rqap_2024_single_100k",
+      "taxYear": 2024,
+      "expected": 464.36,
+      "actual": 464.36,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 1
+    },
+    {
+      "testId": "rqap_2025_single_50k",
+      "taxYear": 2025,
+      "expected": 249,
+      "actual": 247,
+      "difference": 2,
+      "percentageDifference": 0.8032128514056224,
+      "status": "PASS",
+      "threshold": 5
+    },
+    {
+      "testId": "rqap_2024_couple_50k_45k",
+      "taxYear": 2024,
+      "expected": 469.3,
+      "actual": 469.3,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 5
+    },
+    {
+      "testId": "rqap_2024_retired_no_contribution",
+      "taxYear": 2024,
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 0
+    }
+  ]
+}

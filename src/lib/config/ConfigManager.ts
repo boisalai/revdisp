@@ -15,7 +15,10 @@ export class ConfigManager {
    * Utilise les imports statiques pour une performance optimale
    */
   static async loadConfig(taxYear: number): Promise<TaxYearConfig> {
-    if (this.decimalConfigs.has(taxYear)) {
+    // En mode développement, on peut désactiver le cache pour faciliter les tests
+    const useCache = process.env.NODE_ENV === 'production'
+    
+    if (useCache && this.decimalConfigs.has(taxYear)) {
       return this.decimalConfigs.get(taxYear)!
     }
     
@@ -33,7 +36,9 @@ export class ConfigManager {
       // Conversion en Decimal pour la précision
       const decimalConfig = this.convertToDecimal(rawConfig) as TaxYearConfig
       
-      this.decimalConfigs.set(taxYear, decimalConfig)
+      if (useCache) {
+        this.decimalConfigs.set(taxYear, decimalConfig)
+      }
       return decimalConfig
     } catch (error) {
       throw new Error(`Erreur lors du chargement de la configuration ${taxYear}: ${error}`)

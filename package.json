@@ -10,7 +10,14 @@
     "lint": "next lint",
     "export": "next build && next export",
     "validate": "npx tsx src/lib/validation/ValidationRunner.ts",
-    "validate:watch": "npx tsx --watch src/lib/validation/ValidationRunner.ts"
+    "validate:watch": "npx tsx --watch src/lib/validation/ValidationRunner.ts",
+    "validate:ramq": "npx tsx src/lib/validation/RunRAMQValidation.ts",
+    "validate:rrq": "npx tsx src/lib/validation/RunRRQValidation.ts",
+    "validate:ei": "npx tsx src/lib/validation/RunEIValidation.ts",
+    "validate:rqap": "npx tsx src/lib/validation/RunRQAPValidation.ts",
+    "validate:fss": "npx tsx src/lib/validation/RunFSSValidation.ts",
+    "validate:ei:legacy": "node scripts/validate-ei.js",
+    "validate:ei:automated": "node scripts/validate-ei-automated.js"
   },
   "dependencies": {
     "@types/d3": "^7.4.3",
@@ -22,13 +29,16 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/puppeteer": "^5.4.7",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.0.0",
     "eslint-config-next": "14.0.0",
     "postcss": "^8.4.31",
+    "puppeteer": "^24.16.0",
     "tailwindcss": "^3.3.5",
+    "ts-node": "^10.9.2",
     "tsx": "^4.6.0",
     "typescript": "^5.0.0"
   }

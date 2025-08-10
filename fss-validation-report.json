@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-08-10T18:15:58.486Z",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "warnings": 0,
+    "failed": 0
+  },
+  "results": [
+    {
+      "testId": "fss_2024_working_age_no_contribution",
+      "taxYear": 2024,
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "testId": "fss_2024_retired_20k",
+      "taxYear": 2024,
+      "expected": 23.7,
+      "actual": 23.7,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "testId": "fss_2024_retired_25k",
+      "taxYear": 2024,
+      "expected": 73.7,
+      "actual": 73.7,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 5
+    },
+    {
+      "testId": "fss_2024_retired_40k",
+      "taxYear": 2024,
+      "expected": 150,
+      "actual": 150,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 5
+    },
+    {
+      "testId": "fss_2024_retired_80k",
+      "taxYear": 2024,
+      "expected": 336.85,
+      "actual": 336.85,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 10
+    },
+    {
+      "testId": "fss_2024_retired_couple_30k_25k",
+      "taxYear": 2024,
+      "expected": 197.4,
+      "actual": 197.4,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 15
+    }
+  ]
+}

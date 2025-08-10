@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-08-10T17:57:54.562Z",
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "warnings": 0,
+    "failed": 0
+  },
+  "results": [
+    {
+      "testId": "ramq_2024_single_50k",
+      "taxYear": 2024,
+      "expected": 738,
+      "actual": 737.5,
+      "difference": 0.5,
+      "percentageDifference": 0.06775067750677506,
+      "status": "PASS",
+      "threshold": 2
+    },
+    {
+      "testId": "ramq_2025_single_50k",
+      "taxYear": 2025,
+      "expected": 744,
+      "actual": 744,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 2
+    },
+    {
+      "testId": "ramq_2024_couple_100k",
+      "taxYear": 2024,
+      "expected": 1475,
+      "actual": 1475,
+      "difference": 0,
+      "percentageDifference": 0,
+      "status": "PASS",
+      "threshold": 2
+    }
+  ]
+}
