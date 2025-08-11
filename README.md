@@ -1,75 +1,73 @@
-# 💰 Quebec Disposable Income Calculator
+# Quebec Disposable Income Calculator
 
 [![Deploy to GitHub Pages](https://github.com/boisalai/revdisp/actions/workflows/deploy.yml/badge.svg)](https://github.com/boisalai/revdisp/actions/workflows/deploy.yml)
-[![Live Calculator](https://img.shields.io/badge/Calculator-Live-brightgreen?style=for-the-badge)](https://boisalai.github.io/revdisp/)
 
-*A modern, accurate Quebec tax and disposable income calculator*
+A comprehensive Quebec disposable income calculator that accurately computes taxes, social insurance contributions, and government transfers. This implementation replicates the functionality of the official Quebec Ministry of Finance calculator with a modern web interface.
 
----
+**Live Calculator:** [https://boisalai.github.io/revdisp/](https://boisalai.github.io/revdisp/)
 
-## 🌐 **[► USE THE CALCULATOR](https://boisalai.github.io/revdisp/)**
+## Overview
 
----
+This calculator provides accurate calculations for Quebec households across different family compositions and income levels. It supports multiple tax years and handles all major Quebec social insurance programs and tax obligations.
 
-## 🎯 **What is this?**
+**Target Users:**
+- Families planning household budgets
+- Workers understanding net income calculations  
+- Tax professionals requiring accurate computations
+- Researchers studying Quebec fiscal policy
+- Students learning tax systems
 
-This is a **comprehensive Quebec disposable income calculator** that accurately computes your taxes, social insurance contributions, and government transfers. It replicates the functionality of the official Quebec Ministry of Finance calculator with a modern, user-friendly interface.
+## Features
 
-**Perfect for:**
-- 🏠 **Families** planning their household budget
-- 💼 **Workers** understanding their net income
-- 🏛️ **Tax professionals** needing accurate calculations  
-- 📊 **Researchers** studying Quebec fiscal policy
-- 🎓 **Students** learning about tax systems
+- Complete Quebec contribution calculations: Quebec Pension Plan (QPP), Employment Insurance (EI), Quebec Parental Insurance Plan (QPIP), Health Services Fund (HSF), Quebec prescription drug insurance (RAMQ)
+- Support for all household types: single person, couples, single parents, retirees
+- Bilingual interface with full French and English support
+- Professional government-grade interface following established design standards
+- Real-time calculations with instant results
+- Tax year support: 2023, 2024, and 2025 parameters
 
----
+## Accuracy Validation
 
-## ✨ **Key Features**
+The calculator undergoes continuous automated validation against the official Quebec Ministry of Finance calculator:
 
-- ✅ **All Quebec contributions**: Quebec Pension Plan (QPP), Employment Insurance (EI), Quebec Parental Insurance Plan (QPIP), Health Services Fund (HSF), Quebec prescription drug insurance (RAMQ)
-- 🏠 **All household types**: Single person, couples, single parents, retirees
-- 🌍 **Bilingual interface**: Full French/English support
-- 📱 **Professional design**: Government-grade interface following GOV.UK design standards
-- 🔍 **Automatic validation**: Continuously tested against official government calculator
-- 📅 **Current tax years**: 2023, 2024, and 2025 parameters
-- ⚡ **Real-time calculations**: Instant results as you adjust income sliders
+| Component | Accuracy | Test Results | Status |
+|-----------|----------|--------------|---------|
+| RAMQ (Drug Insurance) | 100% | 3/3 tests passed | Validated |
+| RRQ (Quebec Pension) | 99.7% | Minor variance <$11 | Validated |
+| Employment Insurance | 100% | 6/6 tests passed | Validated |
+| QPIP (Parental Insurance) | 100% | 6/6 tests passed | Validated |
+| HSF (Health Services Fund) | 100% | 6/6 tests passed | Validated |
 
----
+## Usage
 
-## 📊 **Accuracy & Validation**
+1. Access the calculator at [boisalai.github.io/revdisp](https://boisalai.github.io/revdisp/)
+2. Select tax year (2023, 2024, or 2025)
+3. Choose household type (single, couple, single parent, retiree)
+4. Enter personal information (age, gross income)
+5. Add spouse information if applicable
+6. Review detailed breakdown of taxes, contributions, and net disposable income
 
-Our calculator is **automatically validated** against the official Quebec Ministry of Finance calculator to ensure accuracy:
+## Calculation Components
 
-| **Contribution** | **Accuracy** | **Tests** | **Status** |
-|------------------|--------------|-----------|------------|
-| **RAMQ** (Drug Insurance) | 100% ✅ | 3/3 tests passed | ✅ **Excellent** |
-| **RRQ** (Quebec Pension) | 99.7% ✅ | Minor variance <$11 | ✅ **Excellent** |
-| **Employment Insurance** | 100% ✅ | 6/6 tests passed | ✅ **Perfect** |
-| **QPIP** (Parental Insurance) | 100% ✅ | 6/6 tests passed | ✅ **Perfect** |
-| **HSF** (Health Services Fund) | 100% ✅ | 6/6 tests passed | ✅ **Perfect** |
+**Social Insurance Contributions:**
+- Employment Insurance (EI): Federal unemployment benefit program
+- Quebec Parental Insurance Plan (QPIP): Provincial parental and maternity leave program
+- Quebec Pension Plan (RRQ): Provincial retirement savings program
+- Health Services Fund (FSS): Quebec health system funding (individuals 65+)
+- RAMQ: Quebec prescription drug insurance premium
 
----
+**Tax Calculations:**
+- Quebec provincial income tax
+- Federal income tax (placeholder for future implementation)
 
-## 🧮 **How to Use**
+**Special Considerations:**
+- Age-based eligibility rules (working age 18-64 vs. retirement age 65+)
+- RAMQ coverage determination (public plan requirement vs. private insurance option)
+- Household composition effects on benefit calculations
 
-1. **Visit the calculator**: [boisalai.github.io/revdisp](https://boisalai.github.io/revdisp/)
-2. **Select your situation**:
-   - Tax year (2023, 2024, or 2025)
-   - Household type (single, couple, single parent, retiree)
-3. **Enter your information**:
-   - Your age
-   - Gross employment income (or retirement income if 65+)
-   - Spouse information (if applicable)
-4. **View your results**:
-   - Detailed breakdown of all taxes and contributions
-   - Net disposable income calculation
-   - Quebec prescription drug insurance requirements
+## Official Data Sources
 
----
-
-## 🏛️ **Official Sources**
-
-This calculator uses **official government parameters** from:
+This calculator uses official government parameters from:
 
 - [Quebec Ministry of Finance - Disposable Income Calculator](https://www.finances.gouv.qc.ca/ministere/outils_services/outils_calcul/revenu_disponible/outil_revenu.asp)
 - [RAMQ - Quebec prescription drug insurance](https://www.ramq.gouv.qc.ca/en)
@@ -77,48 +75,16 @@ This calculator uses **official government parameters** from:
 - [QPIP - Quebec Parental Insurance Plan](https://www.rqap.gouv.qc.ca/a_propos_regime/information_generale/index_en.asp)
 - [Revenu Québec - Health Services Fund](https://www.revenuquebec.ca/en/)
 
----
+## Technical Implementation
 
-## 💡 **Understanding Your Results**
+**Technology Stack:**
+- Next.js 14 with TypeScript
+- Tailwind CSS with GOV.UK design system components
+- Decimal.js for precise monetary calculations
+- Automated testing and validation framework
+- GitHub Actions for continuous deployment
 
-The calculator shows several key components:
-
-**🟢 Contributions (Money you pay):**
-- **Employment Insurance (EI)**: Federal program for unemployment benefits
-- **Quebec Parental Insurance Plan (QPIP)**: Quebec program for parental/maternity leave
-- **Quebec Pension Plan (RRQ)**: Quebec retirement savings program  
-- **Health Services Fund (FSS)**: Quebec health funding (age 65+ only)
-- **RAMQ**: Quebec prescription drug insurance premium
-
-**🔵 Provincial Tax Regimes:**
-- **Quebec Tax**: Provincial income tax
-- **Federal Tax**: Federal income tax
-
-**🟡 Special Cases:**
-- **RAMQ Drug Insurance**: Shows if you must join the public plan or can opt for private insurance
-- **Age-based rules**: Different calculations for working age (18-64) vs. retirement age (65+)
-
----
-
-## 🛡️ **Privacy & Security**
-
-- 🔒 **No data collection**: Your information never leaves your browser
-- 🌐 **Client-side only**: All calculations happen on your device
-- 📱 **Offline capable**: Works without internet after initial load
-- 🔐 **HTTPS secure**: Encrypted connection for your safety
-
----
-
-## 🛠️ **For Developers**
-
-### **Technology Stack**
-- **Next.js 14** - Modern React framework
-- **TypeScript** - Complete type safety
-- **Tailwind CSS** - Professional GOV.UK design system
-- **Decimal.js** - Precise monetary calculations
-- **GitHub Actions** - Automated deployment and validation
-
-### **Quick Start**
+**Development Setup:**
 ```bash
 git clone https://github.com/boisalai/revdisp.git
 cd revdisp
@@ -126,65 +92,52 @@ npm install
 npm run dev    # Development server on http://localhost:3001
 ```
 
-### **Quality Assurance**
+**Quality Assurance:**
 ```bash
-npm run validate    # Run all validation tests against official calculator
+npm run validate    # Run validation tests against official calculator
 npm run check       # Complete pre-deployment validation
 npm run test-prod   # Test production build locally
 ```
 
-### **Project Structure**
+**Project Structure:**
 ```
 src/
 ├── app/                    # Next.js App Router pages
-├── components/             # React components
+├── components/             # React components  
 ├── lib/
-│   ├── calculators/        # Tax and contribution calculators
-│   ├── config/            # Tax year configurations (2023-2025)
+│   ├── calculators/        # Tax and contribution calculation modules
+│   ├── config/            # Tax year parameter configurations
 │   ├── models/            # TypeScript data models
-│   ├── validation/        # Automated testing against gov calculator
-│   └── i18n/              # French/English translations
+│   ├── validation/        # Automated testing framework
+│   └── i18n/              # Internationalization support
 ```
 
----
+## Privacy and Security
 
-## 🤝 **Contributing**
+- No personal data collection or storage
+- All calculations performed client-side
+- No server-side data transmission
+- HTTPS encryption for secure access
+- Offline functionality after initial page load
 
-We welcome contributions! Here's how:
+## Contributing
 
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/improvement`
-3. **Commit** your changes: `git commit -m 'feat: add new feature'`
-4. **Push** to the branch: `git push origin feature/improvement`
-5. **Open** a Pull Request
+Contributions are welcome. Please ensure all changes pass the validation suite and follow existing code patterns.
 
-**Before contributing:**
-- Run `npm run check` to ensure all tests pass
-- Follow the existing code style and TypeScript patterns
-- Add validation tests for new tax calculations
+1. Fork the repository
+2. Create a feature branch
+3. Implement changes with appropriate tests
+4. Run `npm run check` to verify all validations pass
+5. Submit a pull request
 
----
+## Legal Notice
 
-## ⚖️ **Legal Disclaimer**
+This calculator is provided for informational purposes only. While accuracy is validated against official sources, this tool should not replace professional tax advice or official government calculators for legal or financial decisions.
 
-This calculator is provided **for informational purposes only**. While we strive for accuracy and regularly validate against official sources, this tool should not replace professional tax advice or official government calculators for legal or financial decisions.
-
-For official calculations, please consult:
+For official calculations, consult:
 - [Quebec Ministry of Finance Calculator](https://www.finances.gouv.qc.ca/ministere/outils_services/outils_calcul/revenu_disponible/outil_revenu.asp)
 - A qualified tax professional
 
----
-
-## 📄 **License**
+## License
 
 MIT License - See [LICENSE](LICENSE) file for details
-
----
-
-## 🌟 **Star this project**
-
-If you find this calculator useful, please ⭐ **star this repository** to help others discover it!
-
----
-
-**🇨🇦 Made with ❤️ in Quebec**
