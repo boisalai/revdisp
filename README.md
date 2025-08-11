@@ -99,18 +99,33 @@ npm run check       # Complete pre-deployment validation
 npm run test-prod   # Test production build locally
 ```
 
-**Project Structure:**
-```
-src/
-├── app/                    # Next.js App Router pages
-├── components/             # React components  
-├── lib/
-│   ├── calculators/        # Tax and contribution calculation modules
-│   ├── config/            # Tax year parameter configurations
-│   ├── models/            # TypeScript data models
-│   ├── validation/        # Automated testing framework
-│   └── i18n/              # Internationalization support
-```
+## Project Architecture
+
+The codebase is organized into clear functional areas:
+
+**Tax Parameters (`src/lib/config/`)**
+- `data/2023.ts`, `data/2024.ts`, `data/2025.ts` - Official government tax parameters for each year
+- `types.ts` - TypeScript interfaces ensuring parameter accuracy
+- `ConfigManager.ts` - Centralized configuration loading system
+
+**Calculation Engine (`src/lib/calculators/`)**
+- `QppCalculator.ts` - Quebec Pension Plan contributions
+- `EmploymentInsuranceCalculator.ts` - Federal employment insurance
+- `RqapCalculator.ts` - Quebec Parental Insurance Plan
+- `RamqCalculator.ts` - Quebec prescription drug insurance
+- `FssCalculator.ts` - Health Services Fund (retirees 65+)
+
+**Testing & Validation (`src/lib/validation/`)**
+- Test scenarios comparing our calculations against official government calculator
+- Automated accuracy reports generated in `reports/` directory
+- CLI validation runners: `npm run validate:ramq`, `npm run validate:rrq`, etc.
+
+**User Interface (`src/components/`)**
+- `CompactCalculator.tsx` - Main calculation form
+- `DetailedResults.tsx` - Results breakdown display
+- Professional government-grade styling with GOV.UK design system
+
+See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for complete architectural details.
 
 ## Privacy and Security
 
