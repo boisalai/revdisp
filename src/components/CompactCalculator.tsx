@@ -36,6 +36,7 @@ interface CalculatorState {
 }
 
 export default function CompactCalculator() {
+  const [isClient, setIsClient] = useState(false)
   const [state, setState] = useState<CalculatorState>({
     language: 'fr',
     taxYear: 2025,
@@ -147,8 +148,14 @@ export default function CompactCalculator() {
   }
 
   useEffect(() => {
-    handleCalculate()
-  }, [state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren])
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (isClient) {
+      handleCalculate()
+    }
+  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat(state.language === 'fr' ? 'fr-CA' : 'en-CA', {
@@ -465,7 +472,7 @@ export default function CompactCalculator() {
       </div>
 
       {/* Results - Detailed Table */}
-      {results && (
+      {isClient && results && (
         <div className="bg-white rounded-lg shadow-sm border p-4">
           <DetailedResults 
             results={results} 

@@ -4,6 +4,7 @@ const nextConfig = {
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
   distDir: 'out',
+  reactStrictMode: false,
   images: {
     unoptimized: true
   },

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cat:*)",
       "Bash(npm run build:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(GITHUB_REPOSITORY=\"boisalai/revdisp\" NODE_ENV=production npm run build)"
     ],
     "deny": []
   },
