@@ -17,6 +17,7 @@
     "validate:rqap": "npx tsx src/lib/validation/RunRQAPValidation.ts",
     "validate:fss": "npx tsx src/lib/validation/RunFSSValidation.ts",
     "check": "./scripts/check-before-deploy.sh",
+    "test-prod": "npm run build && cd out && python -m http.server 8080",
     "validate:ei:legacy": "node scripts/validate-ei.js",
     "validate:ei:automated": "node scripts/validate-ei-automated.js"
   },

@@ -10,18 +10,20 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
 
 ## Current Implementation Status
 
-✅ **PRODUCTION-READY** - Complete Next.js application with comprehensive tax calculation capabilities covering 2023-2024 tax years.
+✅ **PRODUCTION-READY & DEPLOYED** - Complete Next.js application with comprehensive tax calculation capabilities covering 2023-2025 tax years. Successfully deployed on GitHub Pages at https://boisalai.github.io/revdisp/
 
 ### Application Architecture
 
 **Frontend (Next.js 14 + TypeScript):**
 - **`src/app/`**: App Router with main page and validation dashboard
-- **`src/components/GovUKCalculator.tsx`**: Main calculator interface with GOV.UK Design System
+- **`src/components/CompactCalculator.tsx`**: Main calculator interface with GOV.UK Design System
+- **`src/components/DetailedResults.tsx`**: Comprehensive results display with tax breakdown
 - **`src/components/ValidationDashboard.tsx`**: Real-time validation testing interface
 - **`src/components/Slider.tsx`**: Custom input components with GOV.UK styling
+- **`src/components/MarginalRateVisualization.tsx`**: Tax rate visualization components
 
 **Configuration Management (TypeScript):**
-- **`src/lib/config/data/2023.ts`, `src/lib/config/data/2024.ts`**: Type-safe configuration with compile-time validation
+- **`src/lib/config/data/2023.ts`, `src/lib/config/data/2024.ts`, `src/lib/config/data/2025.ts`**: Type-safe configuration with compile-time validation
 - **`src/lib/config/types.ts`**: Comprehensive TypeScript interfaces for all tax parameters
 - **`src/lib/config/ConfigManager.ts`**: Configuration loading with Decimal conversion and caching
 - **`src/lib/core/exceptions.ts`**: Custom exception hierarchy for proper error handling
@@ -85,6 +87,12 @@ npm run validate:watch
 
 # Type checking
 npm run lint
+
+# Test production build locally
+npm run test-prod
+
+# Complete pre-deployment check (MANDATORY before git push)
+npm run check
 ```
 
 ### Validation & Testing
@@ -111,8 +119,8 @@ npm run validate
 - **Performance**: Static imports with Webpack optimization vs dynamic JSON loading
 - **Security**: Configuration bundled in app (no public exposure)
 
-### Tax Year Parameters (2023-2024)
-All calculators support both tax years with compile-time validated:
+### Tax Year Parameters (2023-2025)
+All calculators support all tax years with compile-time validated:
 - Tax brackets and rates (TypeScript interfaces)
 - Exemption thresholds and contribution limits
 - Program parameters with strict typing
@@ -202,3 +210,77 @@ The original Python implementation serves as the **reference architecture** and 
 - **Research purposes**: Understanding complex tax rule implementations
 
 **Note**: All Python files have been cleaned up from the production codebase. The current implementation is **pure Next.js/TypeScript** and production-ready.
+
+## GitHub Pages Deployment
+
+### Current Deployment Status
+✅ **LIVE**: https://boisalai.github.io/revdisp/
+- **Automatic deployment**: GitHub Actions workflow on every push to main
+- **Static export**: Optimized for GitHub Pages hosting
+- **Dynamic basePath**: Automatically adapts to repository name
+- **Client-side hydration**: Proper SSR/CSR balance for static hosting
+
+### Deployment Configuration
+- **`next.config.js`**: Dynamic basePath using GITHUB_REPOSITORY environment variable
+- **`.github/workflows/deploy.yml`**: Complete CI/CD pipeline with validation
+- **Static export**: All pages pre-rendered for optimal performance
+- **Asset optimization**: All resources properly prefixed for GitHub Pages
+
+### Critical Deployment Lessons Learned
+⚠️ **ALWAYS test production build before deployment**:
+```bash
+npm run check  # MANDATORY before every git push
+```
+
+**Common Issues Fixed:**
+1. **Configuration key mismatch**: QppCalculator used non-existent 'total_rate' config key
+2. **Hydration mismatch**: SSR/CSR state sync for static export
+3. **Dynamic basePath**: Repository name detection for proper asset paths
+
+### Pre-Deployment Workflow
+✅ **Git Hook Installed**: Automatic `npm run check` before every push
+- **TypeScript validation**: Zero errors/warnings required
+- **Production build**: Must complete successfully 
+- **Static export**: Must generate valid HTML/assets
+- **Validation tests**: Automated calculator accuracy tests
+
+### Emergency Rollback
+If deployment fails:
+```bash
+git revert HEAD  # Revert last commit
+git push origin main  # Deploy previous working version
+```
+
+## Development Best Practices
+
+### Mandatory Pre-Deployment Checklist
+1. ✅ **Run `npm run check`** - NEVER skip this step
+2. ✅ **Test locally** with `npm run test-prod` if unsure
+3. ✅ **Review console errors** in DevTools
+4. ✅ **Verify all configuration keys exist** in tax year data files
+5. ✅ **Test client-side functionality** (forms, calculations, results display)
+
+### Configuration Management
+**Critical**: All calculator configuration keys must exist in data files:
+- **2023**: `src/lib/config/data/2023.ts`
+- **2024**: `src/lib/config/data/2024.ts`  
+- **2025**: `src/lib/config/data/2025.ts`
+
+**Example Bug Pattern**: Using `getConfigValue('total_rate')` when only `base_rate` and `additional_rate_first` exist.
+
+### Production vs Development Differences
+- **Development**: Errors may be silently handled with fallbacks
+- **Production**: Strict error handling, failures cause complete breakdown
+- **Static Export**: No server-side error recovery, client-side must be perfect
+
+### Git Workflow with Automated Checks
+```bash
+# Standard workflow (hooks will prevent broken deployments)
+git add .
+git commit -m "description"
+git push origin main  # ← pre-push hook runs 'npm run check' automatically
+
+# If hook fails:
+npm run check  # See what failed
+# Fix issues, then retry push
+```
