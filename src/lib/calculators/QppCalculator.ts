@@ -48,8 +48,10 @@ export class QppCalculator extends BaseCalculator {
     const maxEarnings = this.toDecimal(this.getConfigValue('max_pensionable_earnings'))
     const pensionableEarnings = Decimal.min(income, maxEarnings).minus(basicExemption)
     
-    // Utilise le taux total : 6.40% (5.40% base + 1.00% supplémentaire)
-    let rate = this.toDecimal(this.getConfigValue('total_rate') || 0.064)
+    // Calcule le taux total : base + supplémentaire
+    const baseRate = this.toDecimal(this.getConfigValue('base_rate') || 0.054)
+    const additionalRate = this.toDecimal(this.getConfigValue('additional_rate_first') || 0.01)
+    let rate = baseRate.plus(additionalRate)
     if (isSelfEmployed) {
       rate = rate.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
     }

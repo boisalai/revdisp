@@ -471,11 +471,6 @@ export default function CompactCalculator() {
         )}
       </div>
 
-      {/* Debug Info */}
-      <div className="bg-yellow-100 border border-yellow-400 p-2 text-xs">
-        Debug: isClient={isClient ? 'true' : 'false'}, hasResults={results ? 'true' : 'false'}, error={error || 'none'}, loading={loading ? 'true' : 'false'}
-      </div>
-
       {/* Results - Detailed Table */}
       {isClient && results && (
         <div className="bg-white rounded-lg shadow-sm border p-4">
