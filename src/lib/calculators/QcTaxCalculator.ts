@@ -83,19 +83,17 @@ export class QcTaxCalculator extends BaseCalculator {
       ? person.grossRetirementIncome 
       : person.grossWorkIncome
 
-    // 2. Calculate deductions (social contributions)
+    // 2. Calculate deductions (social contributions are fully deductible)
     let totalDeductions = new Decimal(0)
     if (contributions) {
-      const deductionRates = this.getDeductionRates()
-      
       if (contributions.rrq) {
-        totalDeductions = totalDeductions.plus(contributions.rrq.times(deductionRates.cpp))
+        totalDeductions = totalDeductions.plus(contributions.rrq)
       }
       if (contributions.ei) {
-        totalDeductions = totalDeductions.plus(contributions.ei.times(deductionRates.ei))
+        totalDeductions = totalDeductions.plus(contributions.ei)
       }
       if (contributions.rqap) {
-        totalDeductions = totalDeductions.plus(contributions.rqap.times(deductionRates.qpip))
+        totalDeductions = totalDeductions.plus(contributions.rqap)
       }
     }
 
@@ -129,31 +127,45 @@ export class QcTaxCalculator extends BaseCalculator {
 
   /**
    * Calculate tax on taxable income using progressive brackets
+   * Quebec tax brackets for 2024:
+   * - $0 to $49,275: 14%
+   * - $49,275 to $98,540: 19% 
+   * - $98,540 to $119,910: 24%
+   * - Over $119,910: 25.75%
    */
   private calculateTaxOnIncome(taxableIncome: Decimal): Decimal {
     const brackets = this.getTaxBrackets()
     let tax = new Decimal(0)
-    let previousMax = new Decimal(0)
+    let remainingIncome = taxableIncome
 
-    for (const bracket of brackets) {
+    for (let i = 0; i < brackets.length; i++) {
+      const bracket = brackets[i]
       const bracketMin = this.toDecimal(bracket.min)
       const bracketMax = this.toDecimal(bracket.max)
       const rate = this.toDecimal(bracket.rate)
-
+      
+      // Skip if no remaining income
+      if (remainingIncome.lessThanOrEqualTo(0)) {
+        break
+      }
+      
+      // Skip if income doesn't reach this bracket
       if (taxableIncome.lessThanOrEqualTo(bracketMin)) {
         break
       }
-
-      const taxableInBracket = Decimal.min(
-        taxableIncome.minus(bracketMin),
-        bracketMax.minus(bracketMin)
-      )
-
-      if (taxableInBracket.greaterThan(0)) {
-        tax = tax.plus(taxableInBracket.times(rate))
+      
+      // Calculate taxable amount in this bracket
+      const incomeInBracket = taxableIncome.greaterThan(bracketMax) 
+        ? bracketMax.minus(bracketMin)
+        : taxableIncome.minus(bracketMin)
+      
+      // Only tax positive amounts
+      if (incomeInBracket.greaterThan(0)) {
+        const bracketTax = incomeInBracket.times(rate)
+        tax = tax.plus(bracketTax)
       }
-
-      previousMax = bracketMax
+      
+      // Stop if we've covered all income
       if (taxableIncome.lessThanOrEqualTo(bracketMax)) {
         break
       }
@@ -217,9 +229,6 @@ export class QcTaxCalculator extends BaseCalculator {
     return this.getConfigValue('credits')
   }
 
-  private getDeductionRates() {
-    return this.getConfigValue('deduction_rates')
-  }
 
   private getLowestTaxRate(): Decimal {
     const brackets = this.getTaxBrackets()

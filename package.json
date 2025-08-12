@@ -19,7 +19,15 @@
     "check": "./scripts/check-before-deploy.sh",
     "test-prod": "npm run build && cd out && python -m http.server 8080",
     "validate:ei:legacy": "node scripts/validate-ei.js",
-    "validate:ei:automated": "node scripts/validate-ei-automated.js"
+    "validate:ei:automated": "node scripts/validate-ei-automated.js",
+    "validate:mass": "npx tsx src/lib/validation/ValidationCLI.ts",
+    "validate:generate": "npx tsx src/lib/validation/ValidationCLI.ts generate",
+    "validate:high-volume": "npx tsx src/lib/validation/ValidationCLI.ts validate",
+    "validate:continuous": "npx tsx src/lib/validation/ValidationCLI.ts continuous",
+    "validate:status": "npx tsx src/lib/validation/ValidationCLI.ts status",
+    "validate:analyze": "npx tsx src/lib/validation/ValidationCLI.ts analyze",
+    "validate:quebec-tax": "npx tsx src/lib/validation/TestQuebecTaxValidation.ts",
+    "test:quebec-tax": "npx tsx src/lib/validation/QuickQuebecTaxTest.ts"
   },
   "dependencies": {
     "@types/d3": "^7.4.3",
@@ -35,6 +43,7 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.4.16",
+    "commander": "^11.1.0",
     "eslint": "^8.0.0",
     "eslint-config-next": "14.0.0",
     "postcss": "^8.4.31",

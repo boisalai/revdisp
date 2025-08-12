@@ -137,23 +137,30 @@ export class RevenuDisponibleCalculator {
       }
     }
 
-    // 3. Calculate RAMQ (using gross family income as approximation until Quebec tax is implemented)
+    // 3. Calculate RAMQ (using net family income from Quebec tax if available)
     if (this.calculators.ramq) {
-      // Calculate total family gross income
-      let totalFamilyIncome = household.primaryPerson.isRetired 
-        ? household.primaryPerson.grossRetirementIncome 
-        : household.primaryPerson.grossWorkIncome
+      let familyNetIncome: Decimal
       
-      if (household.spouse) {
-        const spouseIncome = household.spouse.isRetired
-          ? household.spouse.grossRetirementIncome
-          : household.spouse.grossWorkIncome
-        totalFamilyIncome = totalFamilyIncome.plus(spouseIncome)
+      // Use Quebec tax net income if available, otherwise gross income as fallback
+      if (results.quebec.net_income && results.quebec.net_income.family) {
+        familyNetIncome = results.quebec.net_income.family
+      } else {
+        // Fallback to gross family income
+        familyNetIncome = household.primaryPerson.isRetired 
+          ? household.primaryPerson.grossRetirementIncome 
+          : household.primaryPerson.grossWorkIncome
+        
+        if (household.spouse) {
+          const spouseIncome = household.spouse.isRetired
+            ? household.spouse.grossRetirementIncome
+            : household.spouse.grossWorkIncome
+          familyNetIncome = familyNetIncome.plus(spouseIncome)
+        }
       }
 
       const ramqResult = (this.calculators.ramq as any).calculate(household, {
         net_income: {
-          family: totalFamilyIncome
+          family: familyNetIncome
         }
       })
       results.cotisations.ramq = ramqResult.contribution
@@ -169,8 +176,44 @@ export class RevenuDisponibleCalculator {
       .filter((value): value is Decimal => value instanceof Decimal)
       .reduce((sum, value) => sum.plus(value), new Decimal(0))
 
-    // TODO: Add other calculations (transfers, credits, etc.)
+    // Calculate disposable income
+    // Gross income - contributions - taxes + transfers (to be implemented)
+    const grossIncome = this.calculateGrossIncome(household)
+    const totalContributions = results.cotisations.total || new Decimal(0)
+    const totalTaxes = results.taxes.total || new Decimal(0)
+    
+    results.revenu_disponible = grossIncome
+      .minus(totalContributions)
+      .minus(totalTaxes)
+    
+    // Ensure disposable income is not negative
+    results.revenu_disponible = Decimal.max(0, results.revenu_disponible)
+
+    // TODO: Add transfers and credits to increase disposable income
 
     return results
+  }
+
+  /**
+   * Calculate total gross income for a household
+   */
+  private calculateGrossIncome(household: Household): Decimal {
+    let totalIncome = new Decimal(0)
+
+    // Primary person income
+    const primaryIncome = household.primaryPerson.isRetired
+      ? household.primaryPerson.grossRetirementIncome
+      : household.primaryPerson.grossWorkIncome
+    totalIncome = totalIncome.plus(primaryIncome)
+
+    // Spouse income (if applicable)
+    if (household.spouse) {
+      const spouseIncome = household.spouse.isRetired
+        ? household.spouse.grossRetirementIncome
+        : household.spouse.grossWorkIncome
+      totalIncome = totalIncome.plus(spouseIncome)
+    }
+
+    return totalIncome
   }
 }

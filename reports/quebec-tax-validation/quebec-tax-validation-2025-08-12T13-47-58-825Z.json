@@ -1,0 +1,348 @@
+{
+  "timestamp": "2025-08-12T13:47:58.828Z",
+  "testSummary": {
+    "totalTests": 10,
+    "passed": 0,
+    "failed": 10,
+    "errors": 0,
+    "successRate": 0
+  },
+  "testCases": [
+    {
+      "id": "generated_1",
+      "description": "Personne seule - 15000$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 36,
+          "grossWorkIncome": 15000,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_2",
+      "description": "Personne seule - 82500$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 46,
+          "grossWorkIncome": 82500,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 82500,
+        "revenuDisponible": 76713,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 0,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 0,
+        "totalCotisations": 5787,
+        "assuranceEmploi": 858,
+        "rqap": 474,
+        "rrq": 4455,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_3",
+      "description": "Personne seule - 15000$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 59,
+          "grossWorkIncome": 15000,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_4",
+      "description": "Personne seule - 82500$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 42,
+          "grossWorkIncome": 82500,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 82500,
+        "revenuDisponible": 76713,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 0,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 0,
+        "totalCotisations": 5787,
+        "assuranceEmploi": 858,
+        "rqap": 474,
+        "rrq": 4455,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_5",
+      "description": "Personne seule - 15000$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 50,
+          "grossWorkIncome": 15000,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_6",
+      "description": "Personne seule - 82500$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 30,
+          "grossWorkIncome": 82500,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 82500,
+        "revenuDisponible": 76713,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 0,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 0,
+        "totalCotisations": 5787,
+        "assuranceEmploi": 858,
+        "rqap": 474,
+        "rrq": 4455,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_7",
+      "description": "Personne seule - 15000$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 18,
+          "grossWorkIncome": 15000,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_8",
+      "description": "Personne seule - 82500$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 42,
+          "grossWorkIncome": 82500,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 82500,
+        "revenuDisponible": 76713,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 0,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 0,
+        "totalCotisations": 5787,
+        "assuranceEmploi": 858,
+        "rqap": 474,
+        "rrq": 4455,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_9",
+      "description": "Personne seule - 15000$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 44,
+          "grossWorkIncome": 15000,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      }
+    },
+    {
+      "id": "generated_10",
+      "description": "Personne seule - 82500$",
+      "input": {
+        "taxYear": 2024,
+        "householdType": "single",
+        "primaryPerson": {
+          "age": 19,
+          "grossWorkIncome": 82500,
+          "grossRetirementIncome": 0
+        },
+        "numChildren": 0
+      },
+      "expectedResults": {
+        "revenuBrut": 82500,
+        "revenuDisponible": 76713,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 0,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 0,
+        "totalCotisations": 5787,
+        "assuranceEmploi": 858,
+        "rqap": 474,
+        "rrq": 4455,
+        "fss": 0,
+        "ramq": 0
+      }
+    }
+  ],
+  "recommendations": [
+    "Révision majeure du calculateur d'impôt nécessaire",
+    "Ajustements des paramètres fiscaux requis",
+    "Analyser les cas échoués pour identifier les patterns d'erreurs",
+    "Étendre la validation à un plus grand échantillon une fois les problèmes résolus"
+  ]
+}

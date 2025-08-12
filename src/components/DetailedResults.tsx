@@ -1182,10 +1182,13 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       totalTax += spouseResult.tax
     }
 
+    // Utiliser la valeur réelle calculée par le MainCalculator pour cohérence
+    const actualTax = results.taxes?.quebec instanceof Decimal ? results.taxes.quebec.toNumber() : totalTax
+    
     // Ajouter le total
     calculationSteps.push({ 
       label: language === 'fr' ? 'TOTAL - Impôt du Québec (ménage)' : 'TOTAL - Quebec Tax (household)', 
-      value: formatAmount(totalTax),
+      value: formatAmount(actualTax),
       isTotal: true 
     })
 
@@ -1234,7 +1237,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         ? 'Impôt sur le revenu provincial calculé selon les paliers fiscaux du Québec. Inclut les crédits d\'impôt non remboursables et les déductions pour cotisations sociales.'
         : 'Provincial income tax calculated according to Quebec tax brackets. Includes non-refundable tax credits and deductions for social contributions.',
       formula: '',
-      currentValue: totalTax,
+      currentValue: actualTax,
       parameters: calculationSteps
     }
   }
@@ -1411,7 +1414,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
   const getValueForProgram = (programKey: string): number => {
     switch (programKey) {
       case 'revenu_disponible':
-        return 50000 - (results.cotisations.total instanceof Decimal ? results.cotisations.total.toNumber() : 0)
+        // Utiliser directement le revenu disponible calculé par le MainCalculator
+        return results.revenu_disponible instanceof Decimal ? results.revenu_disponible.toNumber() : 0
       case 'rrq':
         return results.cotisations.rrq instanceof Decimal ? -results.cotisations.rrq.toNumber() : 0
       case 'assurance_emploi':
@@ -1441,9 +1445,24 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     {
       key: 'quebec_section',
       label: language === 'fr' ? 'Régime fiscal du Québec' : 'Quebec Tax System',
-      value: 0,
+      value: (() => {
+        // Calculer la somme de tous les programmes du Québec
+        const quebecPrograms = [
+          getValueForProgram('quebec_tax'),
+          0, // aide_sociale
+          0, // allocation_famille
+          0, // fournitures_scolaires
+          0, // prime_travail
+          0, // credit_solidarite
+          0, // credit_garde
+          0, // allocation_logement
+          0, // credit_medical
+          0  // soutien_aines
+        ]
+        return quebecPrograms.reduce((sum, value) => sum + value, 0)
+      })(),
       items: [
-        { key: 'impot_quebec', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('quebec_tax') },
+        { key: 'quebec_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('quebec_tax') },
         { key: 'aide_sociale', label: language === 'fr' ? 'Aide sociale' : 'Social Assistance', value: 0 },
         { key: 'allocation_famille', label: language === 'fr' ? 'Allocation famille' : 'Family Allowance', value: 0 },
         { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: 0 },
@@ -1458,7 +1477,18 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     {
       key: 'federal_section',
       label: language === 'fr' ? 'Régime fiscal fédéral' : 'Federal Tax System',
-      value: 0,
+      value: (() => {
+        // Calculer la somme de tous les programmes fédéraux
+        const federalPrograms = [
+          0, // impot_federal
+          0, // allocation_enfants
+          0, // credit_tps
+          0, // allocation_travailleurs
+          0, // securite_vieillesse
+          0  // supplement_medical
+        ]
+        return federalPrograms.reduce((sum, value) => sum + value, 0)
+      })(),
       items: [
         { key: 'impot_federal', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: 0 },
         { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: 0 },
@@ -1558,8 +1588,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                     >
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
-                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss et ramq */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq') && (
+                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq et quebec_tax */}
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -1593,7 +1623,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-black">{currentProgram.name}</h4>
-                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq') && (
+                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax') && (
                   <div className="flex items-center text-xs" style={{ color: '#000000' }}>
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -1673,8 +1703,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
                     </svg>
                     <span>{language === 'fr' ? 
-                      'Cliquez sur "Assurance-emploi", "RRQ", "RQAP", "FSS" ou "RAMQ" pour épingler les détails' : 
-                      'Click on "Employment Insurance", "QPP", "QPIP", "HSF" or "RAMQ" to pin details'
+                      'Cliquez sur "Impôt Québec", "Assurance-emploi", "RRQ", "RQAP", "FSS" ou "RAMQ" pour épingler les détails' : 
+                      'Click on "Quebec Tax", "Employment Insurance", "QPP", "QPIP", "HSF" or "RAMQ" to pin details'
                     }</span>
                   </div>
                   <p>{language === 'fr' ? 

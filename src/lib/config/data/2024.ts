@@ -14,15 +14,15 @@ export const config2024: TaxYearConfig = {
       { min: 119910, max: 999999999, rate: 0.2575 }
     ],
     credits: {
-      basic_amount: 17183,
+      basic_amount: 18056, // Mis à jour selon la source CFFP 2024
       age_65_amount: 3395,
       pension_amount: 3017,
       living_alone_amount: 1890
     },
     deduction_rates: {
-      cpp: 1.0,
-      ei: 1.0,
-      qpip: 1.0
+      cpp: 1.0, // 100% déductible (RRQ au Québec)
+      ei: 1.0,  // 100% déductible (assurance-emploi)
+      qpip: 1.0 // 100% déductible (RQAP)
     }
   },
   /**

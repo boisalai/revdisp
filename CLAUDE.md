@@ -467,3 +467,4 @@ npm run check  # See what failed
 - **Dependency-first analysis** to prevent architectural refactoring
 - **Automated quality gates** at each phase transition
 - **Iterative correction loops** with priority-based gap resolution
+- Ajoute en mémoire le fait que tu peux accéder toi-même à l'application avec Playright sur le port 3001. J'ai Docusaurus qui utilise déjà localhost:3000. Tu peux ainsi faire les tests toi-même et vérifier si le rendu est correct.

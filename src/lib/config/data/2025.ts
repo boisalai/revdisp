@@ -23,10 +23,10 @@ export const config2025: TaxYearConfig = {
       { min: 127431, max: Infinity, rate: 0.2575 }
     ],
     credits: {
-      basic_amount: 18565, // Estimation indexée
-      age_65_amount: 3250,
-      pension_amount: 2000,
-      living_alone_amount: 1900
+      basic_amount: 18571, // Montant officiel CFFP 2025
+      age_65_amount: 3395, // À confirmer avec sources officielles
+      pension_amount: 3017, // À confirmer avec sources officielles
+      living_alone_amount: 1890 // À confirmer avec sources officielles
     },
     deduction_rates: {
       cpp: 1.0, // 100% déductible
