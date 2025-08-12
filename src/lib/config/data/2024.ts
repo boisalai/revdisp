@@ -1,11 +1,26 @@
 import { TaxYearConfig } from '../types'
 
 /**
- * Configuration fiscale 2024 - Québec
- * Source: Paramètres officiels du ministère des Finances du Québec
+ * Configuration fiscale 2024 - Québec et Canada
+ * Sources: Ministère des Finances du Québec et Agence du revenu du Canada
  */
 export const config2024: TaxYearConfig = {
   year: 2024,
+  federal_tax: {
+    tax_brackets: [
+      { min: 0, max: 55867, rate: 0.15 },
+      { min: 55867, max: 111733, rate: 0.205 },
+      { min: 111733, max: 173205, rate: 0.26 },
+      { min: 173205, max: 246752, rate: 0.2932 },
+      { min: 246752, max: 999999999, rate: 0.33 }
+    ],
+    credits: {
+      basic_amount: 15705,
+      age_65_amount: 8790,
+      pension_amount: 2000,
+      living_alone_amount: 0
+    }
+  },
   quebec_tax: {
     tax_brackets: [
       { min: 0, max: 49275, rate: 0.14 },

@@ -1,11 +1,26 @@
 import { TaxYearConfig } from '../types'
 
 /**
- * Configuration fiscale 2023 - Québec
- * Source: Paramètres officiels du ministère des Finances du Québec
+ * Configuration fiscale 2023 - Québec et Canada
+ * Sources: Ministère des Finances du Québec et Agence du revenu du Canada
  */
 export const config2023: TaxYearConfig = {
   year: 2023,
+  federal_tax: {
+    tax_brackets: [
+      { min: 0, max: 53359, rate: 0.15 },
+      { min: 53359, max: 106717, rate: 0.205 },
+      { min: 106717, max: 165430, rate: 0.26 },
+      { min: 165430, max: 235675, rate: 0.2932 },
+      { min: 235675, max: 999999999, rate: 0.33 }
+    ],
+    credits: {
+      basic_amount: 15000,
+      age_65_amount: 8790,
+      pension_amount: 2000,
+      living_alone_amount: 0
+    }
+  },
   quebec_tax: {
     tax_brackets: [
       { min: 0, max: 46295, rate: 0.14 },

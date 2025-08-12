@@ -8,6 +8,16 @@ export interface TaxBracket {
   rate: number
 }
 
+export interface FederalTaxConfig {
+  tax_brackets: TaxBracket[]
+  credits: {
+    basic_amount: number
+    age_65_amount: number
+    pension_amount: number
+    living_alone_amount: number
+  }
+}
+
 export interface QuebecTaxConfig {
   tax_brackets: TaxBracket[]
   credits: {
@@ -81,6 +91,7 @@ export interface RamqConfig {
  */
 export interface TaxYearConfig {
   year: number
+  federal_tax: FederalTaxConfig
   quebec_tax: QuebecTaxConfig
   employment_insurance: EmploymentInsuranceConfig
   qpip: QpipConfig

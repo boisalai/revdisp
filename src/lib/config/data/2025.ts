@@ -13,6 +13,25 @@ export const config2025: TaxYearConfig = {
   year: 2025,
   
   /**
+   * Impôt fédéral - paramètres officiels 2025
+   */
+  federal_tax: {
+    tax_brackets: [
+      { min: 0, max: 57375, rate: 0.145 }, // Taux réduit de 15% à 14.5% en 2025
+      { min: 57375, max: 114750, rate: 0.205 },
+      { min: 114750, max: 177882, rate: 0.26 },
+      { min: 177882, max: 253414, rate: 0.2931 },
+      { min: 253414, max: 999999999, rate: 0.33 }
+    ],
+    credits: {
+      basic_amount: 16129,
+      age_65_amount: 8790,
+      pension_amount: 2000,
+      living_alone_amount: 0
+    }
+  },
+  
+  /**
    * Impôt du Québec - paramètres provisoires (indexation estimée)
    */
   quebec_tax: {

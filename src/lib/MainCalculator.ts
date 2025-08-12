@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'ramq']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq']
       
       for (const type of calculatorTypes) {
         try {
@@ -137,7 +137,24 @@ export class RevenuDisponibleCalculator {
       }
     }
 
-    // 3. Calculate RAMQ (using net family income from Quebec tax if available)
+    // 3. Calculate Federal income tax (using social contributions for deductions)
+    if (this.calculators.federal_tax) {
+      const federalTaxCalculator = this.calculators.federal_tax as any
+      if (federalTaxCalculator.calculateHousehold) {
+        const contributions = {
+          rrq: results.cotisations.rrq,
+          ei: results.cotisations.assurance_emploi,  
+          rqap: results.cotisations.rqap
+        }
+        const federalTaxResult = federalTaxCalculator.calculateHousehold(household, contributions)
+        results.taxes.canada = federalTaxResult.combined.net_tax
+        
+        // Store federal net income for future use
+        results.canada.net_income = federalTaxResult.combined.net_income
+      }
+    }
+
+    // 4. Calculate RAMQ (using net family income from Quebec tax if available)
     if (this.calculators.ramq) {
       let familyNetIncome: Decimal
       

@@ -1242,6 +1242,276 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  // Génère les détails dynamiques de l'impôt fédéral
+  const getFederalTaxDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Paramètres fiscaux fédéraux selon l'année
+    const params2024 = {
+      brackets: [
+        { min: 0, max: 55867, rate: 0.15 },
+        { min: 55867, max: 111733, rate: 0.205 },
+        { min: 111733, max: 173205, rate: 0.26 },
+        { min: 173205, max: 246752, rate: 0.2932 },
+        { min: 246752, max: 999999999, rate: 0.33 }
+      ],
+      credits: {
+        basic: 15705,
+        age65: 8790,
+        pension: 2000,
+        livingAlone: 0 // Federal doesn't have living alone credit
+      }
+    }
+    
+    const params2025 = {
+      brackets: [
+        { min: 0, max: 57375, rate: 0.15 },
+        { min: 57375, max: 114750, rate: 0.205 },
+        { min: 114750, max: 177882, rate: 0.26 },
+        { min: 177882, max: 253414, rate: 0.2932 },
+        { min: 253414, max: 999999999, rate: 0.33 }
+      ],
+      credits: {
+        basic: 16131,
+        age65: 9034,
+        pension: 2000,
+        livingAlone: 0 // Federal doesn't have living alone credit
+      }
+    }
+    
+    const params = taxYear === 2025 ? params2025 : params2024
+
+    // Fonction pour calculer les détails d'une personne
+    const calculatePersonDetails = (person: any, label: string, contributions?: { rrq?: number, ei?: number, rqap?: number }) => {
+      const grossIncome = person.isRetired 
+        ? (typeof person.grossRetirementIncome === 'number' ? person.grossRetirementIncome : person.grossRetirementIncome.toNumber())
+        : (typeof person.grossWorkIncome === 'number' ? person.grossWorkIncome : person.grossWorkIncome.toNumber())
+
+      if (grossIncome <= 0) {
+        return {
+          steps: [
+            { label: `${label} - ${language === 'fr' ? 'Aucun revenu imposable' : 'No taxable income'}`, value: formatAmount(0) }
+          ],
+          tax: 0
+        }
+      }
+
+      const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
+      
+      // 1. Revenu brut
+      steps.push({ 
+        label: `${label} - ${language === 'fr' ? 'Revenu brut déclaré' : 'Gross income declared'}`, 
+        value: formatAmount(grossIncome)
+      })
+
+      // 2. Déductions (cotisations sociales)
+      let totalDeductions = 0
+      if (contributions) {
+        const deductions = []
+        if (contributions.rrq && contributions.rrq > 0) {
+          deductions.push({ name: 'RRQ', amount: contributions.rrq })
+          totalDeductions += contributions.rrq
+        }
+        if (contributions.ei && contributions.ei > 0) {
+          deductions.push({ name: 'AE', amount: contributions.ei })
+          totalDeductions += contributions.ei
+        }
+        if (contributions.rqap && contributions.rqap > 0) {
+          deductions.push({ name: 'RQAP', amount: contributions.rqap })
+          totalDeductions += contributions.rqap
+        }
+        
+        if (deductions.length > 0) {
+          steps.push({ 
+            label: `${label} - ${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
+            value: `-${formatAmount(totalDeductions)}`
+          })
+          deductions.forEach(ded => {
+            steps.push({ 
+              label: `  • ${ded.name}`, 
+              value: `-${formatAmount(ded.amount)}`
+            })
+          })
+        }
+      }
+
+      // 3. Revenu imposable
+      const taxableIncome = Math.max(0, grossIncome - totalDeductions)
+      steps.push({ 
+        label: `${label} - ${language === 'fr' ? 'Revenu imposable' : 'Taxable income'}`, 
+        value: formatAmount(taxableIncome)
+      })
+
+      // 4. Calcul de l'impôt par paliers
+      let taxBeforeCredits = 0
+      let previousMax = 0
+
+      steps.push({ 
+        label: `${label} - ${language === 'fr' ? 'Calcul par paliers fiscaux fédéraux' : 'Federal tax calculation by brackets'}`, 
+        value: ''
+      })
+
+      for (const bracket of params.brackets) {
+        if (taxableIncome <= previousMax) break
+        
+        const taxableInBracket = Math.min(taxableIncome - bracket.min, bracket.max - bracket.min)
+        if (taxableInBracket > 0) {
+          const taxInBracket = taxableInBracket * bracket.rate
+          taxBeforeCredits += taxInBracket
+          
+          const bracketLabel = bracket.max === 999999999 
+            ? `${formatAmount(bracket.min)}${language === 'fr' ? '$ et plus' : '$ and above'}`
+            : `${formatAmount(bracket.min)}$ - ${formatAmount(bracket.max)}$`
+          
+          steps.push({ 
+            label: `  • ${bracketLabel} à ${(bracket.rate * 100).toFixed(1)}%`, 
+            value: `${formatAmount(taxableInBracket)} × ${(bracket.rate * 100).toFixed(1)}% = ${formatAmount(taxInBracket)}`
+          })
+        }
+        previousMax = bracket.max
+      }
+
+      steps.push({ 
+        label: `${label} - ${language === 'fr' ? 'Impôt avant crédits' : 'Tax before credits'}`, 
+        value: formatAmount(taxBeforeCredits)
+      })
+
+      // 5. Crédits d'impôt fédéraux non remboursables
+      let totalCredits = 0
+      const lowestRate = params.brackets[0].rate
+
+      // Crédit personnel de base
+      const basicCredit = params.credits.basic * lowestRate
+      totalCredits += basicCredit
+      steps.push({ 
+        label: `  • ${language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount'}`, 
+        value: `${formatAmount(params.credits.basic)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(basicCredit)}`
+      })
+
+      // Crédit d'âge (65 ans et plus)
+      if (person.age >= 65) {
+        const ageCredit = params.credits.age65 * lowestRate
+        totalCredits += ageCredit
+        steps.push({ 
+          label: `  • ${language === 'fr' ? 'Montant en raison de l\'âge (65 ans et plus)' : 'Age amount (65 years and over)'}`, 
+          value: `${formatAmount(params.credits.age65)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(ageCredit)}`
+        })
+      }
+
+      // Crédit de pension (retraités)
+      if (person.isRetired && person.grossRetirementIncome > 0) {
+        const maxPensionAmount = params.credits.pension
+        const eligibleAmount = Math.min(grossIncome, maxPensionAmount)
+        const pensionCredit = eligibleAmount * lowestRate
+        totalCredits += pensionCredit
+        steps.push({ 
+          label: `  • ${language === 'fr' ? 'Montant pour revenus de pension' : 'Pension income amount'}`, 
+          value: `${formatAmount(eligibleAmount)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(pensionCredit)}`
+        })
+      }
+
+      steps.push({ 
+        label: `${label} - ${language === 'fr' ? 'Total des crédits d\'impôt fédéraux' : 'Total federal tax credits'}`, 
+        value: formatAmount(totalCredits)
+      })
+
+      // 6. Impôt net
+      const netTax = Math.max(0, taxBeforeCredits - totalCredits)
+      steps.push({ 
+        label: `${label} - ${language === 'fr' ? 'Impôt fédéral net' : 'Net federal tax'}`, 
+        value: formatAmount(netTax)
+      })
+
+      return { steps, tax: netTax }
+    }
+
+    // Calculer pour la personne principale
+    const primaryContributions = results?.cotisations ? {
+      rrq: results.cotisations.rrq ? (typeof results.cotisations.rrq === 'number' ? results.cotisations.rrq : results.cotisations.rrq.toNumber()) : 0,
+      ei: results.cotisations.assurance_emploi ? (typeof results.cotisations.assurance_emploi === 'number' ? results.cotisations.assurance_emploi : results.cotisations.assurance_emploi.toNumber()) : 0,
+      rqap: results.cotisations.rqap ? (typeof results.cotisations.rqap === 'number' ? results.cotisations.rqap : results.cotisations.rqap.toNumber()) : 0,
+    } : undefined
+
+    const primaryResult = calculatePersonDetails(
+      household.primaryPerson, 
+      language === 'fr' ? 'Personne principale' : 'Primary person',
+      primaryContributions
+    )
+
+    let calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = [...primaryResult.steps]
+    let totalTax = primaryResult.tax
+
+    // Calculer pour le conjoint si applicable
+    if (household.spouse) {
+      const spouseResult = calculatePersonDetails(
+        household.spouse, 
+        language === 'fr' ? 'Conjoint' : 'Spouse',
+        primaryContributions // Simplification: mêmes cotisations pour les deux
+      )
+      calculationSteps.push(...spouseResult.steps)
+      totalTax += spouseResult.tax
+    }
+
+    // Utiliser la valeur réelle calculée par le MainCalculator pour cohérence
+    const actualTax = results.taxes?.canada instanceof Decimal ? results.taxes.canada.toNumber() : totalTax
+    
+    // Ajouter le total
+    calculationSteps.push({ 
+      label: language === 'fr' ? 'TOTAL - Impôt fédéral (ménage)' : 'TOTAL - Federal Tax (household)', 
+      value: formatAmount(actualTax),
+      isTotal: true 
+    })
+
+    // Références officielles
+    const webReferences = language === 'fr' ? [
+      {
+        title: 'Agence du revenu du Canada - Taux d\'imposition fédéraux',
+        url: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/frequemment-demandees/taux-imposition-federaux-particuliers-annees-courante-anterieures.html'
+      },
+      {
+        title: 'Agence du revenu du Canada - Montants pour les crédits d\'impôt fédéraux ' + taxYear,
+        url: taxYear === 2025 
+          ? 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/frequemment-demandees/montants-impot-federal-2025.html'
+          : 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/frequemment-demandees/montants-impot-federal-2024.html'
+      },
+      {
+        title: 'Agence du revenu du Canada - Crédits d\'impôt non remboursables',
+        url: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/declaration-revenus/remplir-declaration-revenus/deductions-credits-depenses/ligne-30000-credits-impot-non-remboursables.html'
+      }
+    ] : [
+      {
+        title: 'Canada Revenue Agency - Federal income tax rates',
+        url: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions/canadian-income-tax-rates-individuals-current-previous-years.html'
+      },
+      {
+        title: 'Canada Revenue Agency - Federal tax credit amounts ' + taxYear,
+        url: taxYear === 2025 
+          ? 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions/federal-tax-amounts-2025.html'
+          : 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions/federal-tax-amounts-2024.html'
+      },
+      {
+        title: 'Canada Revenue Agency - Non-refundable tax credits',
+        url: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30000-non-refundable-tax-credits.html'
+      }
+    ]
+
+    calculationSteps.push(...webReferences.map(ref => ({
+      label: ref.title,
+      value: ref.url,
+      isReference: true
+    })))
+
+    return {
+      name: language === 'fr' ? 'Impôt fédéral' : 'Federal Income Tax',
+      description: language === 'fr' 
+        ? 'Impôt sur le revenu fédéral calculé selon les paliers fiscaux du Canada. Inclut les crédits d\'impôt non remboursables et les déductions pour cotisations sociales.'
+        : 'Federal income tax calculated according to Canada tax brackets. Includes non-refundable tax credits and deductions for social contributions.',
+      formula: '',
+      currentValue: actualTax,
+      parameters: calculationSteps
+    }
+  }
+
   // Génère les détails dynamiques de l'assurance-emploi basés sur les données réelles
   const getEmploymentInsuranceDetails = (): ProgramDetail | null => {
     if (!household) return null
@@ -1385,6 +1655,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getRAMQDetails()
       : displayedProgram === 'quebec_tax'
       ? getQcTaxDetails()
+      : displayedProgram === 'federal_tax'
+      ? getFederalTaxDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -1428,6 +1700,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.cotisations.ramq instanceof Decimal ? -results.cotisations.ramq.toNumber() : 0
       case 'quebec_tax':
         return results.taxes?.quebec instanceof Decimal ? -results.taxes.quebec.toNumber() : 0
+      case 'federal_tax':
+        return results.taxes?.canada instanceof Decimal ? -results.taxes.canada.toNumber() : 0
       default:
         return 0
     }
@@ -1480,7 +1754,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       value: (() => {
         // Calculer la somme de tous les programmes fédéraux
         const federalPrograms = [
-          0, // impot_federal
+          getValueForProgram('federal_tax'), // federal_tax
           0, // allocation_enfants
           0, // credit_tps
           0, // allocation_travailleurs
@@ -1490,7 +1764,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return federalPrograms.reduce((sum, value) => sum + value, 0)
       })(),
       items: [
-        { key: 'impot_federal', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: 0 },
+        { key: 'federal_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('federal_tax') },
         { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: 0 },
         { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: 0 },
         { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: 0 },
@@ -1588,8 +1862,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                     >
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
-                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq et quebec_tax */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax') && (
+                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq, quebec_tax et federal_tax */}
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -1623,7 +1897,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-black">{currentProgram.name}</h4>
-                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax') && (
+                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax') && (
                   <div className="flex items-center text-xs" style={{ color: '#000000' }}>
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -1703,8 +1977,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
                     </svg>
                     <span>{language === 'fr' ? 
-                      'Cliquez sur "Impôt Québec", "Assurance-emploi", "RRQ", "RQAP", "FSS" ou "RAMQ" pour épingler les détails' : 
-                      'Click on "Quebec Tax", "Employment Insurance", "QPP", "QPIP", "HSF" or "RAMQ" to pin details'
+                      'Cliquez sur "Impôt Québec", "Impôt fédéral", "Assurance-emploi", "RRQ", "RQAP", "FSS" ou "RAMQ" pour épingler les détails' : 
+                      'Click on "Quebec Tax", "Federal Tax", "Employment Insurance", "QPP", "QPIP", "HSF" or "RAMQ" to pin details'
                     }</span>
                   </div>
                   <p>{language === 'fr' ? 
