@@ -1720,9 +1720,9 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       key: 'quebec_section',
       label: language === 'fr' ? 'Régime fiscal du Québec' : 'Quebec Tax System',
       value: (() => {
-        // Calculer la somme de tous les programmes du Québec
+        // Calculer la somme de tous les programmes du Québec (fiscaux seulement)
         const quebecPrograms = [
-          getValueForProgram('quebec_tax'),
+          getValueForProgram('quebec_tax'),     // Impôt du Québec
           0, // aide_sociale
           0, // allocation_famille
           0, // fournitures_scolaires
