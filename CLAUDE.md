@@ -6,15 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **fully-implemented Quebec disposable income calculator** that computes taxes, social insurance contributions, and transfers for Quebec households. The project successfully replicates the functionality of the Quebec Ministry of Finance's calculator (https://www.finances.gouv.qc.ca/ministere/outils_services/outils_calcul/revenu_disponible/outil_revenu.asp) with a modern, government-grade interface.
 
-**Current Technology Stack**: Next.js 14, TypeScript, Tailwind CSS with GOV.UK Design System, automated validation system.
+**Current Technology Stack**: Next.js 14, TypeScript, Tailwind CSS with GOV.UK Design System, D3.js for data visualization, and an automated validation system.
 
 ## Current Implementation Status
 
-✅ **PRODUCTION-READY & DEPLOYED** - Complete Next.js application with comprehensive tax calculation capabilities covering 2023-2025 tax years. Successfully deployed on GitHub Pages at https://boisalai.github.io/revdisp/
+🔄 **IN DEVELOPMENT** - Next.js application with social insurance contributions implemented. Quebec and federal income tax calculations, as well as transfers to individuals, are still pending implementation. 
 
 ### Application Architecture
 
-**Frontend (Next.js 14 + TypeScript):**
+**Frontend (Next.js 14 + TypeScript + D3.js):**
 - **`src/app/`**: App Router with main page and validation dashboard
 - **`src/components/CompactCalculator.tsx`**: Main calculator interface with GOV.UK Design System
 - **`src/components/DetailedResults.tsx`**: Comprehensive results display with tax breakdown
@@ -46,9 +46,13 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
 - **`src/lib/i18n/translations.ts`**: Complete bilingual support (French/English)
 
 **Automated Validation System:**
-- **`src/lib/validation/ValidationTestCases.ts`**: 15+ comprehensive test scenarios
-- **`src/lib/validation/ValidationEngine.ts`**: Automated comparison engine with gap analysis
-- **`src/lib/validation/ValidationRunner.ts`**: CLI validation runner
+- **`src/lib/validation/ValidationTestCases.ts`**: Base test scenarios and interfaces
+- **`src/lib/validation/ValidationEngine.ts`**: Core validation engine with gap analysis
+- **`src/lib/validation/MassTestGenerator.ts`**: Generator for thousands of test cases automatically
+- **`src/lib/validation/HighVolumeValidator.ts`**: High-performance parallel validation system
+- **`src/lib/validation/ContinuousValidationSystem.ts`**: Continuous monitoring with progress tracking
+- **`src/lib/validation/AdvancedReporting.ts`**: Comprehensive analysis and HTML report generation
+- **`src/lib/validation/ValidationCLI.ts`**: Complete command-line interface for all operations
 
 ### Household Types & Features
 - ✅ **Single person**: Basic calculations with all cotisations
@@ -96,6 +100,8 @@ npm run check
 ```
 
 ### Validation & Testing
+
+#### Traditional Validation
 ```bash
 # Access validation dashboard
 # http://localhost:3001/validation
@@ -103,12 +109,75 @@ npm run check
 # CLI validation with comprehensive reporting
 npm run validate
 # Outputs: validation-report.json with detailed analysis
+
+# Individual component validation
+npm run validate:ramq    # RAMQ validation
+npm run validate:rrq     # RRQ validation
+npm run validate:ei      # Employment Insurance validation
+npm run validate:rqap    # RQAP validation
+npm run validate:fss     # FSS validation
+```
+
+#### Mass Validation System (NEW)
+```bash
+# Generate thousands of test cases
+npm run validate:generate -- -n 5000 -s monte_carlo -o generated-cases.json
+
+# High-volume validation (parallel processing)
+npm run validate:high-volume -- -n 1000 -p 5 -b 50 -o ./validation-reports
+
+# Continuous validation system 
+npm run validate:continuous -- -i 30 -n 500 --accuracy-threshold 90
+
+# Check validation status
+npm run validate:status
+
+# Analyze existing validation reports
+npm run validate:analyze -- -f ./reports/validation-report.json
+```
+
+#### CLI Options
+```bash
+# Mass validation CLI help
+npm run validate:mass -- --help
+
+# Generate cases with specific parameters
+npm run validate:generate -- \
+  --count 10000 \
+  --strategy grid \
+  --year 2024 \
+  --output ./test-cases.json
+
+# High-volume validation with custom settings  
+npm run validate:high-volume -- \
+  --count 5000 \
+  --parallel 8 \
+  --batch-size 100 \
+  --output ./mass-validation-reports
+
+# Continuous validation with monitoring
+npm run validate:continuous -- \
+  --interval 60 \
+  --count 1000 \
+  --accuracy-threshold 85 \
+  --regression-threshold 5 \
+  --output ./continuous-reports
 ```
 
 ### Prerequisites
 - Node.js 18+ (for Next.js 14)
 - npm or yarn for package management
 - Modern browser for testing interface
+- **For Mass Validation**: Stable internet connection (scrapes official calculator)
+
+### Setup Mass Validation System
+```bash
+# Configure and test the mass validation system
+./scripts/setup-mass-validation.sh
+
+# Run example demonstration
+./scripts/example-mass-validation.sh
+```
 
 ## Critical Implementation Notes
 
@@ -153,7 +222,7 @@ All calculators support all tax years with compile-time validated:
 
 ### GOV.UK Design System
 - **Professional styling**: Government-grade interface following accessibility standards
-- **Typography**: Open Sans 16px for optimal readability  
+- **Typography**: Open Sans 14px for optimal readability  
 - **Color palette**: Official GOV.UK colors (govuk-blue, govuk-green, etc.)
 - **Components**: Native form elements with consistent styling
 - **Responsive design**: Mobile-first approach with proper breakpoints
@@ -175,7 +244,15 @@ All calculators support all tax years with compile-time validated:
 
 ## Validation & Quality Assurance
 
-### Automated Testing System
+### Mass Validation System (NEW)
+- **Scalable Testing**: Generate and validate up to 10,000+ test cases automatically
+- **Multiple Strategies**: Systematic, random, grid-based, and Monte Carlo generation methods
+- **Parallel Processing**: Multi-browser validation for high throughput and efficiency
+- **Continuous Monitoring**: Automated regression detection with progress tracking
+- **Advanced Analytics**: Comprehensive gap analysis with prioritized development recommendations
+- **Production-Ready**: Designed to validate against the official Quebec Finance Ministry calculator
+
+### Traditional Validation System  
 - **15+ test scenarios**: Comprehensive coverage of all household types and edge cases
 - **Gap analysis**: Automatic detection of differences vs official calculator
 - **Severity classification**: Critical (>20%), Major (10-20%), Minor (<10%) differences
@@ -190,11 +267,77 @@ All calculators support all tax years with compile-time validated:
 
 ## Future Development Priorities
 
-### Next Implementation Steps
-1. 🔄 **Quebec Income Tax Calculator**: Complete tax bracket calculations with deductions
-2. 🔄 **Federal Income Tax Calculator**: Canadian tax calculations  
-3. 🔄 **Credits & Transfers**: Tax credits, GST credit, child benefits, work premium
-4. 🔄 **Advanced validation**: Integration with official calculator API if available
+### Programmes Socio-Fiscaux - Ordre d'Implémentation Prioritaire
+
+Basé sur l'analyse du calculateur officiel du ministère des Finances du Québec et l'impact sur le revenu disponible :
+
+**Phase 1 - Impôts (Impact Majeur)**
+1. 🔄 **Calculateur d'impôt sur le revenu du Québec**
+   - Paliers d'imposition progressifs
+   - Crédits d'impôt de base
+   - Déductions pour cotisations sociales
+   - Abattement pour résidents du Québec
+
+2. 🔄 **Calculateur d'impôt sur le revenu fédéral**
+   - Paliers d'imposition fédéraux
+   - Crédits d'impôt personnels de base
+   - Déductions RPC, AE, RQAP
+
+**Phase 2 - Crédits et Allocations (Impact Élevé)**
+3. 🔄 **Crédit de solidarité du Québec**
+   - Remplace l'ancien crédit de TVQ
+   - Calculs selon composition familiale et revenu
+   - Versements mensuels
+
+4. 🔄 **Prime au travail (Québec)**
+   - Supplément au revenu de travail
+   - Calculs selon situation familiale
+   - Réduction progressive selon le revenu
+
+5. 🔄 **Allocation famille (Québec)**
+   - Soutien aux enfants du Québec
+   - Montants selon l'âge des enfants
+   - Réduction selon le revenu familial net
+
+**Phase 3 - Programmes Fédéraux (Impact Modéré)**
+6. 🔄 **Allocation canadienne pour enfants (ACE)**
+   - Prestation fédérale pour enfants
+   - Calculs selon le revenu familial net ajusté
+   - Suppléments pour jeunes enfants
+
+7. 🔄 **Crédit pour la TPS/TVH**
+   - Crédit trimestriel fédéral
+   - Montants selon la composition familiale
+   - Réduction progressive
+
+8. 🔄 **Allocation canadienne pour les travailleurs**
+9. **Programme de la SÉcurité de la vieillesse (PSV)**
+10. **Supplément remboursable pour frais médicaux** 
+
+**Phase 4 - Programmes Spécialisés (Impact Ciblé)**
+11. 🔄 **Prestations de sécurité de la vieillesse (PSV)** - pour retraités 65+
+12. 🔄 **Supplément de revenu garanti (SRG)** - pour retraités à faible revenu
+13.  🔄 **Aide sociale** - dans certaines situations spécifiques pour les personnes, familles monoparentales et couples à faible revenu.
+14.  🔄 **Supplément pour l'achat de fournitures scolaires** - 
+15.  🔄 **Crédit pour la solidarité** - 
+16.  🔄 **Crédit d'impôt pour frais de garde d'enfants** - 
+17.  **Allocation-logement** - 
+18.  **Crédit d'impôt remboursable pour frais médicaux** -
+19.  **Montant pour le soutien des aînés** -
+
+Note que l'ordre d'implémentation peut changer selon les priorités.
+
+**Phase 5 - Validation et Intégration**
+20.   🔄 **Mise à jour du système de validation massive**
+    - Extension pour inclure tous les nouveaux programmes
+    - Validation des interactions complexes entre programmes
+    - Tests de régression pour l'ensemble du système
+
+### Prioritisation Justifiée
+- **Impact financier**: Les impôts et crédits majeurs affectent tous les ménages
+- **Complexité technique**: Commencer par les calculs les plus structurés
+- **Validation progressive**: Permettre la validation de chaque composant individuellement
+- **Interdépendances**: Respecter les dépendances entre calculs (ex: revenu net ajusté)
 
 ### Enhancement Opportunities  
 - **PDF Export**: Generate calculation summaries
@@ -284,3 +427,43 @@ git push origin main  # ← pre-push hook runs 'npm run check' automatically
 npm run check  # See what failed
 # Fix issues, then retry push
 ```
+
+## Socio-Fiscal Program Implementation Methodology
+
+### Revised Implementation Process
+
+**Phase 1: Research & Analysis**
+1. **Comprehensive documentation research**: Official sources (government sites, tax guides)
+2. **Dependency analysis**: Map interactions with existing programs and data models
+3. **Critical scenarios identification**: Edge cases, exemptions, special situations
+
+**Phase 2: Technical Planning**
+4. **Detailed implementation plan**: Architecture decisions, interfaces, data flow
+5. **Fiscal parameters extraction**: Years 2023-2025 with validation sources
+6. **Data model definition**: TypeScript interfaces, input/output specifications
+7. **Algorithm design**: Calculation rules, business logic, validation requirements
+
+**Phase 3: Development & Integration**
+8. **Calculator implementation**: With integrated unit tests and error handling
+9. **UI integration**: Form fields, results display, bilingual support
+10. **Real-time validation**: Integration with existing validation framework
+
+**Phase 4: Comprehensive Testing**
+11. **Test case creation**: Comprehensive scenarios using official calculator
+12. **Mass validation execution**: Automated testing with thousands of cases
+13. **Gap analysis & iterative fixes**: Priority-based correction with validation loops
+14. **Regression testing**: Full system validation to ensure no breaking changes
+
+**Phase 5: Documentation & Deployment**
+15. **Technical documentation**: Code documentation, API specs, algorithm explanations
+16. **Project documentation updates**: CLAUDE.md, VALIDATION-SYSTEM.md, README.md
+17. **Pre-deployment validation**: Complete `npm run check` and production testing
+18. **Commit & deployment**: Automated validation with GitHub Actions pipeline
+
+### Key Process Improvements
+- **Unit tests integrated** during development, not as afterthought
+- **Continuous validation** throughout development cycle
+- **Parallel documentation** to avoid knowledge gaps
+- **Dependency-first analysis** to prevent architectural refactoring
+- **Automated quality gates** at each phase transition
+- **Iterative correction loops** with priority-based gap resolution
