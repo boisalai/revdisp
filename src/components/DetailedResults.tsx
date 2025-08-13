@@ -1851,8 +1851,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
 
     // Déterminer le type de ménage
     const householdType = household.spouse 
-      ? (household.numberOfChildren > 0 ? 'couple_with_children' : 'couple_without_children')
-      : (household.numberOfChildren > 0 ? 'single_parent' : 'single')
+      ? (household.numChildren > 0 ? 'couple_with_children' : 'couple_without_children')
+      : (household.numChildren > 0 ? 'single_parent' : 'single')
 
     // Afficher les paramètres selon le type de ménage
     if (householdType === 'single') {
