@@ -19,7 +19,6 @@ interface ProgramDetail {
   formula: string
   currentValue: number
   parameters: { label: string; value: string; isReference?: boolean }[]
-  webReferences?: { title: string; url: string }[]
 }
 
 const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
@@ -2061,6 +2060,41 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       isTotal: true
     })
 
+    // Ajouter les références officielles
+    const webReferences = language === 'fr' ? [
+      {
+        title: 'Chaire en fiscalité et en finances publiques - Allocation famille',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/'
+      },
+      {
+        title: 'Retraite Québec - Allocation famille',
+        url: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/'
+      },
+      {
+        title: 'Gouvernement du Québec - Calcul de l\'allocation famille',
+        url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/enfance/aide-financiere-aux-familles/allocation-famille'
+      }
+    ] : [
+      {
+        title: 'Chair in Taxation and Public Finance - Family Allowance',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/'
+      },
+      {
+        title: 'Retraite Québec - Family Allowance',
+        url: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/'
+      },
+      {
+        title: 'Government of Quebec - Family Allowance Calculation',
+        url: 'https://www.quebec.ca/en/family-and-support-for-individuals/childhood/financial-assistance-families/family-allowance'
+      }
+    ]
+
+    calculationSteps.push(...webReferences.map(ref => ({
+      label: ref.title,
+      value: ref.url,
+      isReference: true
+    })))
+
     return {
       name: language === 'fr' ? 'Allocation famille' : 'Family Allowance',
       description: language === 'fr' 
@@ -2070,21 +2104,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         ? 'Montant de base + Suppléments - Réduction selon le revenu familial' 
         : 'Basic amount + Supplements - Reduction based on family income',
       currentValue: netAllowance,
-      parameters: calculationSteps,
-      webReferences: [
-        {
-          title: language === 'fr' 
-            ? 'Chaire en fiscalité et en finances publiques - Allocation famille'
-            : 'Chair in Taxation and Public Finance - Family Allowance',
-          url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/'
-        },
-        {
-          title: language === 'fr' 
-            ? 'Retraite Québec - Allocation famille'
-            : 'Retraite Québec - Family Allowance',
-          url: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/'
-        }
-      ]
+      parameters: calculationSteps
     }
   }
 
