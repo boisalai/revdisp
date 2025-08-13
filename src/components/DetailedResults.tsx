@@ -1913,7 +1913,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
 
     calculationSteps.push({
       label: language === 'fr' ? 'Phase de calcul' : 'Calculation Phase',
-      value: phaseLabels[language][calculationPhase] || calculationPhase
+      value: phaseLabels[language][calculationPhase as keyof typeof phaseLabels.fr] || calculationPhase
     })
 
     if (basicPremium > 0) {
