@@ -9,6 +9,8 @@
  * - L'employeur cotise à 1.4× le taux de l'employé
  * 
  * Sources officielles:
+ * - Chaire en fiscalité et en finances publiques, Cotisations au RRQ, au RQAP et à l'assurance-emploi
+ *   https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/
  * - Commission de l'assurance-emploi du Canada
  * - Agence du revenu du Canada (ARC)
  * - Guide T4001 - Guide de l'employeur - Les retenues sur la paie et les versements

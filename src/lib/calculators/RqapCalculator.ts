@@ -1,5 +1,11 @@
 /**
  * Régime québécois d'assurance parentale (RQAP) calculator
+ * 
+ * Sources officielles:
+ * - Chaire en fiscalité et en finances publiques, Cotisations au RRQ, au RQAP et à l'assurance-emploi
+ *   https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/
+ * - Conseil de gestion de l'assurance parentale (CGAP)
+ * - Régie des rentes du Québec
  */
 
 import Decimal from 'decimal.js'

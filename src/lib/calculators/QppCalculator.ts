@@ -1,5 +1,11 @@
 /**
  * Quebec Pension Plan (QPP/RRQ) calculator
+ * 
+ * Sources officielles:
+ * - Chaire en fiscalité et en finances publiques, Cotisations au RRQ, au RQAP et à l'assurance-emploi
+ *   https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/
+ * - Régie des rentes du Québec
+ * - Agence du revenu du Canada
  */
 
 import Decimal from 'decimal.js'
