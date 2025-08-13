@@ -10,7 +10,19 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
 
 ## Current Implementation Status
 
-🔄 **IN DEVELOPMENT** - Next.js application with social insurance contributions implemented. Quebec and federal income tax calculations, as well as transfers to individuals, are still pending implementation. 
+✅ **MAJOR PROGRAMS IMPLEMENTED** - Next.js application with complete tax calculation infrastructure:
+
+### Programmes Socio-Fiscaux Implémentés (2025)
+- ✅ **Cotisations sociales**: RRQ, AE, RQAP, FSS, RAMQ
+- ✅ **Impôt sur le revenu du Québec**: Paliers progressifs + crédits
+- ✅ **Impôt sur le revenu fédéral**: Paliers progressifs + crédits  
+- ✅ **Crédit de solidarité du Québec**: Calculs familiaux complets
+- ✅ **Prime au travail du Québec**: Supplément au revenu de travail
+
+### Prochaines Priorités d'Implémentation
+- 🔄 **Allocation famille (Québec)**: En cours d'analyse
+- 🔄 **Allocation canadienne pour enfants (ACE)**: Programme fédéral
+- 🔄 **Crédit pour la TPS/TVH**: Crédit trimestriel 
 
 ### Application Architecture
 
@@ -272,27 +284,27 @@ All calculators support all tax years with compile-time validated:
 Basé sur l'analyse du calculateur officiel du ministère des Finances du Québec et l'impact sur le revenu disponible :
 
 **Phase 1 - Impôts (Impact Majeur)**
-1. 🔄 **Calculateur d'impôt sur le revenu du Québec**
-   - Paliers d'imposition progressifs
-   - Crédits d'impôt de base
-   - Déductions pour cotisations sociales
-   - Abattement pour résidents du Québec
+1. ✅ **Calculateur d'impôt sur le revenu du Québec** - IMPLÉMENTÉ
+   - Paliers d'imposition progressifs ✅
+   - Crédits d'impôt de base ✅
+   - Déductions pour cotisations sociales ✅
+   - Crédits pour personnes âgées, pension, vivant seul ✅
 
-2. 🔄 **Calculateur d'impôt sur le revenu fédéral**
-   - Paliers d'imposition fédéraux
-   - Crédits d'impôt personnels de base
-   - Déductions RPC, AE, RQAP
+2. ✅ **Calculateur d'impôt sur le revenu fédéral** - IMPLÉMENTÉ
+   - Paliers d'imposition fédéraux ✅
+   - Crédits d'impôt personnels de base ✅
+   - Déductions RPC, AE, RQAP ✅
 
 **Phase 2 - Crédits et Allocations (Impact Élevé)**
-3. 🔄 **Crédit de solidarité du Québec**
-   - Remplace l'ancien crédit de TVQ
-   - Calculs selon composition familiale et revenu
-   - Versements mensuels
+3. ✅ **Crédit de solidarité du Québec** - IMPLÉMENTÉ
+   - Remplace l'ancien crédit de TVQ ✅
+   - Calculs selon composition familiale et revenu ✅
+   - Versements mensuels ✅
 
-4. 🔄 **Prime au travail (Québec)**
-   - Supplément au revenu de travail
-   - Calculs selon situation familiale
-   - Réduction progressive selon le revenu
+4. ✅ **Prime au travail (Québec)** - IMPLÉMENTÉ
+   - Supplément au revenu de travail ✅
+   - Calculs selon situation familiale ✅
+   - Réduction progressive selon le revenu ✅
 
 5. 🔄 **Allocation famille (Québec)**
    - Soutien aux enfants du Québec
@@ -457,8 +469,9 @@ npm run check  # See what failed
 **Phase 5: Documentation & Deployment**
 15. **Technical documentation**: Code documentation, API specs, algorithm explanations
 16. **Project documentation updates**: CLAUDE.md, VALIDATION-SYSTEM.md, README.md
-17. **Pre-deployment validation**: Complete `npm run check` and production testing
-18. **Commit & deployment**: Automated validation with GitHub Actions pipeline
+17. **Implementation status update**: Mark program as ✅ IMPLÉMENTÉ in CLAUDE.md priority list
+18. **Pre-deployment validation**: Complete `npm run check` and production testing
+19. **Commit & deployment**: Automated validation with GitHub Actions pipeline
 
 ### Key Process Improvements
 - **Unit tests integrated** during development, not as afterthought
@@ -468,3 +481,6 @@ npm run check  # See what failed
 - **Automated quality gates** at each phase transition
 - **Iterative correction loops** with priority-based gap resolution
 - Ajoute en mémoire le fait que tu peux accéder toi-même à l'application avec Playright sur le port 3001. J'ai Docusaurus qui utilise déjà localhost:3000. Tu peux ainsi faire les tests toi-même et vérifier si le rendu est correct.
+- Garde en mémoire que l'impôt sur le revenu des particuliers du régime fiscal du Québec est déjà implémenté.
+- Garde en mémoire que le crédit pour la solidarité serait maintenant implémenté.
+- Garde en mémoire le fait que la prime au travail du Québec serait opérationnelle.

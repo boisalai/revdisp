@@ -151,5 +151,42 @@ export const config2023: TaxYearConfig = {
     base_max_single: 373.50,
     base_max_couple: 186.75,
     monthly_adjustment: 60.04
+  },
+  /**
+   * Allocation famille du Québec 2023
+   * 
+   * Montants et seuils pour la période de versement juillet 2023 à juin 2024
+   * (basé sur le revenu familial net de 2022)
+   * 
+   * Sources:
+   * - Retraite Québec
+   * - Calculconversion.com
+   */
+  family_allowance: {
+    basic_allowance: {
+      max_amount: 2782,
+      min_amount: 1107
+    },
+    single_parent_supplement: {
+      max_amount: 976,
+      min_amount: 389
+    },
+    school_supplies_supplement: {
+      amount: 115,
+      min_age: 4,
+      max_age: 16
+    },
+    disabled_child_supplement: {
+      basic_amount: 2616,
+      exceptional_care_tier1: 13224,
+      exceptional_care_tier2: 8796
+    },
+    reduction: {
+      thresholds: {
+        couple: 55183,
+        single_parent: 40168
+      },
+      rate: 0.04
+    }
   }
 } as const

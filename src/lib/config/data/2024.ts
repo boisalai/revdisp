@@ -161,5 +161,42 @@ export const config2024: TaxYearConfig = {
     base_max_single: 373.50,
     base_max_couple: 186.75,
     monthly_adjustment: 60.92
+  },
+  /**
+   * Allocation famille du Québec 2024
+   * 
+   * Montants et seuils pour la période de versement juillet 2024 à juin 2025
+   * (basé sur le revenu familial net de 2023)
+   * 
+   * Sources:
+   * - Retraite Québec
+   * - Chaire en fiscalité et en finances publiques (CFFP)
+   */
+  family_allowance: {
+    basic_allowance: {
+      max_amount: 2923,
+      min_amount: 1158
+    },
+    single_parent_supplement: {
+      max_amount: 1024,
+      min_amount: 408
+    },
+    school_supplies_supplement: {
+      amount: 121,
+      min_age: 4,
+      max_age: 16
+    },
+    disabled_child_supplement: {
+      basic_amount: 2748,
+      exceptional_care_tier1: 13896,
+      exceptional_care_tier2: 9240
+    },
+    reduction: {
+      thresholds: {
+        couple: 57822,
+        single_parent: 42136
+      },
+      rate: 0.04
+    }
   }
 } as const

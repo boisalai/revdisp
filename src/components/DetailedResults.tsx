@@ -19,6 +19,7 @@ interface ProgramDetail {
   formula: string
   currentValue: number
   parameters: { label: string; value: string; isReference?: boolean }[]
+  webReferences?: { title: string; url: string }[]
 }
 
 const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
@@ -1965,6 +1966,128 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  const getFamilyAllowanceDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats de l'allocation famille
+    const familyAllowanceResult = results.quebec?.family_allowance
+    if (!familyAllowanceResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      maxAmount: 2782, minAmount: 1107, singleParentSupplement: 976, schoolSupplies: 115,
+      coupleThreshold: 55183, singleParentThreshold: 40168, reductionRate: 4
+    }
+    const params2024 = {
+      maxAmount: 2923, minAmount: 1158, singleParentSupplement: 1024, schoolSupplies: 121,
+      coupleThreshold: 57822, singleParentThreshold: 42136, reductionRate: 4
+    }
+    const params2025 = {
+      maxAmount: 3006, minAmount: 1196, singleParentSupplement: 1055, schoolSupplies: 124,
+      coupleThreshold: 59369, singleParentThreshold: 43280, reductionRate: 4
+    }
+    const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+
+    const calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
+
+    // Afficher les informations de base
+    const numChildren = familyAllowanceResult.eligible_children || 0
+    const basicAllowance = familyAllowanceResult.basic_allowance?.toNumber() || 0
+    const singleParentSupplement = familyAllowanceResult.single_parent_supplement?.toNumber() || 0
+    const schoolSuppliesSupplement = familyAllowanceResult.school_supplies_supplement?.toNumber() || 0
+    const familyNetIncome = familyAllowanceResult.family_net_income?.toNumber() || 0
+    const reductionAmount = familyAllowanceResult.reduction_amount?.toNumber() || 0
+    const netAllowance = familyAllowanceResult.net_allowance?.toNumber() || 0
+    const reductionThreshold = familyAllowanceResult.reduction_threshold?.toNumber() || 0
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Nombre d\'enfants éligibles' : 'Number of Eligible Children',
+      value: numChildren.toString()
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Montant de base par enfant' : 'Basic Amount per Child',
+      value: formatCurrencyAmount(params.maxAmount)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Allocation de base totale' : 'Total Basic Allowance',
+      value: formatCurrencyAmount(basicAllowance)
+    })
+
+    // Supplément monoparental si applicable
+    if (singleParentSupplement > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Supplément famille monoparentale' : 'Single-Parent Family Supplement',
+        value: formatCurrencyAmount(singleParentSupplement)
+      })
+    }
+
+    // Supplément fournitures scolaires si applicable
+    if (schoolSuppliesSupplement > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Supplément fournitures scolaires' : 'School Supplies Supplement',
+        value: formatCurrencyAmount(schoolSuppliesSupplement)
+      })
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu familial net' : 'Family Net Income',
+      value: formatCurrencyAmount(familyNetIncome)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Seuil de réduction' : 'Reduction Threshold',
+      value: formatCurrencyAmount(reductionThreshold)
+    })
+
+    // Calcul de la réduction si applicable
+    if (reductionAmount > 0) {
+      const excessIncome = Math.max(0, familyNetIncome - reductionThreshold)
+      calculationSteps.push({
+        label: language === 'fr' ? 'Excédent de revenu' : 'Excess Income',
+        value: formatCurrencyAmount(excessIncome)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? `Réduction (${params.reductionRate}%)` : `Reduction (${params.reductionRate}%)`,
+        value: `-${formatCurrencyAmount(reductionAmount)}`
+      })
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Allocation famille nette' : 'Net Family Allowance',
+      value: formatCurrencyAmount(netAllowance),
+      isTotal: true
+    })
+
+    return {
+      name: language === 'fr' ? 'Allocation famille' : 'Family Allowance',
+      description: language === 'fr' 
+        ? 'Aide financière versée aux familles québécoises pour soutenir les coûts liés à l\'éducation des enfants de moins de 18 ans.'
+        : 'Financial assistance provided to Quebec families to support costs related to raising children under 18 years old.',
+      formula: language === 'fr' 
+        ? 'Montant de base + Suppléments - Réduction selon le revenu familial' 
+        : 'Basic amount + Supplements - Reduction based on family income',
+      currentValue: netAllowance,
+      parameters: calculationSteps,
+      webReferences: [
+        {
+          title: language === 'fr' 
+            ? 'Chaire en fiscalité et en finances publiques - Allocation famille'
+            : 'Chair in Taxation and Public Finance - Family Allowance',
+          url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/'
+        },
+        {
+          title: language === 'fr' 
+            ? 'Retraite Québec - Allocation famille'
+            : 'Retraite Québec - Family Allowance',
+          url: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/'
+        }
+      ]
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -1986,6 +2109,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getSolidarityDetails()
       : displayedProgram === 'prime_travail'
       ? getWorkPremiumDetails()
+      : displayedProgram === 'allocation_famille'
+      ? getFamilyAllowanceDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -2035,6 +2160,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.solidarity?.net_credit instanceof Decimal ? results.quebec.solidarity.net_credit.toNumber() : 0
       case 'prime_travail':
         return results.quebec?.work_premium?.net_premium instanceof Decimal ? results.quebec.work_premium.net_premium.toNumber() : 0
+      case 'allocation_famille':
+        return results.quebec?.family_allowance?.net_allowance instanceof Decimal ? results.quebec.family_allowance.net_allowance.toNumber() : 0
       default:
         return 0
     }
@@ -2057,7 +2184,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         const quebecPrograms = [
           getValueForProgram('quebec_tax'),     // Impôt du Québec
           0, // aide_sociale
-          0, // allocation_famille
+          getValueForProgram('allocation_famille'), // allocation_famille
           0, // fournitures_scolaires
           getValueForProgram('prime_travail'), // prime_travail
           getValueForProgram('credit_solidarite'), // credit_solidarite
@@ -2071,7 +2198,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       items: [
         { key: 'quebec_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('quebec_tax') },
         { key: 'aide_sociale', label: language === 'fr' ? 'Aide sociale' : 'Social Assistance', value: 0 },
-        { key: 'allocation_famille', label: language === 'fr' ? 'Allocation famille' : 'Family Allowance', value: 0 },
+        { key: 'allocation_famille', label: language === 'fr' ? 'Allocation famille' : 'Family Allowance', value: getValueForProgram('allocation_famille') },
         { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: 0 },
         { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: getValueForProgram('prime_travail') },
         { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: getValueForProgram('credit_solidarite') },

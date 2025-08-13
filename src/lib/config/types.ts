@@ -138,6 +138,34 @@ export interface RamqConfig {
   monthly_adjustment: number
 }
 
+export interface FamilyAllowanceConfig {
+  basic_allowance: {
+    max_amount: number
+    min_amount: number
+  }
+  single_parent_supplement: {
+    max_amount: number
+    min_amount: number
+  }
+  school_supplies_supplement: {
+    amount: number
+    min_age: number
+    max_age: number
+  }
+  disabled_child_supplement: {
+    basic_amount: number
+    exceptional_care_tier1: number
+    exceptional_care_tier2: number
+  }
+  reduction: {
+    thresholds: {
+      couple: number
+      single_parent: number
+    }
+    rate: number
+  }
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -152,6 +180,7 @@ export interface TaxYearConfig {
   ramq: RamqConfig
   solidarity: SolidarityConfig
   work_premium: WorkPremiumConfig
+  family_allowance: FamilyAllowanceConfig
 }
 
 /**
