@@ -418,6 +418,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     // Ajouter des références web
     const webReferences = language === 'fr' ? [
       {
+        title: 'Chaire en fiscalité et en finances publiques - Cotisations au RRQ',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
+      },
+      {
         title: 'Régie des rentes du Québec - Cotisations au RRQ',
         url: 'https://www.rrq.gouv.qc.ca/fr/programmes/regime_rentes/cotisations/Pages/cotisations.aspx'
       },
@@ -430,6 +434,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         url: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc.html'
       }
     ] : [
+      {
+        title: 'Chaire en fiscalité et en finances publiques - QPP Contributions',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
+      },
       {
         title: 'Régie des rentes du Québec - QPP contributions',
         url: 'https://www.rrq.gouv.qc.ca/en/programmes/regime_rentes/cotisations/Pages/cotisations.aspx'
@@ -560,6 +568,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     // Ajouter des références web
     const webReferences = language === 'fr' ? [
       {
+        title: 'Chaire en fiscalité et en finances publiques - Cotisations au RQAP',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
+      },
+      {
         title: 'Revenu Québec - Régime québécois d\'assurance parentale',
         url: 'https://www.revenuquebec.ca/fr/entreprises/retenues-et-cotisations-de-lemployeur/calculer-les-retenues-et-les-cotisations/cotisations-au-regime-quebecois-dassurance-parentale/'
       },
@@ -572,6 +584,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-financiere/regime-quebecois-assurance-parentale'
       }
     ] : [
+      {
+        title: 'Chaire en fiscalité et en finances publiques - QPIP Contributions',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
+      },
       {
         title: 'Revenu Québec - Quebec parental insurance plan',
         url: 'https://www.revenuquebec.ca/en/businesses/source-deductions-and-employer-contributions/calculating-source-deductions-and-contributions/quebec-parental-insurance-plan-contributions/'
@@ -1633,6 +1649,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     // Ajouter des références web
     const webReferences = language === 'fr' ? [
       {
+        title: 'Chaire en fiscalité et en finances publiques - Cotisations à l\'assurance-emploi',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
+      },
+      {
         title: 'Agence du revenu du Canada - Taux de cotisation à l\'AE et maximums',
         url: 'https://www.canada.ca/fr/agence-revenu/services/impot/entreprises/sujets/retenues-paie/retenues-paie-cotisations/assurance-emploi-ae/taux-cotisation-a-ae-maximums.html'
       },
@@ -1645,6 +1665,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         url: 'https://www.canada.ca/fr/emploi-developpement-social/programmes/assurance-emploi/ae-liste/rapports/comment-fonctionne.html'
       }
     ] : [
+      {
+        title: 'Chaire en fiscalité et en finances publiques - EI Contributions',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
+      },
       {
         title: 'Canada Revenue Agency - EI contribution rates and maximums',
         url: 'https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/employment-insurance-ei/ei-contribution-rates-maximums.html'
