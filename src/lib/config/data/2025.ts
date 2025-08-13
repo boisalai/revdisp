@@ -120,6 +120,80 @@ export const config2025: TaxYearConfig = {
   },
 
   /**
+   * Crédit d'impôt pour solidarité du Québec 2025
+   * 
+   * Crédit remboursable comprenant trois composantes:
+   * - TVQ: Compense l'effet de la taxe sur le pouvoir d'achat
+   * - Logement: Pour propriétaires, locataires ou sous-locataires
+   * - Village nordique: Coût de la vie plus élevé (14 villages)
+   * 
+   * Sources:
+   * - https://www.calculconversion.com/calcul-credit-impot-solidarite-2024-2025.html
+   * - https://hellosafe.ca/outils/credit-impot-pour-solidarite
+   */
+  solidarity: {
+    tvq_component: {
+      base_amount: 346, // Montant de base 2025
+      spouse_amount: 346, // Montant conjoint
+      single_additional: 164 // Supplément personne seule
+    },
+    housing_component: {
+      couple_amount: 863, // Montant couple
+      single_amount: 711, // Montant personne seule/parent monoparental
+      child_amount: 151 // Par enfant à charge
+    },
+    northern_village_component: {
+      adult_amount: 2033, // Par adulte en village nordique
+      child_amount: 439 // Par enfant en village nordique
+    },
+    reduction: {
+      threshold: 41150, // Seuil de réduction 2025
+      rate: 0.06, // Taux de réduction 6%
+      single_component_rate: 0.03 // Taux réduit 3% (une seule composante)
+    }
+  },
+
+  /**
+   * Prime au travail du Québec 2025
+   * 
+   * Crédit d'impôt remboursable pour soutenir et valoriser l'effort de travail
+   * et inciter les personnes à quitter l'aide financière de dernier recours.
+   * 
+   * Sources:
+   * - https://www.revenuquebec.ca/en/citizens/tax-credits/work-premium-tax-credits/
+   * - https://www.budget.finances.gouv.qc.ca/budget/outils/depenses-fiscales/fiches/fiche-110905.asp
+   */
+  work_premium: {
+    minimum_work_income: {
+      single: 2400, // Revenu minimum requis pour personne seule
+      couple: 3600  // Revenu minimum requis pour couple
+    },
+    maximum_amounts: {
+      single: 1175, // Montant maximum pour personne seule (indexé 2025)
+      single_parent: 3040, // Montant maximum pour parent seul
+      couple_with_children: 3950, // Montant maximum pour couple avec enfants
+      couple_without_children: 1175 // Montant maximum pour couple sans enfants
+    },
+    growth_rates: {
+      no_children: 0.116, // Taux de croissance 11.6% pour ménages sans enfants
+      with_children: 0.25  // Taux de croissance 25% pour ménages avec enfants
+    },
+    reduction: {
+      rate: 0.10, // Taux de réduction 10%
+      thresholds: {
+        single: 23260, // Seuil de réduction pour personne seule
+        single_parent: 41000, // Seuil de réduction pour parent seul
+        couple_with_children: 58950, // Seuil de réduction pour couple avec enfants
+        couple_without_children: 35200 // Seuil de réduction pour couple sans enfants
+      }
+    },
+    excluded_work_income: {
+      single: 2400, // Revenu de travail exclu pour personne seule
+      couple: 3600  // Revenu de travail exclu pour couple
+    }
+  },
+
+  /**
    * Régime d'assurance médicaments du Québec (RAMQ)
    * 
    * Note: Paramètres 2025 non annoncés, estimation indexée basée sur 2024

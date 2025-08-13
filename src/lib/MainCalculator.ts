@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium']
       
       for (const type of calculatorTypes) {
         try {
@@ -193,8 +193,39 @@ export class RevenuDisponibleCalculator {
       .filter((value): value is Decimal => value instanceof Decimal)
       .reduce((sum, value) => sum.plus(value), new Decimal(0))
 
+    // 4. Calculate Quebec transfers and credits
+    let totalTransfers = new Decimal(0)
+    
+    // Solidarity tax credit
+    if (this.calculators.solidarity) {
+      const solidarityResult = (this.calculators.solidarity as any).calculateHousehold(household, {
+        quebec_net_income: results.quebec.net_income?.individual || new Decimal(0),
+        federal_net_income: results.canada.net_income?.individual || new Decimal(0)
+      })
+      
+      // Store detailed result
+      results.quebec.solidarity = solidarityResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(solidarityResult.net_credit)
+    }
+
+    // Work premium
+    if (this.calculators.work_premium) {
+      const workPremiumResult = (this.calculators.work_premium as any).calculateHousehold(household, {
+        quebec_net_income: results.quebec.net_income?.individual || new Decimal(0),
+        federal_net_income: results.canada.net_income?.individual || new Decimal(0)
+      })
+      
+      // Store detailed result
+      results.quebec.work_premium = workPremiumResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(workPremiumResult.net_premium)
+    }
+
     // Calculate disposable income
-    // Gross income - contributions - taxes + transfers (to be implemented)
+    // Gross income - contributions - taxes + transfers
     const grossIncome = this.calculateGrossIncome(household)
     const totalContributions = results.cotisations.total || new Decimal(0)
     const totalTaxes = results.taxes.total || new Decimal(0)
@@ -202,11 +233,10 @@ export class RevenuDisponibleCalculator {
     results.revenu_disponible = grossIncome
       .minus(totalContributions)
       .minus(totalTaxes)
+      .plus(totalTransfers)
     
     // Ensure disposable income is not negative
     results.revenu_disponible = Decimal.max(0, results.revenu_disponible)
-
-    // TODO: Add transfers and credits to increase disposable income
 
     return results
   }

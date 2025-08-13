@@ -68,6 +68,58 @@ export interface FssConfig {
   max_contribution: number
 }
 
+export interface SolidarityConfig {
+  tvq_component: {
+    base_amount: number
+    spouse_amount: number
+    single_additional: number
+  }
+  housing_component: {
+    couple_amount: number
+    single_amount: number
+    child_amount: number
+  }
+  northern_village_component: {
+    adult_amount: number
+    child_amount: number
+  }
+  reduction: {
+    threshold: number
+    rate: number
+    single_component_rate: number
+  }
+}
+
+export interface WorkPremiumConfig {
+  minimum_work_income: {
+    single: number
+    couple: number
+  }
+  maximum_amounts: {
+    single: number
+    single_parent: number
+    couple_with_children: number
+    couple_without_children: number
+  }
+  growth_rates: {
+    no_children: number
+    with_children: number
+  }
+  reduction: {
+    rate: number
+    thresholds: {
+      single: number
+      single_parent: number
+      couple_with_children: number
+      couple_without_children: number
+    }
+  }
+  excluded_work_income: {
+    single: number
+    couple: number
+  }
+}
+
 export interface RamqConfig {
   max_contribution: number
   exemption_single: number
@@ -98,6 +150,8 @@ export interface TaxYearConfig {
   qpp: QppConfig
   fss: FssConfig
   ramq: RamqConfig
+  solidarity: SolidarityConfig
+  work_premium: WorkPremiumConfig
 }
 
 /**

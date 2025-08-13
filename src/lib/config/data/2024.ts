@@ -80,6 +80,71 @@ export const config2024: TaxYearConfig = {
     base_contribution: 150,
     max_contribution: 1000
   },
+
+  /**
+   * Crédit d'impôt pour solidarité du Québec 2024
+   * 
+   * Sources:
+   * - https://www.calculconversion.com/calcul-credit-impot-solidarite-2024-2025.html
+   */
+  solidarity: {
+    tvq_component: {
+      base_amount: 346,
+      spouse_amount: 346,
+      single_additional: 164
+    },
+    housing_component: {
+      couple_amount: 863,
+      single_amount: 711,
+      child_amount: 151
+    },
+    northern_village_component: {
+      adult_amount: 2033,
+      child_amount: 439
+    },
+    reduction: {
+      threshold: 41150,
+      rate: 0.06,
+      single_component_rate: 0.03
+    }
+  },
+
+  /**
+   * Prime au travail du Québec 2024
+   * 
+   * Sources:
+   * - https://www.revenuquebec.ca/en/citizens/tax-credits/work-premium-tax-credits/
+   */
+  work_premium: {
+    minimum_work_income: {
+      single: 2400,
+      couple: 3600
+    },
+    maximum_amounts: {
+      single: 1152, // Montant confirmé 2024
+      single_parent: 2980, // Montant confirmé 2024
+      couple_with_children: 3873, // Montant confirmé 2024
+      couple_without_children: 1152
+    },
+    growth_rates: {
+      no_children: 0.116,
+      with_children: 0.25
+    },
+    reduction: {
+      rate: 0.10,
+      thresholds: {
+        single: 22795, // Montant confirmé 2024
+        single_parent: 40168, // Montant confirmé 2024
+        couple_with_children: 57822,
+        couple_without_children: 34500
+      }
+    },
+    excluded_work_income: {
+      single: 2400,
+      couple: 3600
+    }
+  },
+
   ramq: {
     max_contribution: 737.50,
     exemption_single: 19790,

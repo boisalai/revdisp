@@ -70,6 +70,71 @@ export const config2023: TaxYearConfig = {
     base_contribution: 150,
     max_contribution: 1000
   },
+
+  /**
+   * Crédit d'impôt pour solidarité du Québec 2023
+   * 
+   * Sources:
+   * - https://www.calculconversion.com/calcul-credit-impot-solidarite-2023-2024.html
+   */
+  solidarity: {
+    tvq_component: {
+      base_amount: 329,
+      spouse_amount: 329,
+      single_additional: 156
+    },
+    housing_component: {
+      couple_amount: 821,
+      single_amount: 677,
+      child_amount: 144
+    },
+    northern_village_component: {
+      adult_amount: 1935,
+      child_amount: 418
+    },
+    reduction: {
+      threshold: 39160,
+      rate: 0.06,
+      single_component_rate: 0.03
+    }
+  },
+
+  /**
+   * Prime au travail du Québec 2023
+   * 
+   * Sources:
+   * - Estimations basées sur l'indexation et les paramètres 2024
+   */
+  work_premium: {
+    minimum_work_income: {
+      single: 2400,
+      couple: 3600
+    },
+    maximum_amounts: {
+      single: 1120, // Estimation 2023
+      single_parent: 2900, // Estimation 2023
+      couple_with_children: 3770, // Estimation 2023
+      couple_without_children: 1120
+    },
+    growth_rates: {
+      no_children: 0.116,
+      with_children: 0.25
+    },
+    reduction: {
+      rate: 0.10,
+      thresholds: {
+        single: 22200, // Estimation 2023
+        single_parent: 39100, // Estimation 2023
+        couple_with_children: 56300,
+        couple_without_children: 33600
+      }
+    },
+    excluded_work_income: {
+      single: 2400,
+      couple: 3600
+    }
+  },
+
   ramq: {
     max_contribution: 720.50,
     exemption_single: 18910,

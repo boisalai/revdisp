@@ -227,6 +227,41 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
         ]
       }
     })(),
+    solidarity: (() => {
+      const params2023 = {
+        tvqBase: 329,
+        housingCouple: 821,
+        housingSingle: 677,
+        threshold: 39160
+      }
+      const params2024 = {
+        tvqBase: 346,
+        housingCouple: 863,
+        housingSingle: 711,
+        threshold: 41150
+      }
+      const params2025 = {
+        tvqBase: 346,
+        housingCouple: 863,
+        housingSingle: 711,
+        threshold: 41150
+      }
+      const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+      
+      return {
+        name: 'Quebec Solidarity Tax Credit',
+        description: 'Refundable tax credit to help low and middle-income households with the cost of living in Quebec.',
+        formula: 'TVQ Component + Housing Component + Northern Village Component - Income-based reduction',
+        parameters: [
+          { label: 'TVQ Base Amount', value: `$${params.tvqBase} (${taxYear})` },
+          { label: 'Housing (Couple)', value: `$${params.housingCouple} (${taxYear})` },
+          { label: 'Housing (Single)', value: `$${params.housingSingle} (${taxYear})` },
+          { label: 'Child Amount', value: taxYear === 2023 ? '$144' : '$151' },
+          { label: 'Reduction Threshold', value: `$${params.threshold.toLocaleString()} (${taxYear})` },
+          { label: 'Reduction Rate', value: '6% (3% for single component)' }
+        ]
+      }
+    })(),
     allocation_famille: {
       name: 'Family Allowance',
       description: 'Monthly financial assistance paid to families to help them cover part of the costs related to raising their children.',
@@ -1640,6 +1675,272 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       parameters: calculationSteps
     }
   }
+
+  // Génère les détails dynamiques du crédit de solidarité basés sur les données réelles
+  const getSolidarityDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats du crédit de solidarité
+    const solidarityResult = results.quebec?.solidarity
+    if (!solidarityResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      tvqBase: 329, housingCouple: 821, housingSingle: 677, childAmount: 144, threshold: 39160
+    }
+    const params2024 = {
+      tvqBase: 346, housingCouple: 863, housingSingle: 711, childAmount: 151, threshold: 41150
+    }
+    const params2025 = {
+      tvqBase: 346, housingCouple: 863, housingSingle: 711, childAmount: 151, threshold: 41150
+    }
+    const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+
+    const calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
+
+    // Afficher les composantes
+    const tvqAmount = solidarityResult.tvq_component?.toNumber() || 0
+    const housingAmount = solidarityResult.housing_component?.toNumber() || 0
+    const northernAmount = solidarityResult.northern_village_component?.toNumber() || 0
+    const familyIncome = solidarityResult.family_net_income?.toNumber() || 0
+    const reductionAmount = solidarityResult.reduction_amount?.toNumber() || 0
+    const netCredit = solidarityResult.net_credit?.toNumber() || 0
+
+    // Détails des composantes
+    calculationSteps.push({
+      label: language === 'fr' ? 'Composante TVQ' : 'QST Component',
+      value: formatCurrencyAmount(tvqAmount)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? '• Montant de base' : '• Base amount',
+      value: `${params.tvqBase}$`
+    })
+
+    if (household.householdType === 'couple' || household.householdType === 'retired_couple') {
+      calculationSteps.push({
+        label: language === 'fr' ? '• Montant conjoint' : '• Spouse amount',
+        value: `${params.tvqBase}$`
+      })
+    }
+
+    if (household.householdType === 'single' || household.householdType === 'retired_single' || household.householdType === 'single_parent') {
+      calculationSteps.push({
+        label: language === 'fr' ? '• Supplément personne seule' : '• Single person supplement',
+        value: '164$'
+      })
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Composante logement' : 'Housing Component',
+      value: formatCurrencyAmount(housingAmount)
+    })
+
+    const housingBase = household.spouse ? params.housingCouple : params.housingSingle
+    calculationSteps.push({
+      label: language === 'fr' ? '• Montant de base logement' : '• Base housing amount',
+      value: `${housingBase}$`
+    })
+
+    if (household.numChildren > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? `• Enfants (${household.numChildren} × ${params.childAmount}$)` : `• Children (${household.numChildren} × ${params.childAmount}$)`,
+        value: `${household.numChildren * params.childAmount}$`
+      })
+    }
+
+    if (northernAmount > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Composante village nordique' : 'Northern Village Component',
+        value: formatCurrencyAmount(northernAmount)
+      })
+    }
+
+    // Total brut
+    const grossTotal = tvqAmount + housingAmount + northernAmount
+    calculationSteps.push({
+      label: language === 'fr' ? 'Total brut' : 'Gross Total',
+      value: formatCurrencyAmount(grossTotal),
+      isTotal: true
+    })
+
+    // Réduction basée sur le revenu
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu familial net' : 'Family Net Income',
+      value: formatCurrencyAmount(familyIncome)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Seuil de réduction' : 'Reduction Threshold',
+      value: `${params.threshold.toLocaleString()}$`
+    })
+
+    if (reductionAmount > 0) {
+      const excessIncome = familyIncome - params.threshold
+      calculationSteps.push({
+        label: language === 'fr' ? 'Revenu excédentaire' : 'Excess Income',
+        value: formatCurrencyAmount(Math.max(0, excessIncome))
+      })
+
+      const components = solidarityResult.components_count || 2
+      const rate = components === 1 ? 3 : 6
+      calculationSteps.push({
+        label: language === 'fr' ? `Réduction (${rate}%)` : `Reduction (${rate}%)`,
+        value: `-${formatCurrencyAmount(reductionAmount)}`
+      })
+    }
+
+    // Crédit net final
+    calculationSteps.push({
+      label: language === 'fr' ? 'Crédit net final' : 'Final Net Credit',
+      value: formatCurrencyAmount(netCredit),
+      isTotal: true
+    })
+
+    return {
+      name: language === 'fr' ? 'Crédit d\'impôt pour solidarité' : 'Solidarity Tax Credit',
+      description: language === 'fr' 
+        ? 'Crédit d\'impôt remboursable destiné à aider les ménages à revenus faible et moyen à faire face au coût de la vie au Québec. Comprend trois composantes : TVQ, logement et village nordique.'
+        : 'Refundable tax credit to help low and middle-income households cope with the cost of living in Quebec. Includes three components: QST, housing and northern village.',
+      formula: '', // Détail complet dans les paramètres
+      currentValue: netCredit,
+      parameters: calculationSteps
+    }
+  }
+
+  const getWorkPremiumDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats de la prime au travail
+    const workPremiumResult = results.quebec?.work_premium
+    if (!workPremiumResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      singleMax: 1120, singleParentMax: 2900, coupleWithChildrenMax: 3770, coupleWithoutChildrenMax: 1120,
+      singleThreshold: 22200, singleParentThreshold: 39100, coupleWithChildrenThreshold: 56300, coupleWithoutChildrenThreshold: 33600
+    }
+    const params2024 = {
+      singleMax: 1152, singleParentMax: 2980, coupleWithChildrenMax: 3873, coupleWithoutChildrenMax: 1152,
+      singleThreshold: 22795, singleParentThreshold: 40168, coupleWithChildrenThreshold: 57822, coupleWithoutChildrenThreshold: 34500
+    }
+    const params2025 = {
+      singleMax: 1185, singleParentMax: 3065, coupleWithChildrenMax: 3980, coupleWithoutChildrenMax: 1185,
+      singleThreshold: 23400, singleParentThreshold: 41300, coupleWithChildrenThreshold: 59400, coupleWithoutChildrenThreshold: 35400
+    }
+    const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+
+    const calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
+
+    // Afficher les informations de base
+    const workIncome = workPremiumResult.work_income?.toNumber() || 0
+    const familyNetIncome = workPremiumResult.family_net_income?.toNumber() || 0
+    const basicPremium = workPremiumResult.basic_premium?.toNumber() || 0
+    const netPremium = workPremiumResult.net_premium?.toNumber() || 0
+    const calculationPhase = workPremiumResult.calculation_phase || 'ineligible'
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu de travail' : 'Work Income',
+      value: formatCurrencyAmount(workIncome)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu familial net' : 'Family Net Income',
+      value: formatCurrencyAmount(familyNetIncome)
+    })
+
+    // Déterminer le type de ménage
+    const householdType = household.spouse 
+      ? (household.numberOfChildren > 0 ? 'couple_with_children' : 'couple_without_children')
+      : (household.numberOfChildren > 0 ? 'single_parent' : 'single')
+
+    // Afficher les paramètres selon le type de ménage
+    if (householdType === 'single') {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prime maximale (célibataire)' : 'Maximum Premium (Single)',
+        value: formatCurrencyAmount(params.singleMax)
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? 'Seuil de réduction' : 'Reduction Threshold',
+        value: formatCurrencyAmount(params.singleThreshold)
+      })
+    } else if (householdType === 'single_parent') {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prime maximale (parent seul)' : 'Maximum Premium (Single Parent)',
+        value: formatCurrencyAmount(params.singleParentMax)
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? 'Seuil de réduction' : 'Reduction Threshold',
+        value: formatCurrencyAmount(params.singleParentThreshold)
+      })
+    } else if (householdType === 'couple_with_children') {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prime maximale (couple avec enfants)' : 'Maximum Premium (Couple with Children)',
+        value: formatCurrencyAmount(params.coupleWithChildrenMax)
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? 'Seuil de réduction' : 'Reduction Threshold',
+        value: formatCurrencyAmount(params.coupleWithChildrenThreshold)
+      })
+    } else {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prime maximale (couple sans enfants)' : 'Maximum Premium (Couple without Children)',
+        value: formatCurrencyAmount(params.coupleWithoutChildrenMax)
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? 'Seuil de réduction' : 'Reduction Threshold',
+        value: formatCurrencyAmount(params.coupleWithoutChildrenThreshold)
+      })
+    }
+
+    // Afficher la phase de calcul
+    const phaseLabels = {
+      fr: {
+        ineligible: 'Non admissible',
+        growth: 'Croissance',
+        maximum: 'Maximum',
+        reduction: 'Réduction',
+        zero: 'Zéro'
+      },
+      en: {
+        ineligible: 'Not Eligible',
+        growth: 'Growth Phase',
+        maximum: 'Maximum Phase',
+        reduction: 'Reduction Phase',
+        zero: 'Zero'
+      }
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Phase de calcul' : 'Calculation Phase',
+      value: phaseLabels[language][calculationPhase] || calculationPhase
+    })
+
+    if (basicPremium > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prime de base calculée' : 'Calculated Basic Premium',
+        value: formatCurrencyAmount(basicPremium)
+      })
+    }
+
+    // Résultat final
+    calculationSteps.push({
+      label: language === 'fr' ? 'Prime au travail nette' : 'Net Work Premium',
+      value: formatCurrencyAmount(netPremium),
+      isTotal: true
+    })
+
+    return {
+      name: language === 'fr' ? 'Prime au travail' : 'Work Premium',
+      description: language === 'fr' 
+        ? 'Crédit d\'impôt remboursable qui encourage le travail en offrant un supplément de revenu aux travailleurs et travailleuses à revenu faible ou moyen.'
+        : 'Refundable tax credit that encourages work by providing income supplement to low and middle-income workers.',
+      formula: '', // Détail complet dans les paramètres
+      currentValue: netPremium,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -1657,6 +1958,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getQcTaxDetails()
       : displayedProgram === 'federal_tax'
       ? getFederalTaxDetails()
+      : displayedProgram === 'credit_solidarite'
+      ? getSolidarityDetails()
+      : displayedProgram === 'prime_travail'
+      ? getWorkPremiumDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -1702,6 +2007,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.taxes?.quebec instanceof Decimal ? -results.taxes.quebec.toNumber() : 0
       case 'federal_tax':
         return results.taxes?.canada instanceof Decimal ? -results.taxes.canada.toNumber() : 0
+      case 'credit_solidarite':
+        return results.quebec?.solidarity?.net_credit instanceof Decimal ? results.quebec.solidarity.net_credit.toNumber() : 0
+      case 'prime_travail':
+        return results.quebec?.work_premium?.net_premium instanceof Decimal ? results.quebec.work_premium.net_premium.toNumber() : 0
       default:
         return 0
     }
@@ -1726,8 +2035,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           0, // aide_sociale
           0, // allocation_famille
           0, // fournitures_scolaires
-          0, // prime_travail
-          0, // credit_solidarite
+          getValueForProgram('prime_travail'), // prime_travail
+          getValueForProgram('credit_solidarite'), // credit_solidarite
           0, // credit_garde
           0, // allocation_logement
           0, // credit_medical
@@ -1740,8 +2049,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'aide_sociale', label: language === 'fr' ? 'Aide sociale' : 'Social Assistance', value: 0 },
         { key: 'allocation_famille', label: language === 'fr' ? 'Allocation famille' : 'Family Allowance', value: 0 },
         { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: 0 },
-        { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: 0 },
-        { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: 0 },
+        { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: getValueForProgram('prime_travail') },
+        { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: getValueForProgram('credit_solidarite') },
         { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: 0 },
         { key: 'allocation_logement', label: language === 'fr' ? 'Allocation-logement' : 'Housing Allowance', value: 0 },
         { key: 'credit_medical', label: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux' : 'Medical Expense Tax Credit', value: 0 },
@@ -1862,8 +2171,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                     >
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
-                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq, quebec_tax et federal_tax */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax') && (
+                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq, quebec_tax, federal_tax et credit_solidarite */}
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -1897,7 +2206,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-black">{currentProgram.name}</h4>
-                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax') && (
+                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite') && (
                   <div className="flex items-center text-xs" style={{ color: '#000000' }}>
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -1977,8 +2286,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
                     </svg>
                     <span>{language === 'fr' ? 
-                      'Cliquez sur "Impôt Québec", "Impôt fédéral", "Assurance-emploi", "RRQ", "RQAP", "FSS" ou "RAMQ" pour épingler les détails' : 
-                      'Click on "Quebec Tax", "Federal Tax", "Employment Insurance", "QPP", "QPIP", "HSF" or "RAMQ" to pin details'
+                      'Cliquez sur "Impôt Québec", "Impôt fédéral", "Assurance-emploi", "RRQ", "RQAP", "FSS", "RAMQ" ou "Crédit solidarité" pour épingler les détails' : 
+                      'Click on "Quebec Tax", "Federal Tax", "Employment Insurance", "QPP", "QPIP", "HSF", "RAMQ" or "Solidarity Credit" to pin details'
                     }</span>
                   </div>
                   <p>{language === 'fr' ? 
