@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit']
       
       for (const type of calculatorTypes) {
         try {
@@ -236,6 +236,19 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(familyAllowanceResult.net_allowance)
+    }
+
+    // Canada Child Benefit (ACE)
+    if (this.calculators.canada_child_benefit) {
+      const ccbResult = (this.calculators.canada_child_benefit as any).calculateDetailed(household, {
+        federal_net_income: results.canada.net_income?.family || new Decimal(0)
+      })
+      
+      // Store detailed result
+      results.canada.child_benefit = ccbResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(ccbResult.net_benefit)
     }
 
     // Calculate disposable income

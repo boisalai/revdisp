@@ -166,6 +166,34 @@ export interface FamilyAllowanceConfig {
   }
 }
 
+export interface CanadaChildBenefitConfig {
+  base_amounts: {
+    under_6: number
+    age_6_to_17: number
+  }
+  disability_benefit: {
+    amount: number
+  }
+  thresholds: {
+    first: number
+    second: number
+  }
+  reduction_rates: {
+    first_phase: {
+      one_child: number
+      two_children: number
+      three_children: number
+      four_plus_children: number
+    }
+    second_phase: {
+      one_child: number
+      two_children: number
+      three_children: number
+      four_plus_children: number
+    }
+  }
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -181,6 +209,7 @@ export interface TaxYearConfig {
   solidarity: SolidarityConfig
   work_premium: WorkPremiumConfig
   family_allowance: FamilyAllowanceConfig
+  canada_child_benefit: CanadaChildBenefitConfig
 }
 
 /**

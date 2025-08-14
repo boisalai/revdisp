@@ -10,7 +10,9 @@
       "Bash(git add:*)",
       "mcp__playwright",
       "WebFetch(domain:www.canada.ca)",
-      "WebFetch(domain:www.taxtips.ca)"
+      "WebFetch(domain:www.taxtips.ca)",
+      "WebFetch(domain:www.revenuquebec.ca)",
+      "WebFetch(domain:www.calculconversion.com)"
     ],
     "deny": []
   },

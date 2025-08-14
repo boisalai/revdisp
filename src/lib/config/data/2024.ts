@@ -198,5 +198,42 @@ export const config2024: TaxYearConfig = {
       },
       rate: 0.04
     }
+  },
+  /**
+   * Allocation canadienne pour enfants (ACE) 2024
+   * 
+   * Période de versement: juillet 2024 à juin 2025
+   * Basé sur le revenu familial net ajusté de 2023
+   * 
+   * Sources:
+   * - Agence du revenu du Canada
+   * - CFFP Université de Sherbrooke
+   */
+  canada_child_benefit: {
+    base_amounts: {
+      under_6: 7787,      // Maximum annuel pour enfants < 6 ans
+      age_6_to_17: 6570   // Maximum annuel pour enfants 6-17 ans
+    },
+    disability_benefit: {
+      amount: 3322        // Prestation pour enfants handicapés
+    },
+    thresholds: {
+      first: 36502,       // Seuil pour réduction phase 1
+      second: 79087       // Seuil pour réduction phase 2
+    },
+    reduction_rates: {
+      first_phase: {      // Taux de réduction entre seuil 1 et 2
+        one_child: 0.07,
+        two_children: 0.135,
+        three_children: 0.19,
+        four_plus_children: 0.23
+      },
+      second_phase: {     // Taux de réduction après seuil 2
+        one_child: 0.032,
+        two_children: 0.057,
+        three_children: 0.08,
+        four_plus_children: 0.095
+      }
+    }
   }
 } as const

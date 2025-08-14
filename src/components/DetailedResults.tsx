@@ -2108,6 +2108,124 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  const getCanadaChildBenefitDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats de l'ACE
+    const ccbResult = results.canada?.child_benefit
+    if (!ccbResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      under6: 7437, age6to17: 6275, disability: 3173, firstThreshold: 34863, secondThreshold: 75537
+    }
+    const params2024 = {
+      under6: 7787, age6to17: 6570, disability: 3322, firstThreshold: 36502, secondThreshold: 79087  
+    }
+    const params2025 = {
+      under6: 7997, age6to17: 6748, disability: 3411, firstThreshold: 37487, secondThreshold: 81222
+    }
+    const params = taxYear === 2025 ? params2025 : taxYear === 2024 ? params2024 : params2023
+
+    const calculationSteps: Array<{ label: string; value: string; isReference?: boolean }> = []
+
+    const netBenefit = ccbResult.net_benefit?.toNumber() || 0
+    const baseBenefit = ccbResult.base_benefit?.toNumber() || 0
+    const disabilityBenefit = ccbResult.disability_benefit?.toNumber() || 0
+    const reductionAmount = ccbResult.reduction_amount?.toNumber() || 0
+    const familyNetIncome = ccbResult.family_net_income?.toNumber() || 0
+    const childrenUnder6 = ccbResult.eligible_children_under_6 || 0
+    const children6to17 = ccbResult.eligible_children_6_to_17 || 0
+
+    // Étapes de calcul
+    calculationSteps.push({
+      label: language === 'fr' ? 'Enfants éligibles (< 6 ans)' : 'Eligible children (< 6 years)',
+      value: childrenUnder6.toString()
+    })
+    
+    calculationSteps.push({
+      label: language === 'fr' ? 'Enfants éligibles (6-17 ans)' : 'Eligible children (6-17 years)',  
+      value: children6to17.toString()
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? `Montant de base (< 6 ans): ${childrenUnder6} × ${params.under6.toLocaleString()} $` : `Base amount (< 6 years): ${childrenUnder6} × $${params.under6.toLocaleString()}`,
+      value: `${(childrenUnder6 * params.under6).toLocaleString()} $`
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? `Montant de base (6-17 ans): ${children6to17} × ${params.age6to17.toLocaleString()} $` : `Base amount (6-17 years): ${children6to17} × $${params.age6to17.toLocaleString()}`,
+      value: `${(children6to17 * params.age6to17).toLocaleString()} $`
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Prestation de base totale' : 'Total base benefit',
+      value: `${baseBenefit.toLocaleString()} $`
+    })
+
+    if (disabilityBenefit > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prestation pour enfants handicapés' : 'Disability benefit',
+        value: `${disabilityBenefit.toLocaleString()} $`
+      })
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu familial net ajusté' : 'Adjusted family net income',
+      value: `${familyNetIncome.toLocaleString()} $`
+    })
+
+    if (reductionAmount > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Réduction selon le revenu' : 'Income-based reduction',
+        value: `${reductionAmount.toLocaleString()} $`
+      })
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Allocation canadienne pour enfants (nette)' : 'Canada Child Benefit (net)',
+      value: `${netBenefit.toLocaleString()} $`
+    })
+
+    // Références officielles
+    const webReferences = [
+      {
+        title: language === 'fr' 
+          ? 'Agence du revenu du Canada - Allocation canadienne pour enfants'
+          : 'Canada Revenue Agency - Canada Child Benefit',
+        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-child-benefit-overview.html'
+      },
+      {
+        title: language === 'fr'
+          ? 'Calculateur de prestations pour enfants et familles'
+          : 'Child and family benefits calculator',
+        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/child-family-benefits-calculator.html'
+      },
+      {
+        title: 'CFFP - Allocation canadienne pour enfants',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-canadienne-enfants/'
+      }
+    ]
+
+    calculationSteps.push(...webReferences.map(ref => ({
+      label: ref.title,
+      value: ref.url,
+      isReference: true
+    })))
+
+    return {
+      name: language === 'fr' ? 'Allocation canadienne pour enfants (ACE)' : 'Canada Child Benefit (CCB)',
+      description: language === 'fr'
+        ? 'Prestation mensuelle non imposable versée aux familles admissibles pour les aider à assumer les coûts liés à l\'éducation des enfants de moins de 18 ans.'
+        : 'Monthly non-taxable benefit paid to eligible families to help them with the costs of raising children under 18 years of age.',
+      formula: language === 'fr'
+        ? 'Montant de base + Prestation handicap - Réduction selon le revenu familial net ajusté'
+        : 'Base amount + Disability benefit - Reduction based on adjusted family net income',
+      currentValue: netBenefit,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -2131,6 +2249,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getWorkPremiumDetails()
       : displayedProgram === 'allocation_famille'
       ? getFamilyAllowanceDetails()
+      : displayedProgram === 'allocation_enfants'
+      ? getCanadaChildBenefitDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -2182,6 +2302,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.work_premium?.net_premium instanceof Decimal ? results.quebec.work_premium.net_premium.toNumber() : 0
       case 'allocation_famille':
         return results.quebec?.family_allowance?.net_allowance instanceof Decimal ? results.quebec.family_allowance.net_allowance.toNumber() : 0
+      case 'allocation_enfants':
+        return results.canada?.child_benefit?.net_benefit instanceof Decimal ? results.canada.child_benefit.net_benefit.toNumber() : 0
       default:
         return 0
     }
@@ -2235,7 +2357,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         // Calculer la somme de tous les programmes fédéraux
         const federalPrograms = [
           getValueForProgram('federal_tax'), // federal_tax
-          0, // allocation_enfants
+          getValueForProgram('allocation_enfants'), // allocation_enfants
           0, // credit_tps
           0, // allocation_travailleurs
           0, // securite_vieillesse
@@ -2245,7 +2367,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })(),
       items: [
         { key: 'federal_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('federal_tax') },
-        { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: 0 },
+        { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: getValueForProgram('allocation_enfants') },
         { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: 0 },
         { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: 0 },
         { key: 'securite_vieillesse', label: language === 'fr' ? 'Programme de la Sécurité de la vieillesse' : 'Old Age Security Program', value: 0 },
@@ -2343,7 +2465,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq, quebec_tax, federal_tax et credit_solidarite */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -2377,7 +2499,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-black">{currentProgram.name}</h4>
-                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite') && (
+                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite' || displayedProgram === 'allocation_enfants') && (
                   <div className="flex items-center text-xs" style={{ color: '#000000' }}>
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
