@@ -20,9 +20,9 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
 - ✅ **Prime au travail du Québec**: Supplément au revenu de travail
 
 ### Prochaines Priorités d'Implémentation
-- 🔄 **Allocation famille (Québec)**: En cours d'analyse
-- 🔄 **Allocation canadienne pour enfants (ACE)**: Programme fédéral
-- 🔄 **Crédit pour la TPS/TVH**: Crédit trimestriel 
+- ✅ **Allocation famille (Québec)**: IMPLÉMENTÉ
+- ✅ **Allocation canadienne pour enfants (ACE)**: IMPLÉMENTÉ  
+- ✅ **Crédit pour la TPS/TVH**: IMPLÉMENTÉ 
 
 ### Application Architecture
 
@@ -49,6 +49,7 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
   - `RqapCalculator.ts`: Quebec Parental Insurance Plan ✅
   - `FssCalculator.ts`: Health Services Fund (retirees 65+) ✅
   - `RamqCalculator.ts`: Quebec prescription drug insurance ✅
+  - `GstCreditCalculator.ts`: Federal GST/HST credit ✅
 
 **Data Models:**
 - **`src/lib/models/index.ts`**: Enhanced `Person`, `Household` classes with TypeScript validation
@@ -317,10 +318,10 @@ Basé sur l'analyse du calculateur officiel du ministère des Finances du Québe
    - Calculs selon le revenu familial net ajusté ✅
    - Suppléments pour jeunes enfants ✅
 
-7. 🔄 **Crédit pour la TPS/TVH**
-   - Crédit trimestriel fédéral
-   - Montants selon la composition familiale
-   - Réduction progressive
+7. ✅ **Crédit pour la TPS/TVH** - IMPLÉMENTÉ
+   - Crédit trimestriel fédéral ✅
+   - Montants selon la composition familiale ✅
+   - Réduction progressive ✅
 
 8. 🔄 **Allocation canadienne pour les travailleurs**
 9. **Programme de la SÉcurité de la vieillesse (PSV)**

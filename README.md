@@ -19,7 +19,21 @@ This calculator provides accurate calculations for Quebec households across diff
 
 ## Features
 
+### Social Insurance Contributions
 - Complete Quebec contribution calculations: Quebec Pension Plan (QPP), Employment Insurance (EI), Quebec Parental Insurance Plan (QPIP), Health Services Fund (HSF), Quebec prescription drug insurance (RAMQ)
+
+### Tax Calculations  
+- Quebec provincial income tax with progressive brackets and credits
+- Federal income tax with progressive brackets and credits
+
+### Government Benefits & Credits
+- Quebec Solidarity Tax Credit (Crédit de solidarité du Québec)
+- Quebec Work Premium (Prime au travail du Québec)
+- Quebec Family Allowance (Allocation famille du Québec)
+- Canada Child Benefit (Allocation canadienne pour enfants)
+- GST/HST Credit (Crédit pour la TPS/TVH)
+
+### Interface & Usability
 - Support for all household types: single person, couples, single parents, retirees
 - Bilingual interface with full French and English support
 - Professional government-grade interface following established design standards
@@ -82,20 +96,28 @@ This system allows us to maintain **99%+ accuracy** across all implemented compo
 ## Calculation Components
 
 **Social Insurance Contributions:**
-- Employment Insurance (EI): Federal unemployment benefit program
+- Employment Insurance (EI): Federal unemployment benefit program  
 - Quebec Parental Insurance Plan (QPIP): Provincial parental and maternity leave program
 - Quebec Pension Plan (RRQ): Provincial retirement savings program
 - Health Services Fund (FSS): Quebec health system funding (individuals 65+)
 - RAMQ: Quebec prescription drug insurance premium
 
 **Tax Calculations:**
-- Quebec provincial income tax
-- Federal income tax (placeholder for future implementation)
+- Quebec provincial income tax: Progressive brackets with personal credits and deductions
+- Federal income tax: Progressive brackets with personal credits and deductions
+
+**Government Benefits & Credits:**
+- Quebec Solidarity Tax Credit: Helps offset sales tax impact and housing costs
+- Quebec Work Premium: Supplements work income for low-to-moderate income workers
+- Quebec Family Allowance: Financial support for families with children
+- Canada Child Benefit: Federal tax-free monthly benefit for families with children under 18
+- GST/HST Credit: Federal quarterly credit to offset goods and services tax
 
 **Special Considerations:**
 - Age-based eligibility rules (working age 18-64 vs. retirement age 65+)
 - RAMQ coverage determination (public plan requirement vs. private insurance option)
 - Household composition effects on benefit calculations
+- Income-based reductions and phase-outs for benefits and credits
 
 ## Official Data Sources
 
@@ -148,10 +170,17 @@ The codebase is organized into clear functional areas:
 
 **Calculation Engine (`src/lib/calculators/`)**
 - `QppCalculator.ts` - Quebec Pension Plan contributions
-- `EmploymentInsuranceCalculator.ts` - Federal employment insurance
+- `EmploymentInsuranceCalculator.ts` - Federal employment insurance  
 - `RqapCalculator.ts` - Quebec Parental Insurance Plan
 - `RamqCalculator.ts` - Quebec prescription drug insurance
 - `FssCalculator.ts` - Health Services Fund (retirees 65+)
+- `QuebecTaxCalculator.ts` - Quebec provincial income tax
+- `FederalTaxCalculator.ts` - Federal income tax
+- `SolidarityCalculator.ts` - Quebec Solidarity Tax Credit
+- `WorkPremiumCalculator.ts` - Quebec Work Premium
+- `FamilyAllowanceCalculator.ts` - Quebec Family Allowance
+- `CanadaChildBenefitCalculator.ts` - Canada Child Benefit
+- `GstCreditCalculator.ts` - Federal GST/HST Credit
 
 **Mass Validation System (`src/lib/validation/`)**
 - **`MassTestGenerator.ts`** - Generates thousands of test cases with multiple strategies
