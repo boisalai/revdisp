@@ -1,8 +1,5 @@
 import type { Metadata } from 'next'
-import { Open_Sans } from 'next/font/google'
 import './globals.css'
-
-const openSans = Open_Sans({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Calculateur du revenu disponible - Québec',
@@ -16,7 +13,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={openSans.className}>{children}</body>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+      </head>
+      <body>{children}</body>
     </html>
   )
 }
