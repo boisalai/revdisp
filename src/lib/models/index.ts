@@ -53,6 +53,14 @@ export class Person {
   get totalIncome(): Decimal {
     return this.grossWorkIncome.plus(this.selfEmployedIncome).plus(this.grossRetirementIncome)
   }
+
+  get income() {
+    return {
+      work: this.grossWorkIncome,
+      retirement: this.grossRetirementIncome,
+      other: new Decimal(0)
+    }
+  }
 }
 
 export interface HouseholdData {
@@ -60,6 +68,7 @@ export interface HouseholdData {
   primaryPerson: PersonData
   spouse?: PersonData
   numChildren?: number
+  province?: string
 }
 
 export class Household {
@@ -67,12 +76,14 @@ export class Household {
   primaryPerson: Person
   spouse: Person | null
   numChildren: number
+  province: string
 
   constructor(data: HouseholdData) {
     this.householdType = data.householdType
     this.primaryPerson = new Person(data.primaryPerson)
     this.spouse = data.spouse ? new Person(data.spouse) : null
     this.numChildren = data.numChildren || 0
+    this.province = data.province || 'QC'
 
     this.validate()
   }

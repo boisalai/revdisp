@@ -194,6 +194,17 @@ export interface CanadaChildBenefitConfig {
   }
 }
 
+export interface GstCreditParameters {
+  base_amount: number
+  spouse_amount: number
+  child_amount: number
+  single_income_threshold: number
+  single_supplement_rate: number
+  single_supplement_max: number
+  family_income_threshold: number
+  reduction_rate: number
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -210,6 +221,7 @@ export interface TaxYearConfig {
   work_premium: WorkPremiumConfig
   family_allowance: FamilyAllowanceConfig
   canada_child_benefit: CanadaChildBenefitConfig
+  gst_credit: GstCreditParameters
 }
 
 /**
@@ -217,4 +229,22 @@ export interface TaxYearConfig {
  */
 export interface ConfigData {
   [year: number]: TaxYearConfig
+}
+
+/**
+ * Types for individual configuration sections
+ */
+export interface ConfigTypes {
+  federal_tax: FederalTaxConfig
+  quebec_tax: QuebecTaxConfig
+  employment_insurance: EmploymentInsuranceConfig
+  qpip: QpipConfig
+  qpp: QppConfig
+  fss: FssConfig
+  ramq: RamqConfig
+  solidarity: SolidarityConfig
+  work_premium: WorkPremiumConfig
+  family_allowance: FamilyAllowanceConfig
+  canada_child_benefit: CanadaChildBenefitConfig
+  gst_credit: GstCreditParameters
 }

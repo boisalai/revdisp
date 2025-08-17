@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit']
       
       for (const type of calculatorTypes) {
         try {
@@ -241,7 +241,7 @@ export class RevenuDisponibleCalculator {
     // Canada Child Benefit (ACE)
     if (this.calculators.canada_child_benefit) {
       const ccbResult = (this.calculators.canada_child_benefit as any).calculateDetailed(household, {
-        federal_net_income: results.canada.net_income?.family || new Decimal(0)
+        federal_net_income: results.canada.net_income?.individual || results.canada.net_income || new Decimal(0)
       })
       
       // Store detailed result
@@ -249,6 +249,17 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(ccbResult.net_benefit)
+    }
+
+    // GST Credit
+    if (this.calculators.gst_credit) {
+      const gstCreditResult = this.calculators.gst_credit.calculate(household.primaryPerson, household)
+      
+      // Store detailed result
+      results.canada.gst_credit = gstCreditResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(gstCreditResult.amount)
     }
 
     // Calculate disposable income

@@ -235,5 +235,15 @@ export const config2024: TaxYearConfig = {
         four_plus_children: 0.095
       }
     }
+  },
+  gst_credit: {
+    base_amount: 340,              // Montant de base pour un adulte
+    spouse_amount: 340,            // Montant pour conjoint ou personne à charge admissible
+    child_amount: 179,             // Montant par enfant
+    single_income_threshold: 11039, // Seuil de revenu pour supplément de célibataire
+    single_supplement_rate: 0.02,  // Taux de 2% pour le supplément
+    single_supplement_max: 179,    // Maximum du supplément pour célibataire
+    family_income_threshold: 44324, // Seuil de revenu familial pour réduction
+    reduction_rate: 0.05           // Taux de réduction de 5%
   }
 } as const

@@ -2226,6 +2226,135 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  const getGstCreditDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats du crédit TPS
+    const gstResult = results.canada?.gst_credit
+    if (!gstResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      base: 325, spouse: 325, child: 171, singleThreshold: 10544, singleMax: 171, familyThreshold: 42335, reductionRate: 0.05
+    }
+    const params2024 = {
+      base: 340, spouse: 340, child: 179, singleThreshold: 11039, singleMax: 179, familyThreshold: 44324, reductionRate: 0.05
+    }
+    const params2025 = {
+      base: 349, spouse: 349, child: 184, singleThreshold: 11337, singleMax: 184, familyThreshold: 45521, reductionRate: 0.05
+    }
+    const params = taxYear === 2025 ? params2025 : taxYear === 2024 ? params2024 : params2023
+
+    const calculationSteps: Array<{ label: string; value: string; isReference?: boolean }> = []
+
+    const annualAmount = gstResult.amount?.toNumber() || 0
+    const baseCredit = gstResult.base_credit?.toNumber() || 0
+    const singleSupplement = gstResult.single_supplement?.toNumber() || 0
+    const childrenCredit = gstResult.children_credit?.toNumber() || 0
+    const familyIncome = gstResult.family_income?.toNumber() || 0
+    const reductionAmount = gstResult.reduction_amount?.toNumber() || 0
+    const quarterlyPayment = gstResult.quarterly_payment?.toNumber() || 0
+    const hasSpouse = gstResult.has_spouse?.toNumber() === 1
+    const isSingleParent = gstResult.is_single_parent?.toNumber() === 1
+    const childrenCount = gstResult.children_count?.toNumber() || 0
+
+    // Composition familiale
+    const familyType = hasSpouse 
+      ? (language === 'fr' ? 'Couple' : 'Couple')
+      : isSingleParent 
+      ? (language === 'fr' ? 'Parent seul' : 'Single parent')
+      : (language === 'fr' ? 'Célibataire' : 'Single')
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Composition familiale' : 'Family composition',
+      value: `${familyType}${childrenCount > 0 ? ` - ${childrenCount} ${language === 'fr' ? 'enfant(s)' : 'child(ren)'}` : ''}`
+    })
+
+    // Revenu familial net ajusté
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu familial net ajusté' : 'Adjusted family net income',
+      value: `${familyIncome.toLocaleString()} $`
+    })
+
+    // Crédit de base
+    calculationSteps.push({
+      label: language === 'fr' ? 'Crédit de base' : 'Base credit',
+      value: `${baseCredit.toLocaleString()} $`
+    })
+
+    // Supplément pour célibataire
+    if (singleSupplement > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Supplément pour célibataire' : 'Single supplement',
+        value: `${singleSupplement.toLocaleString()} $`
+      })
+    }
+
+    // Crédit pour enfants
+    if (childrenCredit > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? `Crédit pour enfants: ${childrenCount} × ${params.child} $` : `Children credit: ${childrenCount} × $${params.child}`,
+        value: `${childrenCredit.toLocaleString()} $`
+      })
+    }
+
+    // Réduction
+    if (reductionAmount > 0) {
+      calculationSteps.push({
+        label: language === 'fr' 
+          ? `Réduction: 5% × (${familyIncome.toLocaleString()} $ - ${params.familyThreshold.toLocaleString()} $)`
+          : `Reduction: 5% × ($${familyIncome.toLocaleString()} - $${params.familyThreshold.toLocaleString()})`,
+        value: `- ${reductionAmount.toLocaleString()} $`
+      })
+    }
+
+    // Montant annuel net
+    calculationSteps.push({
+      label: language === 'fr' ? 'Crédit annuel net' : 'Net annual credit',
+      value: `${annualAmount.toLocaleString()} $`
+    })
+
+    // Versement trimestriel
+    calculationSteps.push({
+      label: language === 'fr' ? 'Versement trimestriel' : 'Quarterly payment',
+      value: `${quarterlyPayment.toLocaleString()} $`
+    })
+
+    // Références web
+    const webReferences = [
+      {
+        title: language === 'fr' 
+          ? 'Agence du revenu du Canada - Crédit pour la TPS/TVH'
+          : 'Canada Revenue Agency - GST/HST Credit',
+        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/goods-services-tax-harmonized-sales-tax-gst-hst-credit.html'
+      },
+      {
+        title: language === 'fr'
+          ? 'Calculateur de prestations - ARC'
+          : 'Benefits calculator - CRA',
+        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/child-family-benefits-calculator.html'
+      }
+    ]
+
+    calculationSteps.push(...webReferences.map(ref => ({
+      label: ref.title,
+      value: ref.url,
+      isReference: true
+    })))
+
+    return {
+      name: language === 'fr' ? 'Crédit pour la TPS/TVH' : 'GST/HST Credit',
+      description: language === 'fr'
+        ? 'Crédit trimestriel non imposable qui aide les personnes et les familles à revenu faible ou modeste à récupérer en totalité ou en partie la TPS ou la TVH qu\'elles paient.'
+        : 'Tax-free quarterly payment that helps low- to modest-income individuals and families offset all or part of the GST or HST they pay.',
+      formula: language === 'fr'
+        ? 'Crédit de base + Supplément célibataire + Crédit enfants - Réduction selon le revenu'
+        : 'Base credit + Single supplement + Children credit - Income reduction',
+      currentValue: annualAmount,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -2251,6 +2380,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getFamilyAllowanceDetails()
       : displayedProgram === 'allocation_enfants'
       ? getCanadaChildBenefitDetails()
+      : displayedProgram === 'credit_tps'
+      ? getGstCreditDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -2304,6 +2435,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.family_allowance?.net_allowance instanceof Decimal ? results.quebec.family_allowance.net_allowance.toNumber() : 0
       case 'allocation_enfants':
         return results.canada?.child_benefit?.net_benefit instanceof Decimal ? results.canada.child_benefit.net_benefit.toNumber() : 0
+      case 'credit_tps':
+        return results.canada?.gst_credit?.amount instanceof Decimal ? results.canada.gst_credit.amount.toNumber() : 0
       default:
         return 0
     }
@@ -2368,7 +2501,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       items: [
         { key: 'federal_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('federal_tax') },
         { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: getValueForProgram('allocation_enfants') },
-        { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: 0 },
+        { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: getValueForProgram('credit_tps') },
         { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: 0 },
         { key: 'securite_vieillesse', label: language === 'fr' ? 'Programme de la Sécurité de la vieillesse' : 'Old Age Security Program', value: 0 },
         { key: 'supplement_medical', label: language === 'fr' ? 'Supplément remboursable pour frais médicaux' : 'Medical Expense Supplement', value: 0 }
