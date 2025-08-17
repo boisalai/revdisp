@@ -277,6 +277,11 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
 
 export default function DetailedResults({ results, household, taxYear = 2024, language, formatCurrency }: DetailedResultsProps) {
   
+  // Debug: vérifier les données des enfants
+  console.log('DetailedResults - household:', household)
+  console.log('DetailedResults - children:', household?.children)
+  console.log('DetailedResults - totalChildcareExpenses:', household?.totalChildcareExpenses)
+  
   // Fonction de formatage des montants selon la langue
   const formatAmount = (amount: number): string => {
     if (language === 'fr') {
@@ -2532,9 +2537,13 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     {
       key: 'frais_garde',
       label: language === 'fr' ? 'Frais de garde' : 'Childcare Expenses',
-      value: 0,
-      items: [],
-      standalone: true
+      value: (household?.totalChildcareExpenses || 0) === 0 ? 0 : -(household?.totalChildcareExpenses || 0),
+      items: household?.children.map((child, index) => ({
+        key: `child_${index}`,
+        label: language === 'fr' ? `Enfant ${index + 1} (${child.age} ans)` : `Child ${index + 1} (${child.age} years old)`,
+        value: child.childcareExpenses === 0 ? 0 : -child.childcareExpenses
+      })) || [],
+      standalone: false
     }
   ]
 

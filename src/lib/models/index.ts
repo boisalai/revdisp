@@ -21,6 +21,12 @@ export interface PersonData {
   isRetired?: boolean
 }
 
+export interface ChildData {
+  age: number
+  childcareExpenses: number
+  childcareType: 'subsidized' | 'nonSubsidized'
+}
+
 export class Person {
   age: number
   grossWorkIncome: Decimal
@@ -68,6 +74,7 @@ export interface HouseholdData {
   primaryPerson: PersonData
   spouse?: PersonData
   numChildren?: number
+  children?: ChildData[]
   province?: string
 }
 
@@ -76,6 +83,7 @@ export class Household {
   primaryPerson: Person
   spouse: Person | null
   numChildren: number
+  children: ChildData[]
   province: string
 
   constructor(data: HouseholdData) {
@@ -83,6 +91,7 @@ export class Household {
     this.primaryPerson = new Person(data.primaryPerson)
     this.spouse = data.spouse ? new Person(data.spouse) : null
     this.numChildren = data.numChildren || 0
+    this.children = data.children || []
     this.province = data.province || 'QC'
 
     this.validate()
@@ -122,5 +131,9 @@ export class Household {
   get totalIncome(): Decimal {
     const total = this.primaryPerson.totalIncome
     return this.spouse ? total.plus(this.spouse.totalIncome) : total
+  }
+
+  get totalChildcareExpenses(): number {
+    return this.children.reduce((total, child) => total + child.childcareExpenses, 0)
   }
 }

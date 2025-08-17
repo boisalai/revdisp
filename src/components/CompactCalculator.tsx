@@ -1,19 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { HouseholdType, Household, Person } from '../lib/models'
+import { HouseholdType, Household, Person, ChildData } from '../lib/models'
 import { RevenuDisponibleCalculator, CalculationResults } from '../lib/MainCalculator'
 import { translations, Translation } from '../lib/i18n/translations'
 import Slider from './Slider'
 import Decimal from 'decimal.js'
 import { MarginalRateVisualization } from './MarginalRateVisualization'
 import DetailedResults from './DetailedResults'
-
-interface Child {
-  age: number
-  childcareExpenses: number
-  childcareType: 'subsidized' | 'nonSubsidized'
-}
 
 interface CalculatorState {
   language: 'fr' | 'en'
@@ -32,7 +26,7 @@ interface CalculatorState {
     isRetired: boolean
   } | null
   numChildren: number
-  children: Child[]
+  children: ChildData[]
 }
 
 export default function CompactCalculator() {
@@ -131,10 +125,14 @@ export default function CompactCalculator() {
           grossRetirementIncome: state.spouse.grossRetirementIncome,
           isRetired: state.spouse.isRetired
         } : undefined,
-        numChildren: state.numChildren
+        numChildren: state.numChildren,
+        children: state.children
       })
 
       console.log('Starting calculation for household:', household)
+      console.log('CompactCalculator - state.children:', state.children)
+      console.log('CompactCalculator - household.children:', household.children)
+      console.log('CompactCalculator - household.totalChildcareExpenses:', household.totalChildcareExpenses)
       const calculationResults = await calculator.calculate(household)
       console.log('Calculation results:', calculationResults)
       setResults(calculationResults)
@@ -155,7 +153,7 @@ export default function CompactCalculator() {
     if (isClient) {
       handleCalculate()
     }
-  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren])
+  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren, state.children])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat(state.language === 'fr' ? 'fr-CA' : 'en-CA', {
