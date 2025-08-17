@@ -358,15 +358,6 @@ Note que l'ordre d'implémentation peut changer selon les priorités.
 - **Savings Calculator**: "What-if" scenarios for financial planning
 - **API Integration**: Real-time tax parameter updates
 
-## Legacy Reference Implementation
-
-The original Python implementation serves as the **reference architecture** and remains available for:
-- **Algorithm verification**: Cross-checking calculation logic
-- **Test data generation**: Selenium-based scraping for validation scenarios  
-- **Research purposes**: Understanding complex tax rule implementations
-
-**Note**: All Python files have been cleaned up from the production codebase. The current implementation is **pure Next.js/TypeScript** and production-ready.
-
 ## GitHub Pages Deployment
 
 ### Current Deployment Status
