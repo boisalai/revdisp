@@ -2727,8 +2727,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                     >
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
-                        {/* Indicateur d'épinglage pour assurance-emploi, rrq, rqap, fss, ramq, quebec_tax, federal_tax et credit_solidarite */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants') && (
+                        {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -2842,8 +2842,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
                     </svg>
                     <span>{language === 'fr' ? 
-                      'Cliquez sur "Impôt Québec", "Impôt fédéral", "Assurance-emploi", "RRQ", "RQAP", "FSS", "RAMQ" ou "Crédit solidarité" pour épingler les détails' : 
-                      'Click on "Quebec Tax", "Federal Tax", "Employment Insurance", "QPP", "QPIP", "HSF", "RAMQ" or "Solidarity Credit" to pin details'
+                      'Cliquez sur n\'importe quel programme socio-fiscal (impôts, cotisations, crédits et allocations) pour épingler les détails' : 
+                      'Click on any socio-fiscal program (taxes, contributions, credits and benefits) to pin details'
                     }</span>
                   </div>
                   <p>{language === 'fr' ? 
