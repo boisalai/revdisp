@@ -205,6 +205,34 @@ export interface GstCreditParameters {
   reduction_rate: number
 }
 
+export interface CanadaWorkersConfig {
+  basic_amount: {
+    single_max: number
+    family_max: number
+  }
+  disability_supplement: {
+    max_amount: number
+  }
+  income_thresholds: {
+    minimum_work_income: number
+    phase_in_start: number
+    phase_out_start_single: number
+    phase_out_start_family: number
+    phase_out_end_single: number
+    phase_out_end_family: number
+    disability_phase_out_start_single: number
+    disability_phase_out_start_family: number
+    disability_phase_out_end_single: number
+    disability_phase_out_end_family: number
+  }
+  calculation_rates: {
+    phase_in_rate: number
+    phase_out_rate: number
+    disability_phase_out_rate: number
+  }
+  secondary_earner_exemption: number
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -222,6 +250,7 @@ export interface TaxYearConfig {
   family_allowance: FamilyAllowanceConfig
   canada_child_benefit: CanadaChildBenefitConfig
   gst_credit: GstCreditParameters
+  canada_workers: CanadaWorkersConfig
 }
 
 /**
@@ -247,4 +276,5 @@ export interface ConfigTypes {
   family_allowance: FamilyAllowanceConfig
   canada_child_benefit: CanadaChildBenefitConfig
   gst_credit: GstCreditParameters
+  canada_workers: CanadaWorkersConfig
 }

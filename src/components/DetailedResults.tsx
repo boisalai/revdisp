@@ -2360,6 +2360,123 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  const getCanadaWorkersBenefitDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats de l'ACT
+    const actResult = results.canada?.workers_benefit
+    if (!actResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      singleMax: 1518, familyMax: 2616, disabilityMax: 700, minimumWork: 3000,
+      phaseInRate: 0.27, phaseOutRate: 0.15, secondaryExemption: 14000
+    }
+    const params2024 = {
+      singleMax: 1590, familyMax: 2739, disabilityMax: 737, minimumWork: 3000,
+      phaseInRate: 0.27, phaseOutRate: 0.15, secondaryExemption: 14000
+    }
+    const params2025 = {
+      singleMax: 1633, familyMax: 2813, disabilityMax: 843, minimumWork: 3000,
+      phaseInRate: 0.27, phaseOutRate: 0.15, secondaryExemption: 14000
+    }
+    const params = taxYear === 2025 ? params2025 : taxYear === 2024 ? params2024 : params2023
+
+    const calculationSteps: Array<{ label: string; value: string; isReference?: boolean }> = []
+
+    const totalBenefit = actResult.amount?.toNumber() || 0
+    const basicBenefit = actResult.basic_amount?.toNumber() || 0
+    const disabilityBenefit = actResult.disability_supplement?.toNumber() || 0
+    const workIncome = actResult.work_income?.toNumber() || 0
+    const totalIncome = actResult.total_income?.toNumber() || 0
+    const isFamily = actResult.is_family?.toNumber() === 1
+    const minimumMet = actResult.minimum_work_income_met?.toNumber() === 1
+    const phaseInAmount = actResult.phase_in_amount?.toNumber() || 0
+    const phaseOutReduction = actResult.phase_out_reduction?.toNumber() || 0
+
+    // Type de ménage
+    const householdType = isFamily 
+      ? (language === 'fr' ? 'Famille (conjoint ou enfants)' : 'Family (spouse or children)')
+      : (language === 'fr' ? 'Personne seule' : 'Single person')
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Type de ménage' : 'Household type',
+      value: householdType
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu de travail' : 'Work income',
+      value: formatCurrency(workIncome)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Revenu total' : 'Total income',
+      value: formatCurrency(totalIncome)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Seuil minimum requis' : 'Minimum threshold required',
+      value: formatCurrency(params.minimumWork)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Exigence minimum respectée' : 'Minimum requirement met',
+      value: minimumMet ? (language === 'fr' ? 'Oui' : 'Yes') : (language === 'fr' ? 'Non' : 'No')
+    })
+
+    if (minimumMet) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant maximum admissible' : 'Maximum eligible amount',
+        value: formatCurrency(isFamily ? params.familyMax : params.singleMax)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant d\'accumulation (27%)' : 'Phase-in amount (27%)',
+        value: formatCurrency(phaseInAmount)
+      })
+
+      if (phaseOutReduction > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Réduction (15%)' : 'Phase-out reduction (15%)',
+          value: `-${formatCurrency(phaseOutReduction)}`
+        })
+      }
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prestation de base' : 'Basic benefit',
+        value: formatCurrency(basicBenefit)
+      })
+
+      if (disabilityBenefit > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Supplément pour personnes handicapées' : 'Disability supplement',
+          value: formatCurrency(disabilityBenefit)
+        })
+      }
+    }
+
+    // Référence officielle
+    calculationSteps.push({
+      label: language === 'fr' ? 'Source officielle' : 'Official source',
+      value: language === 'fr'
+        ? 'Agence du revenu du Canada - Allocation canadienne pour les travailleurs'
+        : 'Canada Revenue Agency - Canada Workers Benefit',
+      isReference: true
+    })
+
+    return {
+      name: language === 'fr' ? 'Allocation canadienne pour les travailleurs (ACT)' : 'Canada Workers Benefit (CWB)',
+      description: language === 'fr'
+        ? 'Crédit d\'impôt remboursable qui aide les travailleurs et les familles à revenu faible ou modeste à demeurer sur le marché du travail.'
+        : 'Refundable tax credit that helps low-income working individuals and families stay in the workforce.',
+      formula: language === 'fr'
+        ? 'Prestation de base + Supplément invalidité - Réduction selon le revenu familial'
+        : 'Basic benefit + Disability supplement - Income-based reduction',
+      currentValue: totalBenefit,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -2387,6 +2504,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getCanadaChildBenefitDetails()
       : displayedProgram === 'credit_tps'
       ? getGstCreditDetails()
+      : displayedProgram === 'allocation_travailleurs'
+      ? getCanadaWorkersBenefitDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -2442,6 +2561,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.canada?.child_benefit?.net_benefit instanceof Decimal ? results.canada.child_benefit.net_benefit.toNumber() : 0
       case 'credit_tps':
         return results.canada?.gst_credit?.amount instanceof Decimal ? results.canada.gst_credit.amount.toNumber() : 0
+      case 'allocation_travailleurs':
+        return results.canada?.workers_benefit?.amount instanceof Decimal ? results.canada.workers_benefit.amount.toNumber() : 0
       default:
         return 0
     }
@@ -2496,8 +2617,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         const federalPrograms = [
           getValueForProgram('federal_tax'), // federal_tax
           getValueForProgram('allocation_enfants'), // allocation_enfants
-          0, // credit_tps
-          0, // allocation_travailleurs
+          getValueForProgram('credit_tps'), // credit_tps
+          getValueForProgram('allocation_travailleurs'), // allocation_travailleurs
           0, // securite_vieillesse
           0  // supplement_medical
         ]
@@ -2507,7 +2628,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'federal_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('federal_tax') },
         { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: getValueForProgram('allocation_enfants') },
         { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: getValueForProgram('credit_tps') },
-        { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: 0 },
+        { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: getValueForProgram('allocation_travailleurs') },
         { key: 'securite_vieillesse', label: language === 'fr' ? 'Programme de la Sécurité de la vieillesse' : 'Old Age Security Program', value: 0 },
         { key: 'supplement_medical', label: language === 'fr' ? 'Supplément remboursable pour frais médicaux' : 'Medical Expense Supplement', value: 0 }
       ]

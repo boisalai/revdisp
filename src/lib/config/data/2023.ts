@@ -235,5 +235,37 @@ export const config2023: TaxYearConfig = {
     single_supplement_max: 171,    // Maximum du supplément pour célibataire
     family_income_threshold: 42335, // Seuil de revenu familial pour réduction
     reduction_rate: 0.05           // Taux de réduction de 5%
+  },
+
+  /**
+   * Allocation canadienne pour les travailleurs (ACT) - Canada Workers Benefit (CWB) 2023
+   * Source: https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs.html
+   */
+  canada_workers: {
+    basic_amount: {
+      single_max: 1518,             // Montant maximal pour célibataires (estimation)
+      family_max: 2616              // Montant maximal pour familles (estimation)
+    },
+    disability_supplement: {
+      max_amount: 700               // Supplément maximal pour personnes handicapées (estimation)
+    },
+    income_thresholds: {
+      minimum_work_income: 3000,    // Revenu minimum de travail requis
+      phase_in_start: 0,            // Début de l'accumulation
+      phase_out_start_single: 26149, // Début de réduction pour célibataires
+      phase_out_start_family: 29833, // Début de réduction pour familles
+      phase_out_end_single: 36749,   // Fin d'admissibilité pour célibataires
+      phase_out_end_family: 48093,   // Fin d'admissibilité pour familles
+      disability_phase_out_start_single: 36748, // Début réduction supplément invalidité (célibataires)
+      disability_phase_out_start_family: 48091,  // Début réduction supplément invalidité (familles)
+      disability_phase_out_end_single: 42222,    // Fin supplément invalidité (célibataires)
+      disability_phase_out_end_family: 53565     // Fin supplément invalidité (familles - one disabled)
+    },
+    calculation_rates: {
+      phase_in_rate: 0.27,          // Taux d'accumulation de 27%
+      phase_out_rate: 0.15,         // Taux de réduction de 15%
+      disability_phase_out_rate: 0.075 // Taux de réduction du supplément invalidité 7.5%
+    },
+    secondary_earner_exemption: 14000 // Exemption conjoint secondaire
   }
 } as const

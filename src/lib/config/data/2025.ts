@@ -298,5 +298,37 @@ export const config2025: TaxYearConfig = {
     single_supplement_max: 184,    // Maximum du supplément pour célibataire
     family_income_threshold: 45521, // Seuil de revenu familial pour réduction
     reduction_rate: 0.05           // Taux de réduction de 5%
+  },
+
+  /**
+   * Allocation canadienne pour les travailleurs (ACT) - Canada Workers Benefit (CWB) 2025
+   * Source: https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs.html
+   */
+  canada_workers: {
+    basic_amount: {
+      single_max: 1633,             // Montant maximal pour célibataires
+      family_max: 2813              // Montant maximal pour familles
+    },
+    disability_supplement: {
+      max_amount: 843               // Supplément maximal pour personnes handicapées
+    },
+    income_thresholds: {
+      minimum_work_income: 3000,    // Revenu minimum de travail requis
+      phase_in_start: 0,            // Début de l'accumulation
+      phase_out_start_single: 26855, // Début de réduction pour célibataires
+      phase_out_start_family: 30639, // Début de réduction pour familles
+      phase_out_end_single: 37740,   // Fin d'admissibilité pour célibataires (supplément invalidité)
+      phase_out_end_family: 49389,   // Fin d'admissibilité pour familles (supplément invalidité)
+      disability_phase_out_start_single: 37740, // Début réduction supplément invalidité (célibataires)
+      disability_phase_out_start_family: 49389,  // Début réduction supplément invalidité (familles)
+      disability_phase_out_end_single: 49011,    // Fin supplément invalidité (célibataires)
+      disability_phase_out_end_family: 60620     // Fin supplément invalidité (familles)
+    },
+    calculation_rates: {
+      phase_in_rate: 0.27,          // Taux d'accumulation de 27%
+      phase_out_rate: 0.15,         // Taux de réduction de 15%
+      disability_phase_out_rate: 0.075 // Taux de réduction du supplément invalidité 7.5%
+    },
+    secondary_earner_exemption: 14000 // Exemption conjoint secondaire
   }
 }

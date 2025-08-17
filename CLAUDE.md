@@ -19,10 +19,11 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
 - ✅ **Crédit de solidarité du Québec**: Calculs familiaux complets
 - ✅ **Prime au travail du Québec**: Supplément au revenu de travail
 
-### Prochaines Priorités d'Implémentation
+### Programmes Fédéraux Récemment Implémentés
 - ✅ **Allocation famille (Québec)**: IMPLÉMENTÉ
 - ✅ **Allocation canadienne pour enfants (ACE)**: IMPLÉMENTÉ  
-- ✅ **Crédit pour la TPS/TVH**: IMPLÉMENTÉ 
+- ✅ **Crédit pour la TPS/TVH**: IMPLÉMENTÉ
+- ✅ **Allocation canadienne pour les travailleurs (ACT)**: IMPLÉMENTÉ 
 
 ### Application Architecture
 
@@ -50,6 +51,7 @@ This is a **fully-implemented Quebec disposable income calculator** that compute
   - `FssCalculator.ts`: Health Services Fund (retirees 65+) ✅
   - `RamqCalculator.ts`: Quebec prescription drug insurance ✅
   - `GstCreditCalculator.ts`: Federal GST/HST credit ✅
+  - `CanadaWorkersBenefitCalculator.ts`: Canada Workers Benefit (ACT) ✅
 
 **Data Models:**
 - **`src/lib/models/index.ts`**: Enhanced `Person`, `Household` classes with TypeScript validation
@@ -323,8 +325,13 @@ Basé sur l'analyse du calculateur officiel du ministère des Finances du Québe
    - Montants selon la composition familiale ✅
    - Réduction progressive ✅
 
-8. 🔄 **Allocation canadienne pour les travailleurs**
-9. **Programme de la SÉcurité de la vieillesse (PSV)**
+8. ✅ **Allocation canadienne pour les travailleurs (ACT)** - IMPLÉMENTÉ
+   - Prestation pour travailleurs à faible revenu ✅
+   - Calculs selon la composition familiale ✅
+   - Montants maximaux et réduction progressive ✅
+   - *Note: Validations fines vs calculateur MFQ à venir*
+
+9. **Programme de la Sécurité de la vieillesse (PSV)**
 10. **Supplément remboursable pour frais médicaux** 
 
 **Phase 4 - Programmes Spécialisés (Impact Ciblé)**

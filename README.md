@@ -32,6 +32,7 @@ This calculator provides accurate calculations for Quebec households across diff
 - Quebec Family Allowance (Allocation famille du Québec)
 - Canada Child Benefit (Allocation canadienne pour enfants)
 - GST/HST Credit (Crédit pour la TPS/TVH)
+- Canada Workers Benefit (Allocation canadienne pour les travailleurs)
 
 ### Interface & Usability
 - Support for all household types: single person, couples, single parents, retirees
@@ -53,6 +54,7 @@ This calculator features an industry-leading **mass validation system** capable 
 | Employment Insurance | 100% | 1,000+ scenarios | ✅ Validated |
 | QPIP (Parental Insurance) | 100% | 1,000+ scenarios | ✅ Validated |
 | HSF (Health Services Fund) | 100% | 1,000+ scenarios | ✅ Validated |
+| Canada Workers Benefit | Initial | Basic scenarios | 🔄 Implemented |
 
 ### Intelligent Analysis & Prioritization
 
@@ -62,6 +64,8 @@ Our validation system doesn't just find errors—it **intelligently prioritizes*
 - **Development Prioritization**: Ranks corrections by potential impact and return on investment
 - **Continuous Monitoring**: Detects regressions automatically and provides real-time alerts
 - **Advanced Reporting**: Generates comprehensive HTML reports with actionable recommendations
+
+**Note on Recent Implementations**: The Canada Workers Benefit (CWB/ACT) has been recently implemented with initial functional testing. Comprehensive mass validation against the official Quebec Ministry of Finance calculator will be conducted in subsequent development phases to ensure exact alignment with government calculations.
 
 ### Mass Testing Capabilities
 
