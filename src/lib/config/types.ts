@@ -233,6 +233,26 @@ export interface CanadaWorkersConfig {
   secondary_earner_exemption: number
 }
 
+export interface OldAgeSecurityQuarter {
+  max_amount_65_74: number
+  max_amount_75_plus: number
+  recovery_threshold: number
+  recovery_upper_limit_65_74: number
+  recovery_upper_limit_75_plus: number
+}
+
+export interface OldAgeSecurityConfig {
+  quarters: {
+    q1: OldAgeSecurityQuarter  // janvier-mars
+    q2: OldAgeSecurityQuarter  // avril-juin
+    q3: OldAgeSecurityQuarter  // juillet-septembre
+    q4: OldAgeSecurityQuarter  // octobre-décembre
+  }
+  recovery_rate: number  // Taux de récupération (15%)
+  minimum_residence_years: number  // 10 ans minimum pour recevoir
+  full_pension_years: number      // 40 ans pour pension complète
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -251,6 +271,7 @@ export interface TaxYearConfig {
   canada_child_benefit: CanadaChildBenefitConfig
   gst_credit: GstCreditParameters
   canada_workers: CanadaWorkersConfig
+  old_age_security: OldAgeSecurityConfig
 }
 
 /**
@@ -277,4 +298,5 @@ export interface ConfigTypes {
   canada_child_benefit: CanadaChildBenefitConfig
   gst_credit: GstCreditParameters
   canada_workers: CanadaWorkersConfig
+  old_age_security: OldAgeSecurityConfig
 }

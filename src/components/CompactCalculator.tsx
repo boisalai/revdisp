@@ -115,13 +115,13 @@ export default function CompactCalculator() {
         householdType: state.householdType,
         primaryPerson: {
           age: state.primaryPerson.age,
-          grossWorkIncome: state.primaryPerson.grossWorkIncome,
+          grossWorkIncome: state.primaryPerson.isRetired ? 0 : state.primaryPerson.grossWorkIncome,
           grossRetirementIncome: state.primaryPerson.grossRetirementIncome,
           isRetired: state.primaryPerson.isRetired
         },
         spouse: state.spouse ? {
           age: state.spouse.age,
-          grossWorkIncome: state.spouse.grossWorkIncome,
+          grossWorkIncome: state.spouse.isRetired ? 0 : state.spouse.grossWorkIncome,
           grossRetirementIncome: state.spouse.grossRetirementIncome,
           isRetired: state.spouse.isRetired
         } : undefined,

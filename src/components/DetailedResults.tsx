@@ -2477,6 +2477,137 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  const getOldAgeSecurityDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    // Récupérer les résultats de la PSV
+    const oasResult = results.canada?.old_age_security
+    if (!oasResult) return null
+
+    const primaryResult = oasResult.primary
+    const spouseResult = oasResult.spouse
+    const totalAmount = oasResult.total_amount?.toNumber() || 0
+
+    // Paramètres selon l'année
+    const params2023 = {
+      recoveryThreshold: 86912, recoveryRate: 0.15, minResidence: 10, fullPensionYears: 40
+    }
+    const params2024 = {
+      recoveryThreshold: 90997, recoveryRate: 0.15, minResidence: 10, fullPensionYears: 40
+    }
+    const params2025 = {
+      recoveryThreshold: 90997, recoveryRate: 0.15, minResidence: 10, fullPensionYears: 40
+    }
+    const params = taxYear === 2025 ? params2025 : taxYear === 2024 ? params2024 : params2023
+
+    const calculationSteps: Array<{ label: string; value: string; isReference?: boolean }> = []
+
+    // Information pour la personne principale
+    if (primaryResult && primaryResult.eligible?.toNumber() === 1) {
+      const primaryAge = household.primaryPerson.age
+      const primaryIncome = primaryResult.individual_income?.toNumber() || 0
+      const primaryGrossAmount = primaryResult.gross_monthly_amount?.toNumber() || 0
+      const primaryRecoveryTax = primaryResult.recovery_tax?.toNumber() || 0
+      const primaryNetAmount = primaryResult.net_monthly_amount?.toNumber() || 0
+      const primaryAnnualAmount = primaryResult.annual_amount?.toNumber() || 0
+      const is75Plus = primaryResult.is_75_plus?.toNumber() === 1
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Personne principale' : 'Primary person',
+        value: language === 'fr' ? `${primaryAge} ans${is75Plus ? ' (75+)' : ''}` : `${primaryAge} years old${is75Plus ? ' (75+)' : ''}`
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Revenu individuel' : 'Individual income',
+        value: formatCurrency(primaryIncome)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Seuil de récupération' : 'Recovery threshold',
+        value: formatCurrency(params.recoveryThreshold)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant mensuel brut' : 'Gross monthly amount',
+        value: formatCurrency(primaryGrossAmount)
+      })
+
+      if (primaryRecoveryTax > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Récupération (15%)' : 'Recovery tax (15%)',
+          value: `-${formatCurrency(primaryRecoveryTax)}`
+        })
+      }
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant mensuel net' : 'Net monthly amount',
+        value: formatCurrency(primaryNetAmount)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant annuel (principal)' : 'Annual amount (primary)',
+        value: formatCurrency(primaryAnnualAmount)
+      })
+    }
+
+    // Information pour le conjoint
+    if (spouseResult && spouseResult.eligible?.toNumber() === 1) {
+      const spouseAge = household.spouse?.age || 0
+      const spouseIncome = spouseResult.individual_income?.toNumber() || 0
+      const spouseGrossAmount = spouseResult.gross_monthly_amount?.toNumber() || 0
+      const spouseRecoveryTax = spouseResult.recovery_tax?.toNumber() || 0
+      const spouseNetAmount = spouseResult.net_monthly_amount?.toNumber() || 0
+      const spouseAnnualAmount = spouseResult.annual_amount?.toNumber() || 0
+      const spouseIs75Plus = spouseResult.is_75_plus?.toNumber() === 1
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Conjoint' : 'Spouse',
+        value: language === 'fr' ? `${spouseAge} ans${spouseIs75Plus ? ' (75+)' : ''}` : `${spouseAge} years old${spouseIs75Plus ? ' (75+)' : ''}`
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Revenu individuel (conjoint)' : 'Individual income (spouse)',
+        value: formatCurrency(spouseIncome)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant mensuel brut (conjoint)' : 'Gross monthly amount (spouse)',
+        value: formatCurrency(spouseGrossAmount)
+      })
+
+      if (spouseRecoveryTax > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Récupération conjoint (15%)' : 'Spouse recovery tax (15%)',
+          value: `-${formatCurrency(spouseRecoveryTax)}`
+        })
+      }
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Montant annuel (conjoint)' : 'Annual amount (spouse)',
+        value: formatCurrency(spouseAnnualAmount)
+      })
+    }
+
+    // Référence officielle
+    calculationSteps.push({
+      label: language === 'fr' ? 'Référence officielle' : 'Official reference',
+      value: language === 'fr' ? 'Canada.ca - Sécurité de la vieillesse' : 'Canada.ca - Old Age Security',
+      isReference: true
+    })
+
+    return {
+      name: language === 'fr' ? 'Programme de la Sécurité de la vieillesse (PSV)' : 'Old Age Security Program (OAS)',
+      description: language === 'fr' 
+        ? 'Pension mensuelle offerte à la plupart des Canadiens de 65 ans et plus. Le montant varie selon le revenu et est assujetti à une récupération fiscale pour les bénéficiaires à revenu élevé. Indexée trimestriellement selon l\'IPC.'
+        : 'Monthly pension available to most Canadians 65 years old or older. The amount varies based on income and is subject to recovery tax for higher-income recipients. Indexed quarterly based on CPI.',
+      formula: language === 'fr' 
+        ? 'Montant moyen trimestriel - Récupération fiscale (si applicable)'
+        : 'Average quarterly amount - Recovery tax (if applicable)',
+      currentValue: totalAmount,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -2506,6 +2637,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getGstCreditDetails()
       : displayedProgram === 'allocation_travailleurs'
       ? getCanadaWorkersBenefitDetails()
+      : displayedProgram === 'securite_vieillesse'
+      ? getOldAgeSecurityDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -2563,6 +2696,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.canada?.gst_credit?.amount instanceof Decimal ? results.canada.gst_credit.amount.toNumber() : 0
       case 'allocation_travailleurs':
         return results.canada?.workers_benefit?.amount instanceof Decimal ? results.canada.workers_benefit.amount.toNumber() : 0
+      case 'securite_vieillesse':
+        return results.canada?.old_age_security?.total_amount instanceof Decimal ? results.canada.old_age_security.total_amount.toNumber() : 0
       default:
         return 0
     }
@@ -2619,7 +2754,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           getValueForProgram('allocation_enfants'), // allocation_enfants
           getValueForProgram('credit_tps'), // credit_tps
           getValueForProgram('allocation_travailleurs'), // allocation_travailleurs
-          0, // securite_vieillesse
+          getValueForProgram('securite_vieillesse'), // securite_vieillesse
           0  // supplement_medical
         ]
         return federalPrograms.reduce((sum, value) => sum + value, 0)
@@ -2629,7 +2764,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'allocation_enfants', label: language === 'fr' ? 'Allocation canadienne pour enfants' : 'Canada Child Benefit', value: getValueForProgram('allocation_enfants') },
         { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: getValueForProgram('credit_tps') },
         { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: getValueForProgram('allocation_travailleurs') },
-        { key: 'securite_vieillesse', label: language === 'fr' ? 'Programme de la Sécurité de la vieillesse' : 'Old Age Security Program', value: 0 },
+        { key: 'securite_vieillesse', label: language === 'fr' ? 'Programme de la Sécurité de la vieillesse' : 'Old Age Security Program', value: getValueForProgram('securite_vieillesse') },
         { key: 'supplement_medical', label: language === 'fr' ? 'Supplément remboursable pour frais médicaux' : 'Medical Expense Supplement', value: 0 }
       ]
     },

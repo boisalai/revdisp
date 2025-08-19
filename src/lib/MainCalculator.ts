@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security']
       
       for (const type of calculatorTypes) {
         try {
@@ -271,6 +271,30 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(canadaWorkersResult.amount)
+    }
+
+    // Old Age Security (PSV)
+    if (this.calculators.old_age_security) {
+      // Calculate for primary person
+      const oasPrimaryResult = this.calculators.old_age_security.calculate(household.primaryPerson, household)
+      let totalOasAmount = oasPrimaryResult.amount
+      
+      // Calculate for spouse if applicable
+      let oasSpouseResult = null
+      if (household.spouse) {
+        oasSpouseResult = this.calculators.old_age_security.calculate(household.spouse, household)
+        totalOasAmount = totalOasAmount.plus(oasSpouseResult.amount)
+      }
+      
+      // Store detailed result
+      results.canada.old_age_security = {
+        primary: oasPrimaryResult,
+        spouse: oasSpouseResult,
+        total_amount: totalOasAmount
+      }
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(totalOasAmount)
     }
 
     // Calculate disposable income

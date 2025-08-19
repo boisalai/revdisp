@@ -267,5 +267,40 @@ export const config2023: TaxYearConfig = {
       disability_phase_out_rate: 0.075 // Taux de réduction du supplément invalidité 7.5%
     },
     secondary_earner_exemption: 14000 // Exemption conjoint secondaire
+  },
+  old_age_security: {
+    quarters: {
+      q1: {
+        max_amount_65_74: 687.56,
+        max_amount_75_plus: 756.32,
+        recovery_threshold: 86912,
+        recovery_upper_limit_65_74: 142124,
+        recovery_upper_limit_75_plus: 147645
+      },
+      q2: {
+        max_amount_65_74: 691.00,
+        max_amount_75_plus: 760.10,
+        recovery_threshold: 86912,
+        recovery_upper_limit_65_74: 142124,
+        recovery_upper_limit_75_plus: 147645
+      },
+      q3: {
+        max_amount_65_74: 698.60,
+        max_amount_75_plus: 768.46,
+        recovery_threshold: 86912,
+        recovery_upper_limit_65_74: 142428,
+        recovery_upper_limit_75_plus: 147979
+      },
+      q4: {
+        max_amount_65_74: 707.68,
+        max_amount_75_plus: 778.45,
+        recovery_threshold: 86912,
+        recovery_upper_limit_65_74: 142609,
+        recovery_upper_limit_75_plus: 148179
+      }
+    },
+    recovery_rate: 0.15,
+    minimum_residence_years: 10,
+    full_pension_years: 40
   }
 } as const

@@ -331,19 +331,25 @@ Basé sur l'analyse du calculateur officiel du ministère des Finances du Québe
    - Montants maximaux et réduction progressive ✅
    - *Note: Validations fines vs calculateur MFQ à venir*
 
-9. **Programme de la Sécurité de la vieillesse (PSV)**
+9. ✅ **Programme de la Sécurité de la vieillesse (PSV)** - IMPLÉMENTÉ
+   - Pension mensuelle pour Canadiens 65+ ✅
+   - Logique trimestrielle avec moyenne des 4 trimestres ✅
+   - Bonification 10% pour 75+ (juillet 2022) ✅
+   - Récupération fiscale (15%) selon le revenu individuel ✅
+   - Calculs séparés par personne dans le ménage ✅
+   - Interface détaillée avec explications complètes ✅
+
 10. **Supplément remboursable pour frais médicaux** 
 
 **Phase 4 - Programmes Spécialisés (Impact Ciblé)**
-11. 🔄 **Prestations de sécurité de la vieillesse (PSV)** - pour retraités 65+
-12. 🔄 **Supplément de revenu garanti (SRG)** - pour retraités à faible revenu
-13.  🔄 **Aide sociale** - dans certaines situations spécifiques pour les personnes, familles monoparentales et couples à faible revenu.
-14.  🔄 **Supplément pour l'achat de fournitures scolaires** - 
-15.  🔄 **Crédit pour la solidarité** - 
-16.  🔄 **Crédit d'impôt pour frais de garde d'enfants** - 
-17.  **Allocation-logement** - 
-18.  **Crédit d'impôt remboursable pour frais médicaux** -
-19.  **Montant pour le soutien des aînés** -
+11. 🔄 **Supplément de revenu garanti (SRG)** - pour retraités à faible revenu, complément à la PSV
+12. 🔄 **Aide sociale** - dans certaines situations spécifiques pour les personnes, familles monoparentales et couples à faible revenu
+13. 🔄 **Supplément pour l'achat de fournitures scolaires** - 
+14. 🔄 **Crédit pour la solidarité** - 
+15. 🔄 **Crédit d'impôt pour frais de garde d'enfants** - 
+16. **Allocation-logement** - 
+17. **Crédit d'impôt remboursable pour frais médicaux** -
+18. **Montant pour le soutien des aînés** -
 
 Note que l'ordre d'implémentation peut changer selon les priorités.
 
