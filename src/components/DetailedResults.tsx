@@ -2863,7 +2863,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
