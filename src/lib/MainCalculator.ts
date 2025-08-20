@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec']
       
       for (const type of calculatorTypes) {
         try {
@@ -295,6 +295,33 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(totalOasAmount)
+    }
+
+    // Federal Medical Expense Supplement
+    if (this.calculators.medical_expense_supplement_federal) {
+      const federalMedicalResult = this.calculators.medical_expense_supplement_federal.calculate(household.primaryPerson, household, {
+        federal_net_income: results.canada.net_income
+      })
+      
+      // Store detailed result
+      results.canada.medical_expense_supplement = federalMedicalResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(federalMedicalResult.amount)
+    }
+
+    // Quebec Medical Expense Supplement
+    if (this.calculators.medical_expense_supplement_quebec) {
+      const quebecMedicalResult = this.calculators.medical_expense_supplement_quebec.calculate(household.primaryPerson, household, {
+        quebec_net_income: results.quebec.net_income,
+        federal_net_income: results.canada.net_income
+      })
+      
+      // Store detailed result
+      results.quebec.medical_expense_supplement = quebecMedicalResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(quebecMedicalResult.amount)
     }
 
     // Calculate disposable income

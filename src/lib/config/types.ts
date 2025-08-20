@@ -253,6 +253,15 @@ export interface OldAgeSecurityConfig {
   full_pension_years: number      // 40 ans pour pension complète
 }
 
+export interface MedicalExpenseSupplementConfig {
+  maximum_amount: number           // Montant maximal du supplément
+  minimum_work_income: number      // Revenu de travail minimum requis
+  reduction_threshold: number      // Seuil de réduction du revenu familial net
+  reduction_rate: number           // Taux de réduction (généralement 5%)
+  medical_expense_rate: number     // Taux de crédit sur frais médicaux (généralement 25%)
+  phase_out_end: number           // Seuil d'élimination complète
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -272,6 +281,8 @@ export interface TaxYearConfig {
   gst_credit: GstCreditParameters
   canada_workers: CanadaWorkersConfig
   old_age_security: OldAgeSecurityConfig
+  medical_expense_supplement_federal: MedicalExpenseSupplementConfig
+  medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
 }
 
 /**

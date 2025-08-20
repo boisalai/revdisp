@@ -76,6 +76,7 @@ export interface HouseholdData {
   numChildren?: number
   children?: ChildData[]
   province?: string
+  medicalExpenses?: Decimal | number | string
 }
 
 export class Household {
@@ -85,6 +86,7 @@ export class Household {
   numChildren: number
   children: ChildData[]
   province: string
+  medicalExpenses: Decimal
 
   constructor(data: HouseholdData) {
     this.householdType = data.householdType
@@ -93,6 +95,7 @@ export class Household {
     this.numChildren = data.numChildren || 0
     this.children = data.children || []
     this.province = data.province || 'QC'
+    this.medicalExpenses = new Decimal(data.medicalExpenses || 0)
 
     this.validate()
   }
@@ -100,6 +103,10 @@ export class Household {
   private validate(): void {
     if (this.numChildren < 0) {
       throw new InvalidHouseholdError("Number of children cannot be negative")
+    }
+
+    if (this.medicalExpenses.lessThan(0)) {
+      throw new InvalidHouseholdError("Medical expenses cannot be negative")
     }
 
     // Check spouse requirement for couples

@@ -27,6 +27,7 @@ interface CalculatorState {
   } | null
   numChildren: number
   children: ChildData[]
+  medicalExpenses: number
 }
 
 export default function CompactCalculator() {
@@ -43,7 +44,8 @@ export default function CompactCalculator() {
     },
     spouse: null,
     numChildren: 0,
-    children: []
+    children: [],
+    medicalExpenses: 0
   })
 
   const [results, setResults] = useState<CalculationResults | null>(null)
@@ -126,7 +128,8 @@ export default function CompactCalculator() {
           isRetired: state.spouse.isRetired
         } : undefined,
         numChildren: state.numChildren,
-        children: state.children
+        children: state.children,
+        medicalExpenses: state.medicalExpenses
       })
 
       console.log('Starting calculation for household:', household)
@@ -153,7 +156,7 @@ export default function CompactCalculator() {
     if (isClient) {
       handleCalculate()
     }
-  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren, state.children])
+  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren, state.children, state.medicalExpenses])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat(state.language === 'fr' ? 'fr-CA' : 'en-CA', {
@@ -467,6 +470,27 @@ export default function CompactCalculator() {
             ))}
           </div>
         )}
+
+        {/* Medical Expenses */}
+        <div className="mt-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Slider
+                label={t.medicalExpenses}
+                value={state.medicalExpenses}
+                onChange={(medicalExpenses) => setState(prev => ({
+                  ...prev,
+                  medicalExpenses
+                }))}
+                min={0}
+                max={15000}
+                step={100}
+                formatter={formatCurrency}
+              />
+            </div>
+            <div></div>
+          </div>
+        </div>
       </div>
 
       {/* Results - Detailed Table */}

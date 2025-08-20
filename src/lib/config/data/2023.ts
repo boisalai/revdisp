@@ -268,6 +268,33 @@ export const config2023: TaxYearConfig = {
     },
     secondary_earner_exemption: 14000 // Exemption conjoint secondaire
   },
+  
+  /**
+   * Supplément remboursable pour frais médicaux fédéral 2023
+   * Sources: TaxTips.ca, Agence du revenu du Canada
+   */
+  medical_expense_supplement_federal: {
+    maximum_amount: 1399,                    // Montant maximal du supplément
+    minimum_work_income: 4083,               // Revenu de travail minimum requis
+    reduction_threshold: 30964,              // Seuil de réduction du revenu familial net
+    reduction_rate: 0.05,                    // Taux de réduction (5%)
+    medical_expense_rate: 0.25,              // Taux de crédit sur frais médicaux (25%)
+    phase_out_end: 58944                     // Seuil d'élimination complète
+  },
+
+  /**
+   * Crédit d'impôt remboursable pour frais médicaux - Québec 2023
+   * Sources: Budget Finances Québec, CFFP
+   */
+  medical_expense_supplement_quebec: {
+    maximum_amount: 1356,                    // Montant maximal du crédit
+    minimum_work_income: 3470,               // Revenu de travail minimum requis
+    reduction_threshold: 26220,              // Seuil de réduction du revenu familial net
+    reduction_rate: 0.05,                    // Taux de réduction (5%)
+    medical_expense_rate: 0.25,              // Taux de crédit sur frais médicaux (25%)
+    phase_out_end: 53340                     // Seuil d'élimination complète (estimation)
+  },
+
   old_age_security: {
     quarters: {
       q1: {

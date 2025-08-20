@@ -2608,6 +2608,132 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  // Génère les détails du supplément médical fédéral
+  const getFederalMedicalSupplementDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    const medicalResult = results.canada?.medical_expense_supplement
+    if (!medicalResult) return null
+
+    const supplementAmount = medicalResult.amount instanceof Decimal ? medicalResult.amount.toNumber() : 0
+    const workIncome = medicalResult.work_income instanceof Decimal ? medicalResult.work_income.toNumber() : 0
+    const familyNetIncome = medicalResult.family_net_income instanceof Decimal ? medicalResult.family_net_income.toNumber() : 0
+    const medicalExpenses = household.medicalExpenses.toNumber()
+    const creditableMedical = medicalResult.creditable_medical_expenses instanceof Decimal ? medicalResult.creditable_medical_expenses.toNumber() : 0
+    const phaseOutReduction = medicalResult.phase_out_reduction instanceof Decimal ? medicalResult.phase_out_reduction.toNumber() : 0
+    const isEligible = medicalResult.eligible instanceof Decimal ? medicalResult.eligible.toNumber() === 1 : false
+
+    const calculationSteps = [
+      {
+        label: language === 'fr' ? 'Frais médicaux réclamés' : 'Medical expenses claimed',
+        value: formatAmount(medicalExpenses)
+      },
+      {
+        label: language === 'fr' ? 'Frais médicaux admissibles (25%)' : 'Eligible medical expenses (25%)',
+        value: formatAmount(creditableMedical)
+      },
+      {
+        label: language === 'fr' ? 'Montant maximal (2025)' : 'Maximum amount (2025)',
+        value: formatAmount(1500)
+      },
+      {
+        label: language === 'fr' ? 'Supplément de base' : 'Base supplement',
+        value: formatAmount(Math.min(1500, creditableMedical))
+      },
+      {
+        label: language === 'fr' ? 'Revenu familial net ajusté' : 'Adjusted family net income',
+        value: formatAmount(familyNetIncome)
+      },
+      {
+        label: language === 'fr' ? 'Seuil de réduction (33 300 $)' : 'Reduction threshold ($33,300)',
+        value: familyNetIncome > 33300 ? language === 'fr' ? 'Dépassé' : 'Exceeded' : language === 'fr' ? 'Respecté' : 'Met'
+      },
+      {
+        label: language === 'fr' ? 'Réduction (5% de l\'excédent)' : 'Reduction (5% of excess)',
+        value: formatAmount(phaseOutReduction)
+      },
+      {
+        label: language === 'fr' ? 'Supplément final' : 'Final supplement',
+        value: formatAmount(supplementAmount)
+      }
+    ]
+
+    return {
+      name: language === 'fr' ? 'Supplément remboursable pour frais médicaux (fédéral)' : 'Refundable Medical Expense Supplement (Federal)',
+      description: language === 'fr' 
+        ? 'Crédit d\'impôt remboursable fédéral qui aide les travailleurs à faible revenu ayant des frais médicaux élevés. Nécessite un revenu de travail minimum de 4 400 $ et s\'applique aux frais médicaux admissibles.'
+        : 'Federal refundable tax credit that helps low-income workers with high medical expenses. Requires minimum work income of $4,400 and applies to eligible medical expenses.',
+      formula: language === 'fr' 
+        ? 'Min(1 500 $, 25% × frais médicaux) - 5% × max(0, revenu familial net - 33 300 $)'
+        : 'Min($1,500, 25% × medical expenses) - 5% × max(0, family net income - $33,300)',
+      currentValue: supplementAmount,
+      parameters: calculationSteps
+    }
+  }
+
+  // Génère les détails du crédit médical québécois
+  const getQuebecMedicalSupplementDetails = (): ProgramDetail | null => {
+    if (!household) return null
+
+    const medicalResult = results.quebec?.medical_expense_supplement
+    if (!medicalResult) return null
+
+    const supplementAmount = medicalResult.amount instanceof Decimal ? medicalResult.amount.toNumber() : 0
+    const workIncome = medicalResult.work_income instanceof Decimal ? medicalResult.work_income.toNumber() : 0
+    const familyNetIncome = medicalResult.family_net_income instanceof Decimal ? medicalResult.family_net_income.toNumber() : 0
+    const medicalExpenses = household.medicalExpenses.toNumber()
+    const creditableMedical = medicalResult.creditable_medical_expenses instanceof Decimal ? medicalResult.creditable_medical_expenses.toNumber() : 0
+    const phaseOutReduction = medicalResult.phase_out_reduction instanceof Decimal ? medicalResult.phase_out_reduction.toNumber() : 0
+    const isEligible = medicalResult.eligible instanceof Decimal ? medicalResult.eligible.toNumber() === 1 : false
+
+    const calculationSteps = [
+      {
+        label: language === 'fr' ? 'Frais médicaux réclamés' : 'Medical expenses claimed',
+        value: formatAmount(medicalExpenses)
+      },
+      {
+        label: language === 'fr' ? 'Frais médicaux admissibles (25%)' : 'Eligible medical expenses (25%)',
+        value: formatAmount(creditableMedical)
+      },
+      {
+        label: language === 'fr' ? 'Montant maximal (2025)' : 'Maximum amount (2025)',
+        value: formatAmount(1466)
+      },
+      {
+        label: language === 'fr' ? 'Crédit de base' : 'Base credit',
+        value: formatAmount(Math.min(1466, creditableMedical))
+      },
+      {
+        label: language === 'fr' ? 'Revenu familial net ajusté' : 'Adjusted family net income',
+        value: formatAmount(familyNetIncome)
+      },
+      {
+        label: language === 'fr' ? 'Seuil de réduction (28 335 $)' : 'Reduction threshold ($28,335)',
+        value: familyNetIncome > 28335 ? language === 'fr' ? 'Dépassé' : 'Exceeded' : language === 'fr' ? 'Respecté' : 'Met'
+      },
+      {
+        label: language === 'fr' ? 'Réduction (5% de l\'excédent)' : 'Reduction (5% of excess)',
+        value: formatAmount(phaseOutReduction)
+      },
+      {
+        label: language === 'fr' ? 'Crédit final' : 'Final credit',
+        value: formatAmount(supplementAmount)
+      }
+    ]
+
+    return {
+      name: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux (Québec)' : 'Refundable Tax Credit for Medical Expenses (Quebec)',
+      description: language === 'fr' 
+        ? 'Crédit d\'impôt remboursable québécois destiné à inciter les personnes handicapées ou ayant des frais médicaux élevés à intégrer le marché du travail. Nécessite un revenu de travail minimum de 3 750 $.'
+        : 'Quebec refundable tax credit designed to encourage people with disabilities or high medical expenses to enter the job market. Requires minimum work income of $3,750.',
+      formula: language === 'fr' 
+        ? 'Min(1 466 $, 25% × frais médicaux) - 5% × max(0, revenu familial net - 28 335 $)'
+        : 'Min($1,466, 25% × medical expenses) - 5% × max(0, family net income - $28,335)',
+      currentValue: supplementAmount,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -2639,6 +2765,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getCanadaWorkersBenefitDetails()
       : displayedProgram === 'securite_vieillesse'
       ? getOldAgeSecurityDetails()
+      : displayedProgram === 'supplement_medical_federal'
+      ? getFederalMedicalSupplementDetails()
+      : displayedProgram === 'credit_medical'
+      ? getQuebecMedicalSupplementDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -2698,6 +2828,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.canada?.workers_benefit?.amount instanceof Decimal ? results.canada.workers_benefit.amount.toNumber() : 0
       case 'securite_vieillesse':
         return results.canada?.old_age_security?.total_amount instanceof Decimal ? results.canada.old_age_security.total_amount.toNumber() : 0
+      case 'supplement_medical_federal':
+        return results.canada?.medical_expense_supplement?.amount instanceof Decimal ? results.canada.medical_expense_supplement.amount.toNumber() : 0
+      case 'supplement_medical_quebec':
+        return results.quebec?.medical_expense_supplement?.amount instanceof Decimal ? results.quebec.medical_expense_supplement.amount.toNumber() : 0
       default:
         return 0
     }
@@ -2726,7 +2860,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           getValueForProgram('credit_solidarite'), // credit_solidarite
           0, // credit_garde
           0, // allocation_logement
-          0, // credit_medical
+          getValueForProgram('supplement_medical_quebec'), // credit_medical
           0  // soutien_aines
         ]
         return quebecPrograms.reduce((sum, value) => sum + value, 0)
@@ -2740,7 +2874,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: getValueForProgram('credit_solidarite') },
         { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: 0 },
         { key: 'allocation_logement', label: language === 'fr' ? 'Allocation-logement' : 'Housing Allowance', value: 0 },
-        { key: 'credit_medical', label: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux' : 'Medical Expense Tax Credit', value: 0 },
+        { key: 'credit_medical', label: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux' : 'Medical Expense Tax Credit', value: getValueForProgram('supplement_medical_quebec') },
         { key: 'soutien_aines', label: language === 'fr' ? 'Montant pour le soutien des aînés' : 'Amount for Support of Seniors', value: 0 }
       ]
     },
@@ -2755,7 +2889,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           getValueForProgram('credit_tps'), // credit_tps
           getValueForProgram('allocation_travailleurs'), // allocation_travailleurs
           getValueForProgram('securite_vieillesse'), // securite_vieillesse
-          0  // supplement_medical
+          getValueForProgram('supplement_medical_federal')  // supplement_medical_federal
         ]
         return federalPrograms.reduce((sum, value) => sum + value, 0)
       })(),
@@ -2765,7 +2899,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'credit_tps', label: language === 'fr' ? 'Crédit pour la TPS' : 'GST Credit', value: getValueForProgram('credit_tps') },
         { key: 'allocation_travailleurs', label: language === 'fr' ? 'Allocation canadienne pour les travailleurs' : 'Canada Workers Benefit', value: getValueForProgram('allocation_travailleurs') },
         { key: 'securite_vieillesse', label: language === 'fr' ? 'Programme de la Sécurité de la vieillesse' : 'Old Age Security Program', value: getValueForProgram('securite_vieillesse') },
-        { key: 'supplement_medical', label: language === 'fr' ? 'Supplément remboursable pour frais médicaux' : 'Medical Expense Supplement', value: 0 }
+        { key: 'supplement_medical_federal', label: language === 'fr' ? 'Supplément remboursable pour frais médicaux' : 'Medical Expense Supplement', value: getValueForProgram('supplement_medical_federal') }
       ]
     },
     {
@@ -2863,7 +2997,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -2897,7 +3031,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-black">{currentProgram.name}</h4>
-                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite' || displayedProgram === 'allocation_enfants') && (
+                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite' || displayedProgram === 'allocation_enfants' || displayedProgram === 'supplement_medical_federal' || displayedProgram === 'credit_medical') && (
                   <div className="flex items-center text-xs" style={{ color: '#000000' }}>
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />

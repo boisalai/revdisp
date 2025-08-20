@@ -17,7 +17,9 @@ import { CanadaChildBenefitCalculator } from './CanadaChildBenefitCalculator'
 import { GstCreditCalculator } from './GstCreditCalculator'
 import { CanadaWorkersBenefitCalculator } from './CanadaWorkersBenefitCalculator'
 import { OldAgeSecurityCalculator } from './OldAgeSecurityCalculator'
+import { MedicalExpenseSupplementFederalCalculator } from './MedicalExpenseSupplementFederalCalculator'
+import { MedicalExpenseSupplementQuebecCalculator } from './MedicalExpenseSupplementQuebecCalculator'
 import { MarginalRateCalculator } from './MarginalRateCalculator'
 
 // Export them
-export { QppCalculator, EmploymentInsuranceCalculator, RqapCalculator, FssCalculator, QcTaxCalculator, FederalTaxCalculator, RamqCalculator, SolidarityCalculator, WorkPremiumCalculator, FamilyAllowanceCalculator, CanadaChildBenefitCalculator, GstCreditCalculator, CanadaWorkersBenefitCalculator, OldAgeSecurityCalculator, MarginalRateCalculator }
+export { QppCalculator, EmploymentInsuranceCalculator, RqapCalculator, FssCalculator, QcTaxCalculator, FederalTaxCalculator, RamqCalculator, SolidarityCalculator, WorkPremiumCalculator, FamilyAllowanceCalculator, CanadaChildBenefitCalculator, GstCreditCalculator, CanadaWorkersBenefitCalculator, OldAgeSecurityCalculator, MedicalExpenseSupplementFederalCalculator, MedicalExpenseSupplementQuebecCalculator, MarginalRateCalculator }

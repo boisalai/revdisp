@@ -13,6 +13,7 @@ export interface Translation {
   spouseGrossRetirementIncome: string
   spouseAge: string
   numberOfChildren: string
+  medicalExpenses: string
   
   // Household types
   householdTypes: {
@@ -84,6 +85,7 @@ export const translations: Record<string, Translation> = {
     spouseGrossRetirementIncome: "Revenu brut de retraite de votre conjoint(e)",
     spouseAge: "Âge de votre conjoint(e)",
     numberOfChildren: "Nombre d'enfants",
+    medicalExpenses: "Frais médicaux",
     
     // Household types
     householdTypes: {
@@ -154,6 +156,7 @@ export const translations: Record<string, Translation> = {
     spouseGrossRetirementIncome: "Your spouse's gross retirement income",
     spouseAge: "Your spouse's age",
     numberOfChildren: "Number of children",
+    medicalExpenses: "Medical expenses",
     
     // Household types
     householdTypes: {

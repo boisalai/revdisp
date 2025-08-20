@@ -278,6 +278,33 @@ export const config2024: TaxYearConfig = {
     },
     secondary_earner_exemption: 14000 // Exemption conjoint secondaire
   },
+
+  /**
+   * Supplément remboursable pour frais médicaux fédéral 2024
+   * Sources: Canada.ca, Agence du revenu du Canada
+   */
+  medical_expense_supplement_federal: {
+    maximum_amount: 1464,                    // Montant maximal du supplément
+    minimum_work_income: 4275,               // Revenu de travail minimum requis
+    reduction_threshold: 32419,              // Seuil de réduction du revenu familial net
+    reduction_rate: 0.05,                    // Taux de réduction (5%)
+    medical_expense_rate: 0.25,              // Taux de crédit sur frais médicaux (25%)
+    phase_out_end: 61699                     // Seuil d'élimination complète
+  },
+
+  /**
+   * Crédit d'impôt remboursable pour frais médicaux - Québec 2024
+   * Sources: Budget Finances Québec, CFFP
+   */
+  medical_expense_supplement_quebec: {
+    maximum_amount: 1425,                    // Montant maximal du crédit
+    minimum_work_income: 3645,               // Revenu de travail minimum requis
+    reduction_threshold: 27550,              // Seuil de réduction du revenu familial net
+    reduction_rate: 0.05,                    // Taux de réduction (5%)
+    medical_expense_rate: 0.25,              // Taux de crédit sur frais médicaux (25%)
+    phase_out_end: 56050                     // Seuil d'élimination complète
+  },
+
   old_age_security: {
     quarters: {
       q1: {

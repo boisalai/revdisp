@@ -33,6 +33,8 @@ This calculator provides accurate calculations for Quebec households across diff
 - Canada Child Benefit (Allocation canadienne pour enfants)
 - GST/HST Credit (Crédit pour la TPS/TVH)
 - Canada Workers Benefit (Allocation canadienne pour les travailleurs)
+- Old Age Security (Pension de la Sécurité de la vieillesse)
+- Refundable Medical Expense Supplement (Supplément remboursable pour frais médicaux)
 
 ### Interface & Usability
 - Support for all household types: single person, couples, single parents, retirees
@@ -55,6 +57,8 @@ This calculator features an industry-leading **mass validation system** capable 
 | QPIP (Parental Insurance) | 100% | 1,000+ scenarios | ✅ Validated |
 | HSF (Health Services Fund) | 100% | 1,000+ scenarios | ✅ Validated |
 | Canada Workers Benefit | Initial | Basic scenarios | 🔄 Implemented |
+| Old Age Security | Initial | Basic scenarios | 🔄 Implemented |
+| Medical Expense Supplement | Initial | Basic scenarios | 🔄 Implemented |
 
 ### Intelligent Analysis & Prioritization
 
@@ -65,7 +69,7 @@ Our validation system doesn't just find errors—it **intelligently prioritizes*
 - **Continuous Monitoring**: Detects regressions automatically and provides real-time alerts
 - **Advanced Reporting**: Generates comprehensive HTML reports with actionable recommendations
 
-**Note on Recent Implementations**: The Canada Workers Benefit (CWB/ACT) has been recently implemented with initial functional testing. Comprehensive mass validation against the official Quebec Ministry of Finance calculator will be conducted in subsequent development phases to ensure exact alignment with government calculations.
+**Note on Recent Implementations**: The Canada Workers Benefit (CWB/ACT), Old Age Security (OAS/PSV), and Refundable Medical Expense Supplement have been recently implemented with initial functional testing. Comprehensive mass validation against the official Quebec Ministry of Finance calculator will be conducted in subsequent development phases to ensure exact alignment with government calculations.
 
 ### Mass Testing Capabilities
 
@@ -116,6 +120,9 @@ This system allows us to maintain **99%+ accuracy** across all implemented compo
 - Quebec Family Allowance: Financial support for families with children
 - Canada Child Benefit: Federal tax-free monthly benefit for families with children under 18
 - GST/HST Credit: Federal quarterly credit to offset goods and services tax
+- Canada Workers Benefit: Federal refundable tax credit for working individuals and families with low incomes
+- Old Age Security: Federal monthly pension for Canadian residents aged 65 and older
+- Refundable Medical Expense Supplement: Federal and Quebec refundable tax credits for individuals with high medical expenses
 
 **Special Considerations:**
 - Age-based eligibility rules (working age 18-64 vs. retirement age 65+)
@@ -185,6 +192,10 @@ The codebase is organized into clear functional areas:
 - `FamilyAllowanceCalculator.ts` - Quebec Family Allowance
 - `CanadaChildBenefitCalculator.ts` - Canada Child Benefit
 - `GstCreditCalculator.ts` - Federal GST/HST Credit
+- `CanadaWorkersBenefitCalculator.ts` - Canada Workers Benefit
+- `OldAgeSecurityCalculator.ts` - Old Age Security pension
+- `MedicalExpenseSupplementFederalCalculator.ts` - Federal Medical Expense Supplement
+- `MedicalExpenseSupplementQuebecCalculator.ts` - Quebec Medical Expense Credit
 
 **Mass Validation System (`src/lib/validation/`)**
 - **`MassTestGenerator.ts`** - Generates thousands of test cases with multiple strategies
