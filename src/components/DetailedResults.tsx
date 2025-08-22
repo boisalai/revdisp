@@ -2486,7 +2486,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
 
     const primaryResult = oasResult.primary
     const spouseResult = oasResult.spouse
-    const totalAmount = oasResult.total_amount?.toNumber() || 0
+    const oasResultTotalAmount = oasResult.total_amount?.toNumber() || 0
 
     // Paramètres selon l'année
     const params2023 = {
@@ -2527,26 +2527,47 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         value: formatCurrency(params.recoveryThreshold)
       })
 
+      // Détail du calcul PSV étape par étape
       calculationSteps.push({
-        label: language === 'fr' ? 'Montant mensuel brut' : 'Gross monthly amount',
-        value: formatCurrency(primaryGrossAmount)
+        label: language === 'fr' ? '<span class="text-sm font-bold" style="color: rgb(0, 0, 0);">Programme de la Sécurité du revenu </span>' : '📋 Old Age Security Program',
+        value: ''
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? '1️⃣ Montant mensuel maximum PSV' : '1️⃣ Maximum monthly OAS amount',
+        value: `${formatCurrency(primaryGrossAmount)}${is75Plus ? (language === 'fr' ? ' (75+ ans, +10%)' : ' (75+ years, +10%)') : ''}`
       })
 
       if (primaryRecoveryTax > 0) {
         calculationSteps.push({
-          label: language === 'fr' ? 'Récupération (15%)' : 'Recovery tax (15%)',
+          label: language === 'fr' ? '2️⃣ Récupération fiscale (15% × excédent)' : '2️⃣ Recovery tax (15% × excess)',
           value: `-${formatCurrency(primaryRecoveryTax)}`
+        })
+        
+        calculationSteps.push({
+          label: language === 'fr' ? '   • Calcul: 15% × (${formatCurrency(primaryIncome)} - ${formatCurrency(params.recoveryThreshold)}) ÷ 12' : '   • Calculation: 15% × (${formatCurrency(primaryIncome)} - ${formatCurrency(params.recoveryThreshold)}) ÷ 12',
+          value: language === 'fr' ? '   • Si revenu > seuil de récupération' : '   • If income > recovery threshold'
+        })
+
+        calculationSteps.push({
+          label: language === 'fr' ? '3️⃣ PSV nette mensuelle' : '3️⃣ Net monthly OAS',
+          value: `${formatCurrency(primaryGrossAmount)} - ${formatCurrency(primaryRecoveryTax)} = ${formatCurrency(primaryNetAmount)}`
+        })
+      } else {
+        calculationSteps.push({
+          label: language === 'fr' ? '2️⃣ Aucune récupération fiscale' : '2️⃣ No recovery tax',
+          value: language === 'fr' ? `Revenu sous ${formatCurrency(params.recoveryThreshold)}` : `Income below ${formatCurrency(params.recoveryThreshold)}`
+        })
+        
+        calculationSteps.push({
+          label: language === 'fr' ? '3️⃣ PSV mensuelle = montant maximum' : '3️⃣ Monthly OAS = maximum amount',
+          value: formatCurrency(primaryNetAmount)
         })
       }
 
       calculationSteps.push({
-        label: language === 'fr' ? 'Montant mensuel net' : 'Net monthly amount',
-        value: formatCurrency(primaryNetAmount)
-      })
-
-      calculationSteps.push({
-        label: language === 'fr' ? 'Montant annuel (principal)' : 'Annual amount (primary)',
-        value: formatCurrency(primaryAnnualAmount)
+        label: language === 'fr' ? '4️⃣ PSV annuelle (×12 mois)' : '4️⃣ Annual OAS (×12 months)',
+        value: `${formatCurrency(primaryNetAmount)} × 12 = ${formatCurrency(primaryAnnualAmount)}`
       })
     }
 
@@ -2588,6 +2609,157 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })
     }
 
+    // Informations sur le SRG (Supplément de revenu garanti) - TOUJOURS AFFICHER
+    if (primaryResult && primaryResult.age_requirement_met?.toNumber() === 1) {
+      const gisAmount = primaryResult.gis_amount?.toNumber() || 0
+      const gisMonthlyAmount = primaryResult.gis_monthly_amount?.toNumber() || 0
+      const gisEligible = primaryResult.gis_eligible?.toNumber() === 1
+      const gisIncome = primaryResult.gis_income?.toNumber() || 0
+      const gisIncomeCutoff = primaryResult.gis_income_cutoff?.toNumber() || 0
+      const gisMaxMonthly = primaryResult.gis_max_monthly_amount?.toNumber() || 0
+      const gisReduction = primaryResult.gis_reduction_applied?.toNumber() || 0
+      const gisIsCouple = primaryResult.gis_is_couple?.toNumber() === 1
+      const gisSpouseOas = primaryResult.gis_spouse_receives_oas?.toNumber() === 1
+
+      calculationSteps.push({
+        label: language === 'fr' ? '<span class="text-sm font-bold" style="color: rgb(0, 0, 0);">Supplément de revenu garanti (SRG)</span>' : 'Guaranteed Income Supplement (GIS)',
+        value: ''
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? 'Situation familiale' : 'Marital status',
+        value: gisIsCouple 
+          ? (gisSpouseOas 
+              ? (language === 'fr' ? 'Couple (les deux reçoivent la PSV)' : 'Couple (both receive OAS)')
+              : (language === 'fr' ? 'Couple (un seul reçoit la PSV)' : 'Couple (one receives OAS)'))
+          : (language === 'fr' ? 'Personne seule' : 'Single person')
+      })
+
+      // Détail du calcul du revenu pour SRG
+      calculationSteps.push({
+        label: language === 'fr' ? 'Calcul du revenu pour SRG:' : 'Income calculation for GIS:',
+        value: ''
+      })
+
+      const rawIncome = primaryResult.individual_income?.toNumber() || 0
+      const workIncome = household.primaryPerson.grossWorkIncome.toNumber()
+      const retirementIncome = household.primaryPerson.grossRetirementIncome.toNumber()
+      
+      calculationSteps.push({
+        label: language === 'fr' ? 'Revenu de retraite' : 'Retirement income',
+        value: formatCurrency(retirementIncome)
+      })
+
+      if (workIncome > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Revenu de travail brut' : 'Gross work income',
+          value: formatCurrency(workIncome)
+        })
+
+        const firstExemption = Math.min(workIncome, 5000)
+        const remainingWork = Math.max(0, workIncome - 5000)
+        const partialExemption = Math.min(remainingWork, 10000) * 0.5
+        const countedWork = Math.max(0, remainingWork - 10000) + (remainingWork > 10000 ? 5000 : remainingWork * 0.5)
+
+        calculationSteps.push({
+          label: language === 'fr' ? 'Exemption complète (premiers 5 000 $)' : 'Full exemption (first $5,000)',
+          value: `-${formatCurrency(firstExemption)}`
+        })
+
+        if (remainingWork > 0 && remainingWork <= 10000) {
+          calculationSteps.push({
+            label: language === 'fr' ? 'Exemption partielle (50% de 5 000 $ à 15 000 $)' : 'Partial exemption (50% from $5,000 to $15,000)',
+            value: `-${formatCurrency(partialExemption)}`
+          })
+        }
+
+        calculationSteps.push({
+          label: language === 'fr' ? 'Revenu de travail comptabilisé' : 'Counted work income',
+          value: formatCurrency(countedWork)
+        })
+      }
+
+      calculationSteps.push({
+        label: language === 'fr' ? '1️⃣ Revenu total pour SRG' : '1️⃣ Total income for GIS',
+        value: formatCurrency(gisIncome)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? '2️⃣ Seuil d\'admissibilité annuel' : '2️⃣ Annual eligibility threshold',
+        value: formatCurrency(gisIncomeCutoff)
+      })
+
+      calculationSteps.push({
+        label: language === 'fr' ? '3️⃣ SRG mensuel maximal possible' : '3️⃣ Maximum possible monthly GIS',
+        value: formatCurrency(gisMaxMonthly)
+      })
+
+      if (gisEligible) {
+        calculationSteps.push({
+          label: language === 'fr' ? '4️⃣ Réduction (0,50 $ par $ de revenu)' : '4️⃣ Reduction ($0.50 per $ of income)',
+          value: `${formatCurrency(gisIncome)} × 0,50 = -${formatCurrency(gisReduction)}`
+        })
+
+        calculationSteps.push({
+          label: language === 'fr' ? '5️⃣ SRG mensuel final' : '5️⃣ Final monthly GIS',
+          value: `${formatCurrency(gisMaxMonthly)} - ${formatCurrency(gisReduction)} = ${formatCurrency(gisMonthlyAmount)}`
+        })
+
+        calculationSteps.push({
+          label: language === 'fr' ? '6️⃣ SRG annuel (×12 mois)' : '6️⃣ Annual GIS (×12 months)',
+          value: `${formatCurrency(gisMonthlyAmount)} × 12 = ${formatCurrency(gisAmount)}`
+        })
+
+        calculationSteps.push({
+          label: language === 'fr' ? '✅ Statut SRG' : '✅ GIS Status',
+          value: language === 'fr' ? `Admissible - ${formatCurrency(gisAmount)}/an` : `Eligible - ${formatCurrency(gisAmount)}/year`
+        })
+      } else {
+        calculationSteps.push({
+          label: language === 'fr' ? '4️⃣ Vérification d\'admissibilité' : '4️⃣ Eligibility check',
+          value: gisIncome <= gisIncomeCutoff 
+            ? (language === 'fr' ? `${formatCurrency(gisIncome)} ≤ ${formatCurrency(gisIncomeCutoff)} ✅` : `${formatCurrency(gisIncome)} ≤ ${formatCurrency(gisIncomeCutoff)} ✅`)
+            : (language === 'fr' ? `${formatCurrency(gisIncome)} > ${formatCurrency(gisIncomeCutoff)} ❌` : `${formatCurrency(gisIncome)} > ${formatCurrency(gisIncomeCutoff)} ❌`)
+        })
+
+        calculationSteps.push({
+          label: language === 'fr' ? '❌ Statut SRG' : '❌ GIS Status',
+          value: language === 'fr' ? 'Non admissible (revenu trop élevé)' : 'Not eligible (income too high)'
+        })
+
+        calculationSteps.push({
+          label: language === 'fr' ? '💡 Pour être admissible' : '💡 To be eligible',
+          value: language === 'fr' ? `Revenu doit être ≤ ${formatCurrency(gisIncomeCutoff)}` : `Income must be ≤ ${formatCurrency(gisIncomeCutoff)}`
+        })
+      }
+    }
+
+    // Récupérer les montants pour le calcul du total
+    const primaryAnnualAmount = primaryResult?.annual_amount?.toNumber() || 0
+    const gisAmount = primaryResult?.gis_amount?.toNumber() || 0
+    
+    // Total PSV + SRG
+    const calculatedTotalAmount = primaryAnnualAmount + gisAmount + (spouseResult ? (spouseResult.annual_amount?.toNumber() || 0) + (spouseResult.gis_amount?.toNumber() || 0) : 0)
+    
+    if (household.isCouple && spouseResult) {
+      calculationSteps.push({
+        label: language === 'fr' ? '• Personne principale (PSV + SRG)' : '• Primary person (OAS + GIS)',
+        value: formatCurrency(primaryAnnualAmount + gisAmount)
+      })
+      
+      const spouseGisAmount = spouseResult.gis_amount?.toNumber() || 0
+      const spouseOasAmount = spouseResult.annual_amount?.toNumber() || 0
+      calculationSteps.push({
+        label: language === 'fr' ? '• Conjoint (PSV + SRG)' : '• Spouse (OAS + GIS)',
+        value: formatCurrency(spouseOasAmount + spouseGisAmount)
+      })
+    }
+
+    calculationSteps.push({
+      label: language === 'fr' ? '<span class="text-sm font-bold" style="color: rgb(0, 0, 0);">Total</span>' : '<span class="text-sm font-bold" style="color: rgb(0, 0, 0);">Total</span>',
+      value: formatCurrency(calculatedTotalAmount)
+    })
+
     // Référence officielle
     calculationSteps.push({
       label: language === 'fr' ? 'Référence officielle' : 'Official reference',
@@ -2596,14 +2768,14 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     })
 
     return {
-      name: language === 'fr' ? 'Programme de la Sécurité de la vieillesse (PSV)' : 'Old Age Security Program (OAS)',
+      name: language === 'fr' ? 'Programme de la Sécurité de la vieillesse (PSV + SRG)' : 'Old Age Security Program (OAS + GIS)',
       description: language === 'fr' 
-        ? 'Pension mensuelle offerte à la plupart des Canadiens de 65 ans et plus. Le montant varie selon le revenu et est assujetti à une récupération fiscale pour les bénéficiaires à revenu élevé. Indexée trimestriellement selon l\'IPC.'
-        : 'Monthly pension available to most Canadians 65 years old or older. The amount varies based on income and is subject to recovery tax for higher-income recipients. Indexed quarterly based on CPI.',
+        ? 'Pension mensuelle offerte à la plupart des Canadiens de 65 ans et plus, incluant le Supplément de revenu garanti (SRG) pour les bénéficiaires à faible revenu. Indexée trimestriellement selon l\'IPC.'
+        : 'Monthly pension available to most Canadians 65 years old or older, including the Guaranteed Income Supplement (GIS) for low-income recipients. Indexed quarterly based on CPI.',
       formula: language === 'fr' 
         ? 'Montant moyen trimestriel - Récupération fiscale (si applicable)'
         : 'Average quarterly amount - Recovery tax (if applicable)',
-      currentValue: totalAmount,
+      currentValue: calculatedTotalAmount,
       parameters: calculationSteps
     }
   }
@@ -3057,12 +3229,22 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                   {currentProgram.parameters.filter(param => !(param as any).isReference).map((param, index) => {
                     // Détecter la section total pour la mettre en évidence
                     const isTotalSection = param.label.includes('Total') || param.label.includes('couple')
+                    // Détecter si le label contient du HTML
+                    const hasHtml = param.label.includes('<span')
                     
                     return (
                       <div key={index} className="flex justify-between items-center" style={{ lineHeight: '1.3' }}>
-                        <span className={`text-sm ${isTotalSection ? 'font-bold' : ''}`} style={{ color: '#000000' }}>
-                          {param.label}
-                        </span>
+                        {hasHtml ? (
+                          <span 
+                            className="text-sm" 
+                            style={{ color: '#000000' }}
+                            dangerouslySetInnerHTML={{ __html: param.label }}
+                          />
+                        ) : (
+                          <span className={`text-sm ${isTotalSection ? 'font-bold' : ''}`} style={{ color: '#000000' }}>
+                            {param.label}
+                          </span>
+                        )}
                         <span className={`font-medium text-sm ${isTotalSection ? 'font-bold' : ''}`} style={{ color: '#000000' }}>
                           {param.value}
                         </span>

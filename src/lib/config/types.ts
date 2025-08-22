@@ -241,6 +241,33 @@ export interface OldAgeSecurityQuarter {
   recovery_upper_limit_75_plus: number
 }
 
+export interface GisQuarterConfig {
+  single_max_amount: number
+  single_income_cutoff: number
+  single_top_up_cutoff: number
+  couple_both_oas_max: number
+  couple_both_oas_income_cutoff: number
+  couple_both_oas_top_up_cutoff: number
+  couple_one_oas_max: number
+  couple_one_oas_income_cutoff: number
+  couple_one_oas_top_up_cutoff: number
+}
+
+export interface GisConfig {
+  quarters: {
+    q1: GisQuarterConfig
+    q2: GisQuarterConfig
+    q3: GisQuarterConfig
+    q4: GisQuarterConfig
+  }
+  employment_income_exemption: {
+    first_exemption: number      // Premier 5 000 $ exempt
+    partial_exemption: number    // 50% entre 5 000 $ et 15 000 $
+    partial_rate: number         // Taux partiel (0.5)
+  }
+  reduction_rate: number         // Taux de réduction standard (0.5)
+}
+
 export interface OldAgeSecurityConfig {
   quarters: {
     q1: OldAgeSecurityQuarter  // janvier-mars
@@ -251,6 +278,7 @@ export interface OldAgeSecurityConfig {
   recovery_rate: number  // Taux de récupération (15%)
   minimum_residence_years: number  // 10 ans minimum pour recevoir
   full_pension_years: number      // 40 ans pour pension complète
+  gis: GisConfig         // Configuration du Supplément de revenu garanti
 }
 
 export interface MedicalExpenseSupplementConfig {

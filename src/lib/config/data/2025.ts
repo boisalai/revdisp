@@ -391,6 +391,61 @@ export const config2025: TaxYearConfig = {
     },
     recovery_rate: 0.15,
     minimum_residence_years: 10,
-    full_pension_years: 40
+    full_pension_years: 40,
+    // Supplément de revenu garanti (SRG) / Guaranteed Income Supplement (GIS)
+    gis: {
+      quarters: {
+        q1: {
+          single_max_amount: 1086.88,
+          single_income_cutoff: 22056,
+          single_top_up_cutoff: 10112,
+          couple_both_oas_max: 654.23,
+          couple_both_oas_income_cutoff: 29136,
+          couple_both_oas_top_up_cutoff: 8608,
+          couple_one_oas_max: 1086.88,
+          couple_one_oas_income_cutoff: 52848,
+          couple_one_oas_top_up_cutoff: 20224
+        },
+        q2: {
+          single_max_amount: 1086.88,
+          single_income_cutoff: 22056,
+          single_top_up_cutoff: 10112,
+          couple_both_oas_max: 654.23,
+          couple_both_oas_income_cutoff: 29136,
+          couple_both_oas_top_up_cutoff: 8608,
+          couple_one_oas_max: 1086.88,
+          couple_one_oas_income_cutoff: 52848,
+          couple_one_oas_top_up_cutoff: 20224
+        },
+        q3: {
+          single_max_amount: 1097.75,
+          single_income_cutoff: 22272,
+          single_top_up_cutoff: 10208,
+          couple_both_oas_max: 660.78,
+          couple_both_oas_income_cutoff: 29424,
+          couple_both_oas_top_up_cutoff: 8704,
+          couple_one_oas_max: 1097.75,
+          couple_one_oas_income_cutoff: 53376,
+          couple_one_oas_top_up_cutoff: 20416
+        },
+        q4: {
+          single_max_amount: 1097.75,
+          single_income_cutoff: 22272,
+          single_top_up_cutoff: 10208,
+          couple_both_oas_max: 660.78,
+          couple_both_oas_income_cutoff: 29424,
+          couple_both_oas_top_up_cutoff: 8704,
+          couple_one_oas_max: 1097.75,
+          couple_one_oas_income_cutoff: 53376,
+          couple_one_oas_top_up_cutoff: 20416
+        }
+      },
+      employment_income_exemption: {
+        first_exemption: 5000,      // Premier 5 000 $ de revenu d'emploi
+        partial_exemption: 15000,   // 50% du revenu entre 5 000 $ et 15 000 $
+        partial_rate: 0.50
+      },
+      reduction_rate: 0.50  // 0.50 $ de réduction par dollar de revenu
+    }
   }
 }
