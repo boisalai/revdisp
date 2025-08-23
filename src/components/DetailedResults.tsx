@@ -2906,6 +2906,155 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  // Génère les détails de l'aide sociale
+  const getSocialAssistanceDetails = (): ProgramDetail | null => {
+    if (!household) return null
+    const socialAssistanceResult = results.quebec?.social_assistance
+    if (!socialAssistanceResult) return null
+    
+    const netBenefit = socialAssistanceResult.net_benefit instanceof Decimal ? socialAssistanceResult.net_benefit.toNumber() : 0
+    const baseBenefit = socialAssistanceResult.base_benefit instanceof Decimal ? socialAssistanceResult.base_benefit.toNumber() : 0
+    const adjustmentBenefit = socialAssistanceResult.adjustment_benefit instanceof Decimal ? socialAssistanceResult.adjustment_benefit.toNumber() : 0
+    const constraintAllocation = socialAssistanceResult.constraint_allocation instanceof Decimal ? socialAssistanceResult.constraint_allocation.toNumber() : 0
+    const singleAdjustment = socialAssistanceResult.single_adjustment instanceof Decimal ? socialAssistanceResult.single_adjustment.toNumber() : 0
+    const workIncomeExemption = socialAssistanceResult.work_income_exemption instanceof Decimal ? socialAssistanceResult.work_income_exemption.toNumber() : 0
+    const workIncomeSuplement = socialAssistanceResult.work_income_supplement instanceof Decimal ? socialAssistanceResult.work_income_supplement.toNumber() : 0
+    const incomeReduction = socialAssistanceResult.income_reduction instanceof Decimal ? socialAssistanceResult.income_reduction.toNumber() : 0
+    const totalWorkIncome = socialAssistanceResult.total_work_income instanceof Decimal ? socialAssistanceResult.total_work_income.toNumber() : 0
+    const eligible = socialAssistanceResult.eligible instanceof Decimal ? socialAssistanceResult.eligible.toNumber() === 1 : false
+    const program = socialAssistanceResult.program ? socialAssistanceResult.program.toString() : 'aide_sociale'
+    
+    const calculationSteps = []
+    
+    if (!eligible) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Statut d\'admissibilité' : 'Eligibility Status',
+        value: language === 'fr' ? 'Non admissible' : 'Not eligible'
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? 'Raison' : 'Reason',
+        value: socialAssistanceResult.ineligibility_reason?.toString() || (language === 'fr' ? 'Critères non respectés' : 'Criteria not met')
+      })
+    } else {
+      // Déterminer le type de programme
+      const programName = program === 'objectif_emploi' 
+        ? (language === 'fr' ? 'Programme objectif emploi' : 'Employment objective program')
+        : program === 'solidarite_sociale'
+        ? (language === 'fr' ? 'Solidarité sociale' : 'Social solidarity') 
+        : (language === 'fr' ? 'Aide sociale' : 'Social assistance')
+      
+      // Calculs mensuels pour l'affichage détaillé
+      const monthlyWorkIncome = totalWorkIncome / 12
+      const monthlyExemption = workIncomeExemption / 12
+      const monthlyReduction = incomeReduction / 12
+      const monthlySupplement = workIncomeSuplement / 12
+      const monthlyNet = netBenefit / 12
+      const monthlyConstraint = constraintAllocation / 12
+      const monthlySingle = singleAdjustment / 12
+      const monthlyBase = baseBenefit / 12
+      const monthlyAdjustment = adjustmentBenefit / 12
+      
+      calculationSteps.push({
+        label: language === 'fr' ? 'Programme applicable' : 'Applicable program',
+        value: programName
+      })
+      
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prestation de base' : 'Base benefit',
+        value: formatCurrency(monthlyBase)
+      })
+      
+      calculationSteps.push({
+        label: language === 'fr' ? 'Ajustement' : 'Adjustment',
+        value: formatCurrency(monthlyAdjustment)
+      })
+      
+      if (constraintAllocation > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Allocation contrainte temporaire' : 'Temporary constraint allocation',
+          value: formatCurrency(monthlyConstraint)
+        })
+      }
+      
+      if (singleAdjustment > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Ajustement objectif emploi' : 'Employment objective adjustment',
+          value: formatCurrency(monthlySingle)
+        })
+      }
+      
+      const monthlyGrossBenefit = monthlyBase + monthlyAdjustment + monthlyConstraint + monthlySingle
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prestation totale' : 'Total benefit',
+        value: formatCurrency(monthlyGrossBenefit)
+      })
+      
+      if (totalWorkIncome > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? `Revenus de travail (${formatCurrency(totalWorkIncome)}/an)` : `Work income (${formatCurrency(totalWorkIncome)}/year)`,
+          value: `${formatCurrency(monthlyWorkIncome)}/mois`
+        })
+        
+        // L'exemption officielle est de 200$/mois pour une personne seule
+        const officialExemption = household.householdType === 'single' ? 200 : 300
+        calculationSteps.push({
+          label: language === 'fr' ? 'Revenus de travail exclus' : 'Excluded work income',
+          value: formatCurrency(officialExemption)
+        })
+        
+        calculationSteps.push({
+          label: language === 'fr' ? `Réduction de la prestation mensuelle (max(0;${formatCurrency(monthlyWorkIncome)}-${formatCurrency(officialExemption)}))` : `Monthly benefit reduction (max(0;${formatCurrency(monthlyWorkIncome)}-${formatCurrency(officialExemption)}))`,
+          value: monthlyReduction > 0 ? `-${formatCurrency(monthlyReduction)}` : formatCurrency(0)
+        })
+        
+        if (workIncomeSuplement > 0) {
+          calculationSteps.push({
+            label: language === 'fr' ? 'Supplément 25% (2025)' : '25% supplement (2025)',
+            value: `+${formatCurrency(monthlySupplement)}`
+          })
+        }
+      }
+      
+      calculationSteps.push({
+        label: language === 'fr' ? 'Prestation mensuelle' : 'Monthly benefit',
+        value: formatCurrency(monthlyNet)
+      })
+      
+      calculationSteps.push({
+        label: language === 'fr' ? `Prestation annuelle (${formatCurrency(monthlyNet)} × 12)` : `Annual benefit (${formatCurrency(monthlyNet)} × 12)`,
+        value: formatCurrency(netBenefit)
+      })
+    }
+
+    // Références officielles
+    const webReferences = [
+      {
+        title: language === 'fr' 
+          ? 'Gouvernement du Québec - Aide sociale et solidarité sociale'
+          : 'Government of Quebec - Social assistance and social solidarity',
+        url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale'
+      }
+    ]
+
+    calculationSteps.push(...webReferences.map(ref => ({
+      label: ref.title,
+      value: ref.url,
+      isReference: true
+    })))
+
+    return {
+      name: language === 'fr' ? 'Aide sociale du Québec' : 'Quebec Social Assistance',
+      description: language === 'fr'
+        ? 'Programme d\'assistance financière de dernier recours pour les personnes et familles dans le besoin au Québec.'
+        : 'Last resort financial assistance program for individuals and families in need in Quebec.',
+      formula: language === 'fr'
+        ? 'Prestation de base + Ajustement + Allocations - Réduction revenus + Supplément'
+        : 'Base benefit + Adjustment + Allowances - Income reduction + Supplement',
+      currentValue: netBenefit,
+      parameters: calculationSteps
+    }
+  }
+
   // Affiche le programme épinglé en priorité, sinon le programme survolé
   const displayedProgram = pinnedProgram || hoveredProgram
   const currentProgram = displayedProgram ? (
@@ -2941,6 +3090,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getFederalMedicalSupplementDetails()
       : displayedProgram === 'credit_medical'
       ? getQuebecMedicalSupplementDetails()
+      : displayedProgram === 'aide_sociale'
+      ? getSocialAssistanceDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -3004,6 +3155,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.canada?.medical_expense_supplement?.amount instanceof Decimal ? results.canada.medical_expense_supplement.amount.toNumber() : 0
       case 'supplement_medical_quebec':
         return results.quebec?.medical_expense_supplement?.amount instanceof Decimal ? results.quebec.medical_expense_supplement.amount.toNumber() : 0
+      case 'aide_sociale':
+        return results.quebec?.social_assistance?.net_benefit instanceof Decimal ? results.quebec.social_assistance.net_benefit.toNumber() : 0
       default:
         return 0
     }
@@ -3025,7 +3178,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         // Calculer la somme de tous les programmes du Québec (fiscaux seulement)
         const quebecPrograms = [
           getValueForProgram('quebec_tax'),     // Impôt du Québec
-          0, // aide_sociale
+          getValueForProgram('aide_sociale'),   // aide_sociale
           getValueForProgram('allocation_famille'), // allocation_famille
           0, // fournitures_scolaires
           getValueForProgram('prime_travail'), // prime_travail
@@ -3039,7 +3192,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })(),
       items: [
         { key: 'quebec_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('quebec_tax') },
-        { key: 'aide_sociale', label: language === 'fr' ? 'Aide sociale' : 'Social Assistance', value: 0 },
+        { key: 'aide_sociale', label: language === 'fr' ? 'Aide sociale' : 'Social Assistance', value: getValueForProgram('aide_sociale') },
         { key: 'allocation_famille', label: language === 'fr' ? 'Allocation famille' : 'Family Allowance', value: getValueForProgram('allocation_famille') },
         { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: 0 },
         { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: getValueForProgram('prime_travail') },
@@ -3169,7 +3322,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -3203,7 +3356,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-black">{currentProgram.name}</h4>
-                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite' || displayedProgram === 'allocation_enfants' || displayedProgram === 'supplement_medical_federal' || displayedProgram === 'credit_medical') && (
+                {(displayedProgram === 'assurance_emploi' || displayedProgram === 'rrq' || displayedProgram === 'rqap' || displayedProgram === 'fss' || displayedProgram === 'ramq' || displayedProgram === 'quebec_tax' || displayedProgram === 'federal_tax' || displayedProgram === 'credit_solidarite' || displayedProgram === 'allocation_enfants' || displayedProgram === 'supplement_medical_federal' || displayedProgram === 'credit_medical' || displayedProgram === 'aide_sociale') && (
                   <div className="flex items-center text-xs" style={{ color: '#000000' }}>
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />

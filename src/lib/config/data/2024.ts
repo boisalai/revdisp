@@ -394,5 +394,76 @@ export const config2024: TaxYearConfig = {
       },
       reduction_rate: 0.50  // 0.50 $ de réduction par dollar de revenu
     }
+  },
+
+  /**
+   * Aide sociale du Québec
+   * 
+   * Programme d'assistance financière de dernier recours pour les personnes 
+   * et familles dans le besoin au Québec.
+   * 
+   * Source: Ministère de l'Emploi et de la Solidarité sociale du Québec
+   * https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale/montants-prestations-aide-sociale
+   */
+  social_assistance: {
+    aide_sociale: {  // Regular social assistance
+      single_adult: {
+        base: 762,                      // Prestation de base mensuelle 2024
+        adjustment: 45,                 // Ajustement 2024
+        temp_constraint_amount: 166     // Allocation contrainte temporaire
+      },
+      single_with_parents: {
+        base: 659,                      // Prestation de base mensuelle (avec parents)
+        adjustment: 45,                 // Ajustement
+        temp_constraint_amount: 166     // Allocation contrainte temporaire
+      },
+      couple: {
+        base: 1179,                     // Prestation de base mensuelle
+        adjustment: 45,                 // Ajustement 2024
+        temp_constraint_amount: 285     // Allocation contrainte temporaire (les deux)
+      },
+      couple_with_parents: {
+        base: 1076,                     // Prestation de base mensuelle (avec parents)
+        adjustment: 45,                 // Ajustement
+        temp_constraint_amount: 285     // Allocation contrainte temporaire (les deux)
+      },
+      couple_one_constraint: {
+        temp_constraint_amount: 166     // Allocation contrainte temporaire (un seul)
+      }
+    },
+    solidarite_sociale: {  // Social solidarity (severe constraints)
+      single_adult: {
+        base: 1158,                     // Prestation de base mensuelle (estimé 784+374)
+        adjustment: 0                   // Ajustement (inclus dans base)
+      },
+      single_with_parents: {
+        base: 1058,                     // Prestation de base mensuelle (estimé 684+374)
+        adjustment: 0                   // Ajustement
+      },
+      couple: {
+        base: 1731,                     // Prestation de base mensuelle (estimé 1213+518)
+        adjustment: 0                   // Ajustement (inclus dans base)
+      },
+      couple_with_parents: {
+        base: 1631,                     // Prestation de base mensuelle (estimé 1113+518)
+        adjustment: 0                   // Ajustement
+      }
+    },
+    objectif_emploi: {
+      single_adjustment: 45             // Ajustement personne seule (Programme objectif emploi)
+    },
+    work_income_exemption: {
+      single: 200,                      // Exemption revenus de travail mensuelle - personne seule
+      couple: 300                       // Exemption revenus de travail mensuelle - couple
+    },
+    work_income_supplement_rate: 0.25,         // 25% de supplément (entrée en vigueur 2025)
+    work_income_supplement_start_year: 2025,   // Année d'entrée en vigueur
+    work_income_supplement_max_monthly: 200,   // Maximum mensuel du supplément
+    liquid_asset_limits: {
+      single_no_children: 887,          // Personne seule sans enfant
+      single_with_children: 1340,       // Personne seule avec enfant(s)
+      couple_no_children: 1340,         // Couple sans enfant
+      couple_with_children: 1793        // Couple avec enfant(s)
+    }
   }
 } as const

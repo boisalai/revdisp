@@ -447,5 +447,76 @@ export const config2025: TaxYearConfig = {
       },
       reduction_rate: 0.50  // 0.50 $ de réduction par dollar de revenu
     }
+  },
+
+  /**
+   * Aide sociale du Québec
+   * 
+   * Programme d'assistance financière de dernier recours pour les personnes 
+   * et familles dans le besoin au Québec.
+   * 
+   * Source: Ministère de l'Emploi et de la Solidarité sociale du Québec
+   * https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale/montants-prestations-aide-sociale
+   */
+  social_assistance: {
+    aide_sociale: {
+      single_adult: {
+        base: 784,                      // Montant officiel 2025
+        adjustment: 45,                 // Ajustement officiel 2025
+        temp_constraint_amount: 166     // Allocation contrainte temporaire
+      },
+      single_with_parents: {
+        base: 681,                      // Base réduite pour personne vivant avec parents
+        adjustment: 45,
+        temp_constraint_amount: 166
+      },
+      couple: {
+        base: 1216,                     // Montant couple 2025
+        adjustment: 45,
+        temp_constraint_amount: 291     // Allocation contrainte temporaire couple
+      },
+      couple_with_parents: {
+        base: 1113,
+        adjustment: 45,
+        temp_constraint_amount: 291
+      },
+      couple_one_constraint: {
+        temp_constraint_amount: 166
+      }
+    },
+    solidarite_sociale: {
+      single_adult: {
+        base: 1191,                     // Montant solidarité sociale 2025
+        adjustment: 103                 // Ajustement solidarité sociale
+      },
+      single_with_parents: {
+        base: 1088,
+        adjustment: 103
+      },
+      couple: {
+        base: 1747,
+        adjustment: 118
+      },
+      couple_with_parents: {
+        base: 1644,
+        adjustment: 118
+      }
+    },
+    objectif_emploi: {
+      single_adjustment: 46             // Ajustement programme objectif emploi
+    },
+    work_income_exemption: {
+      single: 200,                      // Exemption revenus de travail personne seule
+      couple: 300                       // Exemption revenus de travail couple
+    },
+    work_income_supplement_rate: 0.25,        // 25% de supplément (entrée en vigueur 2025)
+    work_income_supplement_start_year: 2025,  // Année d'entrée en vigueur
+    work_income_supplement_max_monthly: 10000,  // Pas de limite mensuelle spécifiée
+    liquid_asset_limits: {
+      single_no_children: 904,
+      single_with_children: 1367,
+      couple_no_children: 1367,
+      couple_with_children: 1829
+    }
   }
 }

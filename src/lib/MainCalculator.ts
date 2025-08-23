@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance']
       
       for (const type of calculatorTypes) {
         try {
@@ -236,6 +236,47 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(familyAllowanceResult.net_allowance)
+    }
+
+    // Social Assistance (Aide sociale)
+    if (this.calculators.social_assistance) {
+      // Create input for social assistance calculation
+      const socialAssistanceInput = {
+        household_type: household.isCouple ? 'couple' : household.children.length > 0 ? 'single_parent' : 'single',
+        employment_constraint: household.socialAssistance?.employmentConstraint || 'none',
+        partner_employment_constraint: household.socialAssistance?.partnerEmploymentConstraint || 'none',
+        work_income: household.primaryPerson.grossWorkIncome.toNumber(),
+        partner_work_income: household.spouse?.grossWorkIncome.toNumber() || 0,
+        liquid_assets: household.socialAssistance?.liquidAssets || 0,
+        first_time_applicant: household.socialAssistance?.firstTimeApplicant || false,
+        living_with_parents: household.socialAssistance?.livingWithParents || false,
+        children_count: household.children.length,
+        year: this.taxYear
+      }
+
+      const socialAssistanceResult = (this.calculators.social_assistance as any).calculateSocialAssistance(socialAssistanceInput)
+      
+      // Convert to Decimal and store detailed result
+      results.quebec.social_assistance = {
+        base_benefit: new Decimal(socialAssistanceResult.base_benefit),
+        constraint_allocation: new Decimal(socialAssistanceResult.constraint_allocation),
+        single_adjustment: new Decimal(socialAssistanceResult.single_adjustment),
+        total_work_income: new Decimal(socialAssistanceResult.total_work_income),
+        work_income_exemption: new Decimal(socialAssistanceResult.work_income_exemption),
+        work_income_supplement: new Decimal(socialAssistanceResult.work_income_supplement),
+        income_reduction: new Decimal(socialAssistanceResult.income_reduction),
+        gross_benefit: new Decimal(socialAssistanceResult.gross_benefit),
+        net_benefit: new Decimal(socialAssistanceResult.net_benefit),
+        eligible: new Decimal(socialAssistanceResult.eligible ? 1 : 0),
+        program: socialAssistanceResult.program,
+        ineligibility_reason: socialAssistanceResult.ineligibility_reason,
+        calculation_details: socialAssistanceResult.calculation_details
+      }
+      
+      // Add to total transfers if eligible
+      if (socialAssistanceResult.eligible) {
+        totalTransfers = totalTransfers.plus(socialAssistanceResult.net_benefit)
+      }
     }
 
     // Canada Child Benefit (ACE)

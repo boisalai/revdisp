@@ -290,6 +290,46 @@ export interface MedicalExpenseSupplementConfig {
   phase_out_end: number           // Seuil d'élimination complète
 }
 
+export interface SocialAssistanceBenefitConfig {
+  base: number
+  adjustment: number
+  temp_constraint_amount?: number
+}
+
+export interface SocialAssistanceConfig {
+  aide_sociale: {
+    single_adult: SocialAssistanceBenefitConfig
+    single_with_parents: SocialAssistanceBenefitConfig
+    couple: SocialAssistanceBenefitConfig
+    couple_with_parents: SocialAssistanceBenefitConfig
+    couple_one_constraint: {
+      temp_constraint_amount: number
+    }
+  }
+  solidarite_sociale: {
+    single_adult: SocialAssistanceBenefitConfig
+    single_with_parents: SocialAssistanceBenefitConfig
+    couple: SocialAssistanceBenefitConfig
+    couple_with_parents: SocialAssistanceBenefitConfig
+  }
+  objectif_emploi: {
+    single_adjustment: number
+  }
+  work_income_exemption: {
+    single: number
+    couple: number
+  }
+  work_income_supplement_rate: number
+  work_income_supplement_start_year: number
+  work_income_supplement_max_monthly: number
+  liquid_asset_limits: {
+    single_no_children: number
+    single_with_children: number
+    couple_no_children: number
+    couple_with_children: number
+  }
+}
+
 /**
  * Configuration fiscale complète pour une année donnée
  */
@@ -311,6 +351,7 @@ export interface TaxYearConfig {
   old_age_security: OldAgeSecurityConfig
   medical_expense_supplement_federal: MedicalExpenseSupplementConfig
   medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
+  social_assistance: SocialAssistanceConfig
 }
 
 /**

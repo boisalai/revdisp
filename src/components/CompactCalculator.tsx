@@ -28,6 +28,13 @@ interface CalculatorState {
   numChildren: number
   children: ChildData[]
   medicalExpenses: number
+  socialAssistance: {
+    employmentConstraint: 'none' | 'temporary' | 'severe'
+    partnerEmploymentConstraint: 'none' | 'temporary' | 'severe'
+    liquidAssets: number
+    firstTimeApplicant: boolean
+    livingWithParents: boolean
+  }
 }
 
 export default function CompactCalculator() {
@@ -45,7 +52,14 @@ export default function CompactCalculator() {
     spouse: null,
     numChildren: 0,
     children: [],
-    medicalExpenses: 0
+    medicalExpenses: 0,
+    socialAssistance: {
+      employmentConstraint: 'none',
+      partnerEmploymentConstraint: 'none', 
+      liquidAssets: 0,
+      firstTimeApplicant: false,
+      livingWithParents: false
+    }
   })
 
   const [results, setResults] = useState<CalculationResults | null>(null)
@@ -129,7 +143,8 @@ export default function CompactCalculator() {
         } : undefined,
         numChildren: state.numChildren,
         children: state.children,
-        medicalExpenses: state.medicalExpenses
+        medicalExpenses: state.medicalExpenses,
+        socialAssistance: state.socialAssistance
       })
 
       console.log('Starting calculation for household:', household)
@@ -156,7 +171,7 @@ export default function CompactCalculator() {
     if (isClient) {
       handleCalculate()
     }
-  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren, state.children, state.medicalExpenses])
+  }, [isClient, state.taxYear, state.householdType, state.primaryPerson, state.spouse, state.numChildren, state.children, state.medicalExpenses, state.socialAssistance])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat(state.language === 'fr' ? 'fr-CA' : 'en-CA', {
@@ -489,6 +504,124 @@ export default function CompactCalculator() {
               />
             </div>
             <div></div>
+          </div>
+        </div>
+
+        {/* Social Assistance */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4">{t.socialAssistance?.title || 'Aide sociale'}</h3>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {/* Employment Constraints */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t.socialAssistance?.employmentConstraint || 'Contrainte à l\'emploi (personne principale)'}
+              </label>
+              <select
+                value={state.socialAssistance.employmentConstraint}
+                onChange={(e) => setState(prev => ({
+                  ...prev,
+                  socialAssistance: {
+                    ...prev.socialAssistance,
+                    employmentConstraint: e.target.value as 'none' | 'temporary' | 'severe'
+                  }
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="none">{t.socialAssistance?.constraintNone || 'Aucune contrainte'}</option>
+                <option value="temporary">{t.socialAssistance?.constraintTemporary || 'Contrainte temporaire'}</option>
+                <option value="severe">{t.socialAssistance?.constraintSevere || 'Contrainte sévère'}</option>
+              </select>
+            </div>
+
+            {/* Partner Employment Constraints (if applicable) */}
+            {hasSpouse && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.socialAssistance?.partnerEmploymentConstraint || 'Contrainte à l\'emploi (conjoint)'}
+                </label>
+                <select
+                  value={state.socialAssistance.partnerEmploymentConstraint}
+                  onChange={(e) => setState(prev => ({
+                    ...prev,
+                    socialAssistance: {
+                      ...prev.socialAssistance,
+                      partnerEmploymentConstraint: e.target.value as 'none' | 'temporary' | 'severe'
+                    }
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="none">{t.socialAssistance?.constraintNone || 'Aucune contrainte'}</option>
+                  <option value="temporary">{t.socialAssistance?.constraintTemporary || 'Contrainte temporaire'}</option>
+                  <option value="severe">{t.socialAssistance?.constraintSevere || 'Contrainte sévère'}</option>
+                </select>
+              </div>
+            )}
+            
+            {!hasSpouse && <div></div>}
+
+            {/* Liquid Assets */}
+            <div>
+              <Slider
+                label={t.socialAssistance?.liquidAssets || 'Avoirs liquides ($)'}
+                value={state.socialAssistance.liquidAssets}
+                onChange={(liquidAssets) => setState(prev => ({
+                  ...prev,
+                  socialAssistance: {
+                    ...prev.socialAssistance,
+                    liquidAssets
+                  }
+                }))}
+                min={0}
+                max={5000}
+                step={50}
+                formatter={formatCurrency}
+              />
+            </div>
+
+            <div></div>
+
+            {/* First Time Applicant Checkbox */}
+            <div>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={state.socialAssistance.firstTimeApplicant}
+                  onChange={(e) => setState(prev => ({
+                    ...prev,
+                    socialAssistance: {
+                      ...prev.socialAssistance,
+                      firstTimeApplicant: e.target.checked
+                    }
+                  }))}
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {t.socialAssistance?.firstTimeApplicant || 'Première demande (Programme objectif emploi)'}
+                </span>
+              </label>
+            </div>
+
+            {/* Living With Parents Checkbox */}
+            <div>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={state.socialAssistance.livingWithParents}
+                  onChange={(e) => setState(prev => ({
+                    ...prev,
+                    socialAssistance: {
+                      ...prev.socialAssistance,
+                      livingWithParents: e.target.checked
+                    }
+                  }))}
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {t.socialAssistance?.livingWithParents || 'Vit chez ses parents'}
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </div>

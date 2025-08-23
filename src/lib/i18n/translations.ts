@@ -15,6 +15,19 @@ export interface Translation {
   numberOfChildren: string
   medicalExpenses: string
   
+  // Social assistance
+  socialAssistance?: {
+    title: string
+    employmentConstraint: string
+    partnerEmploymentConstraint: string
+    constraintNone: string
+    constraintTemporary: string
+    constraintSevere: string
+    liquidAssets: string
+    firstTimeApplicant: string
+    livingWithParents: string
+  }
+  
   // Household types
   householdTypes: {
     single: string
@@ -87,6 +100,19 @@ export const translations: Record<string, Translation> = {
     numberOfChildren: "Nombre d'enfants",
     medicalExpenses: "Frais médicaux",
     
+    // Social assistance
+    socialAssistance: {
+      title: "Aide sociale",
+      employmentConstraint: "Contrainte à l'emploi (personne principale)",
+      partnerEmploymentConstraint: "Contrainte à l'emploi (conjoint)",
+      constraintNone: "Aucune contrainte",
+      constraintTemporary: "Contrainte temporaire",
+      constraintSevere: "Contrainte sévère",
+      liquidAssets: "Avoirs liquides",
+      firstTimeApplicant: "Première demande (Programme objectif emploi)",
+      livingWithParents: "Vit chez ses parents"
+    },
+    
     // Household types
     householdTypes: {
       single: "Personne vivant seule",
@@ -157,6 +183,19 @@ export const translations: Record<string, Translation> = {
     spouseAge: "Your spouse's age",
     numberOfChildren: "Number of children",
     medicalExpenses: "Medical expenses",
+    
+    // Social assistance
+    socialAssistance: {
+      title: "Social Assistance",
+      employmentConstraint: "Employment constraint (primary person)",
+      partnerEmploymentConstraint: "Employment constraint (spouse)",
+      constraintNone: "No constraint",
+      constraintTemporary: "Temporary constraint",
+      constraintSevere: "Severe constraint",
+      liquidAssets: "Liquid assets",
+      firstTimeApplicant: "First-time application (Employment Objective Program)",
+      livingWithParents: "Living with parents"
+    },
     
     // Household types
     householdTypes: {

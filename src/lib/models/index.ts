@@ -27,6 +27,14 @@ export interface ChildData {
   childcareType: 'subsidized' | 'nonSubsidized'
 }
 
+export interface SocialAssistanceData {
+  employmentConstraint: 'none' | 'temporary' | 'severe'
+  partnerEmploymentConstraint: 'none' | 'temporary' | 'severe'
+  liquidAssets: number
+  firstTimeApplicant: boolean
+  livingWithParents: boolean
+}
+
 export class Person {
   age: number
   grossWorkIncome: Decimal
@@ -77,6 +85,7 @@ export interface HouseholdData {
   children?: ChildData[]
   province?: string
   medicalExpenses?: Decimal | number | string
+  socialAssistance?: SocialAssistanceData
 }
 
 export class Household {
@@ -87,6 +96,7 @@ export class Household {
   children: ChildData[]
   province: string
   medicalExpenses: Decimal
+  socialAssistance?: SocialAssistanceData
 
   constructor(data: HouseholdData) {
     this.householdType = data.householdType
@@ -96,6 +106,7 @@ export class Household {
     this.children = data.children || []
     this.province = data.province || 'QC'
     this.medicalExpenses = new Decimal(data.medicalExpenses || 0)
+    this.socialAssistance = data.socialAssistance
 
     this.validate()
   }
