@@ -35,6 +35,7 @@ This calculator provides accurate calculations for Quebec households across diff
 - Canada Workers Benefit (Allocation canadienne pour les travailleurs)
 - Old Age Security (Pension de la Sécurité de la vieillesse)
 - Refundable Medical Expense Supplement (Supplément remboursable pour frais médicaux)
+- Quebec Social Assistance (Aide sociale du Québec)
 
 ### Interface & Usability
 - Support for all household types: single person, couples, single parents, retirees
@@ -59,6 +60,7 @@ This calculator features an industry-leading **mass validation system** capable 
 | Canada Workers Benefit | Initial | Basic scenarios | 🔄 Implemented |
 | Old Age Security | Initial | Basic scenarios | 🔄 Implemented |
 | Medical Expense Supplement | Initial | Basic scenarios | 🔄 Implemented |
+| Quebec Social Assistance | Initial | Basic scenarios | 🔄 Implemented |
 
 ### Intelligent Analysis & Prioritization
 
@@ -123,6 +125,7 @@ This system allows us to maintain **99%+ accuracy** across all implemented compo
 - Canada Workers Benefit: Federal refundable tax credit for working individuals and families with low incomes
 - Old Age Security: Federal monthly pension for Canadian residents aged 65 and older
 - Refundable Medical Expense Supplement: Federal and Quebec refundable tax credits for individuals with high medical expenses
+- Quebec Social Assistance: Last resort financial assistance program for individuals and families in need
 
 **Special Considerations:**
 - Age-based eligibility rules (working age 18-64 vs. retirement age 65+)
@@ -196,6 +199,7 @@ The codebase is organized into clear functional areas:
 - `OldAgeSecurityCalculator.ts` - Old Age Security pension
 - `MedicalExpenseSupplementFederalCalculator.ts` - Federal Medical Expense Supplement
 - `MedicalExpenseSupplementQuebecCalculator.ts` - Quebec Medical Expense Credit
+- `SocialAssistanceCalculator.ts` - Quebec Social Assistance
 
 **Mass Validation System (`src/lib/validation/`)**
 - **`MassTestGenerator.ts`** - Generates thousands of test cases with multiple strategies
