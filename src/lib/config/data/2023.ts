@@ -384,5 +384,76 @@ export const config2023: TaxYearConfig = {
       },
       reduction_rate: 0.50  // 0.50 $ de réduction par dollar de revenu
     }
+  },
+
+  /**
+   * Aide sociale du Québec
+   * 
+   * Programme d'assistance financière de dernier recours pour les personnes 
+   * et familles dans le besoin au Québec.
+   * 
+   * Source: Ministère de l'Emploi et de la Solidarité sociale du Québec
+   * https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale/montants-prestations-aide-sociale
+   */
+  social_assistance: {
+    aide_sociale: {
+      single_adult: {
+        base: 760,
+        adjustment: 0,
+        temp_constraint_amount: 161
+      },
+      single_with_parents: {
+        base: 662,
+        adjustment: 0,
+        temp_constraint_amount: 161
+      },
+      couple: {
+        base: 1175,
+        adjustment: 0,
+        temp_constraint_amount: 276
+      },
+      couple_with_parents: {
+        base: 1078,
+        adjustment: 0,
+        temp_constraint_amount: 276
+      },
+      couple_one_constraint: {
+        temp_constraint_amount: 161
+      }
+    },
+    solidarite_sociale: {
+      single_adult: {
+        base: 1686,  // 760 + 926 (base + constraint_severe)
+        adjustment: 0
+      },
+      single_with_parents: {
+        base: 1588,  // 662 + 926 (base + constraint_severe)
+        adjustment: 0
+      },
+      couple: {
+        base: 2676,  // 1175 + 1501 (base + constraint_severe both)
+        adjustment: 0
+      },
+      couple_with_parents: {
+        base: 2579,  // 1078 + 1501 (base + constraint_severe both)
+        adjustment: 0
+      }
+    },
+    objectif_emploi: {
+      single_adjustment: 44
+    },
+    work_income_exemption: {
+      single: 200,
+      couple: 300
+    },
+    work_income_supplement_rate: 0.00,        // Pas de supplément en 2023
+    work_income_supplement_start_year: 2025,  // Année d'entrée en vigueur
+    work_income_supplement_max_monthly: 0,    // Pas de limite en 2023 car pas de supplément
+    liquid_asset_limits: {
+      single_no_children: 860,
+      single_with_children: 1298,
+      couple_no_children: 1298,
+      couple_with_children: 1737
+    }
   }
 } as const
