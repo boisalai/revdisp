@@ -128,7 +128,26 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
         { label: 'Montant de base (7-17 ans)', value: '1 393 $' },
         { label: 'Seuil de réduction', value: '53 305 $' }
       ]
-    }
+    },
+    fournitures_scolaires: (() => {
+      const params2023 = { amount: 115 }
+      const params2024 = { amount: 121 }
+      const params2025 = { amount: 124 }
+      const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+      
+      return {
+        name: 'Supplément pour l\'achat de fournitures scolaires',
+        description: 'Aide financière versée annuellement aux familles ayant des enfants d\'âge scolaire primaire et secondaire pour les aider à assumer les coûts des fournitures scolaires.',
+        formula: 'Montant fixe par enfant admissible (4-16 ans)',
+        parameters: [
+          { label: `Montant par enfant (${taxYear})`, value: `${params.amount} $` },
+          { label: 'Âge minimum', value: '4 ans' },
+          { label: 'Âge maximum', value: '16 ans' },
+          { label: 'Versement', value: 'Annuel (avec l\'allocation famille)' },
+          { label: 'Référence officielle', value: 'Retraite Québec - Supplément fournitures scolaires', isReference: true }
+        ]
+      }
+    })()
   },
   en: {
     revenu_disponible: {
@@ -271,7 +290,26 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
         { label: 'Base Amount (7-17 years)', value: '$1,393' },
         { label: 'Reduction Threshold', value: '$53,305' }
       ]
-    }
+    },
+    fournitures_scolaires: (() => {
+      const params2023 = { amount: 115 }
+      const params2024 = { amount: 121 }
+      const params2025 = { amount: 124 }
+      const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+      
+      return {
+        name: 'School Supply Supplement',
+        description: 'Annual financial assistance paid to families with children of primary and secondary school age to help them cover the costs of school supplies.',
+        formula: 'Fixed amount per eligible child (ages 4-16)',
+        parameters: [
+          { label: `Amount per child (${taxYear})`, value: `$${params.amount}` },
+          { label: 'Minimum age', value: '4 years old' },
+          { label: 'Maximum age', value: '16 years old' },
+          { label: 'Payment', value: 'Annual (with family allowance)' },
+          { label: 'Official reference', value: 'Retraite Québec - School Supply Supplement', isReference: true }
+        ]
+      }
+    })()
   }
 })
 
@@ -3157,6 +3195,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.medical_expense_supplement?.amount instanceof Decimal ? results.quebec.medical_expense_supplement.amount.toNumber() : 0
       case 'aide_sociale':
         return results.quebec?.social_assistance?.net_benefit instanceof Decimal ? results.quebec.social_assistance.net_benefit.toNumber() : 0
+      case 'fournitures_scolaires':
+        return results.quebec?.school_supplies_supplement?.total_amount instanceof Decimal ? results.quebec.school_supplies_supplement.total_amount.toNumber() : 0
       default:
         return 0
     }
@@ -3180,7 +3220,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           getValueForProgram('quebec_tax'),     // Impôt du Québec
           getValueForProgram('aide_sociale'),   // aide_sociale
           getValueForProgram('allocation_famille'), // allocation_famille
-          0, // fournitures_scolaires
+          getValueForProgram('fournitures_scolaires'), // fournitures_scolaires
           getValueForProgram('prime_travail'), // prime_travail
           getValueForProgram('credit_solidarite'), // credit_solidarite
           0, // credit_garde
@@ -3194,7 +3234,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'quebec_tax', label: language === 'fr' ? 'Impôt sur le revenu des particuliers' : 'Personal Income Tax', value: getValueForProgram('quebec_tax') },
         { key: 'aide_sociale', label: language === 'fr' ? 'Aide sociale' : 'Social Assistance', value: getValueForProgram('aide_sociale') },
         { key: 'allocation_famille', label: language === 'fr' ? 'Allocation famille' : 'Family Allowance', value: getValueForProgram('allocation_famille') },
-        { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: 0 },
+        { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: getValueForProgram('fournitures_scolaires') },
         { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: getValueForProgram('prime_travail') },
         { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: getValueForProgram('credit_solidarite') },
         { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: 0 },
@@ -3322,7 +3362,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">

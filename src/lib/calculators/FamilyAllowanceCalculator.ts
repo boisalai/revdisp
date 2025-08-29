@@ -100,8 +100,8 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
     // 2. Supplément pour famille monoparentale
     const singleParentSupplement = this.calculateSingleParentSupplement(household)
     
-    // 3. Supplément pour fournitures scolaires
-    const schoolSuppliesSupplement = this.calculateSchoolSuppliesSupplement(household)
+    // 3. Supplément pour fournitures scolaires (maintenant calculé séparément)
+    const schoolSuppliesSupplement = new Decimal(0)
     
     // 4. Supplément pour enfant handicapé (non implémenté dans ce MVP)
     const disabledChildSupplement = new Decimal(0)
@@ -178,21 +178,6 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
     return this.toDecimal(supplementConfig.max_amount)
   }
 
-  /**
-   * Calcule le supplément pour fournitures scolaires
-   */
-  private calculateSchoolSuppliesSupplement(household: Household): Decimal {
-    const supplementConfig = this.getConfigValue('school_supplies_supplement')
-    const amount = this.toDecimal(supplementConfig.amount)
-    const minAge = supplementConfig.min_age
-    const maxAge = supplementConfig.max_age
-
-    // Pour ce MVP, on suppose que tous les enfants sont éligibles (4-16 ans)
-    // Dans une implémentation complète, il faudrait l'âge de chaque enfant
-    const eligibleChildren = household.numChildren
-    
-    return amount.times(eligibleChildren)
-  }
 
   /**
    * Obtient le seuil de réduction selon le type de ménage

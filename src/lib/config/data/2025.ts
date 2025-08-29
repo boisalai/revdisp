@@ -358,6 +358,23 @@ export const config2025: TaxYearConfig = {
     phase_out_end: 57650                     // Seuil d'élimination complète (estimation)
   },
 
+  /**
+   * Supplément pour l'achat de fournitures scolaires 2025
+   * 
+   * Aide financière automatique pour les enfants d'âge scolaire.
+   * Montant fixe par enfant éligible, non conditionnel au revenu.
+   * 
+   * Sources:
+   * - Retraite Québec: https://www.retraitequebec.gouv.qc.ca/fr/enfants/Pages/supplement-achat-fournitures-scolaires.aspx
+   * - Calculateur MFQ: https://www.finances.gouv.qc.ca/ministere/outils_services/outils_calcul/revenu_disponible/outil_revenu.asp
+   */
+  school_supplies_supplement: {
+    amount: 124,                    // Montant par enfant éligible 2025
+    min_age: 4,                     // Âge minimum (4 ans au 30 septembre)
+    max_age: 16,                    // Âge maximum standard (16 ans au 30 septembre)
+    max_age_with_disability: 17     // Âge maximum si supplément enfant handicapé
+  },
+
   old_age_security: {
     quarters: {
       q1: {

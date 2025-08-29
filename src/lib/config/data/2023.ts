@@ -295,6 +295,16 @@ export const config2023: TaxYearConfig = {
     phase_out_end: 53340                     // Seuil d'élimination complète (estimation)
   },
 
+  /**
+   * Supplément pour l'achat de fournitures scolaires 2023
+   */
+  school_supplies_supplement: {
+    amount: 115,                    // Montant par enfant éligible 2023
+    min_age: 4,                     // Âge minimum (4 ans au 30 septembre)
+    max_age: 16,                    // Âge maximum standard (16 ans au 30 septembre)
+    max_age_with_disability: 17     // Âge maximum si supplément enfant handicapé
+  },
+
   old_age_security: {
     quarters: {
       q1: {

@@ -351,6 +351,7 @@ export interface TaxYearConfig {
   old_age_security: OldAgeSecurityConfig
   medical_expense_supplement_federal: MedicalExpenseSupplementConfig
   medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
+  school_supplies_supplement: SchoolSuppliesSupplementConfig
   social_assistance: SocialAssistanceConfig
 }
 
@@ -379,4 +380,15 @@ export interface ConfigTypes {
   gst_credit: GstCreditParameters
   canada_workers: CanadaWorkersConfig
   old_age_security: OldAgeSecurityConfig
+  medical_expense_supplement_federal: MedicalExpenseSupplementConfig
+  medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
+  school_supplies_supplement: SchoolSuppliesSupplementConfig
+  social_assistance: SocialAssistanceConfig
+}
+
+export interface SchoolSuppliesSupplementConfig {
+  amount: number
+  min_age: number
+  max_age: number
+  max_age_with_disability: number
 }

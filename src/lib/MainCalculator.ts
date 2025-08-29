@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'school_supplies_supplement', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance']
       
       for (const type of calculatorTypes) {
         try {
@@ -236,6 +236,17 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(familyAllowanceResult.net_allowance)
+    }
+
+    // School Supplies Supplement (Supplément pour fournitures scolaires)
+    if (this.calculators.school_supplies_supplement) {
+      const schoolSuppliesResult = (this.calculators.school_supplies_supplement as any).calculateDetailed(household)
+      
+      // Store detailed result
+      results.quebec.school_supplies_supplement = schoolSuppliesResult
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(schoolSuppliesResult.total_amount)
     }
 
     // Social Assistance (Aide sociale)

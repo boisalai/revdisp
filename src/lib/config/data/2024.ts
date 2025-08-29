@@ -305,6 +305,16 @@ export const config2024: TaxYearConfig = {
     phase_out_end: 56050                     // Seuil d'élimination complète
   },
 
+  /**
+   * Supplément pour l'achat de fournitures scolaires 2024
+   */
+  school_supplies_supplement: {
+    amount: 121,                    // Montant par enfant éligible 2024
+    min_age: 4,                     // Âge minimum (4 ans au 30 septembre)
+    max_age: 16,                    // Âge maximum standard (16 ans au 30 septembre)
+    max_age_with_disability: 17     // Âge maximum si supplément enfant handicapé
+  },
+
   old_age_security: {
     quarters: {
       q1: {
