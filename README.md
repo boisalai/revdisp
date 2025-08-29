@@ -30,6 +30,7 @@ This calculator provides accurate calculations for Quebec households across diff
 - Quebec Solidarity Tax Credit (Crédit de solidarité du Québec)
 - Quebec Work Premium (Prime au travail du Québec)
 - Quebec Family Allowance (Allocation famille du Québec)
+- Quebec School Supplies Supplement (Supplément pour l'achat de fournitures scolaires)
 - Canada Child Benefit (Allocation canadienne pour enfants)
 - GST/HST Credit (Crédit pour la TPS/TVH)
 - Canada Workers Benefit (Allocation canadienne pour les travailleurs)
@@ -120,6 +121,7 @@ This system allows us to maintain **99%+ accuracy** across all implemented compo
 - Quebec Solidarity Tax Credit: Helps offset sales tax impact and housing costs
 - Quebec Work Premium: Supplements work income for low-to-moderate income workers
 - Quebec Family Allowance: Financial support for families with children
+- Quebec School Supplies Supplement: Annual financial assistance for families with children of school age to help cover school supply costs
 - Canada Child Benefit: Federal tax-free monthly benefit for families with children under 18
 - GST/HST Credit: Federal quarterly credit to offset goods and services tax
 - Canada Workers Benefit: Federal refundable tax credit for working individuals and families with low incomes
@@ -193,6 +195,7 @@ The codebase is organized into clear functional areas:
 - `SolidarityCalculator.ts` - Quebec Solidarity Tax Credit
 - `WorkPremiumCalculator.ts` - Quebec Work Premium
 - `FamilyAllowanceCalculator.ts` - Quebec Family Allowance
+- `SchoolSuppliesSupplementCalculator.ts` - Quebec School Supplies Supplement
 - `CanadaChildBenefitCalculator.ts` - Canada Child Benefit
 - `GstCreditCalculator.ts` - Federal GST/HST Credit
 - `CanadaWorkersBenefitCalculator.ts` - Canada Workers Benefit
