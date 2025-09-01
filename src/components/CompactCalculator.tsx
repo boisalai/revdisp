@@ -66,8 +66,62 @@ export default function CompactCalculator() {
   const [currentHousehold, setCurrentHousehold] = useState<Household | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  // Accordion state for sections
+  const [expandedSections, setExpandedSections] = useState({
+    children: true,      // Show children section by default when applicable
+    medical: false,      // Hide medical expenses by default
+    socialAssistance: false  // Hide social assistance by default
+  })
 
   const t: Translation = translations[state.language]
+
+  // Toggle accordion sections
+  const toggleSection = (section: 'children' | 'medical' | 'socialAssistance') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
+  // Accordion header component
+  const AccordionHeader = ({ 
+    title, 
+    section, 
+    isExpanded, 
+    showBadge = false, 
+    badgeCount = 0 
+  }: { 
+    title: string
+    section: 'children' | 'medical' | 'socialAssistance'
+    isExpanded: boolean
+    showBadge?: boolean
+    badgeCount?: number
+  }) => (
+    <button
+      onClick={() => toggleSection(section)}
+      className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <div className="flex items-center space-x-3">
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        {showBadge && badgeCount > 0 && (
+          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+            {badgeCount}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center">
+        <svg
+          className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </button>
+  )
 
   // Derived values
   const hasSpouse = [HouseholdType.COUPLE, HouseholdType.RETIRED_COUPLE].includes(state.householdType)
@@ -564,213 +618,242 @@ export default function CompactCalculator() {
           )}
         </div>
 
-        {/* Children Details - Readable & Compact */}
+        {/* Children Section - Accordion */}
         {canHaveChildren && state.numChildren > 0 && (
-          <div className="mt-4 space-y-4">
-            {state.children.map((child, index) => (
-              <div key={index} className="border-l-4 border-blue-400 pl-4 py-2">
-                <div className="text-sm font-bold text-gray-900 mb-3">
-                  {getChildLabel(index)}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Child Age */}
-                  <div>
-                    <Slider
-                      label={`${state.language === 'fr' ? 'Âge' : 'Age'} (${child.age} ${state.language === 'fr' ? 'ans' : 'years'})`}
-                      value={child.age}
-                      onChange={(age) => setState(prev => ({
-                        ...prev,
-                        children: prev.children.map((c, i) => i === index ? { ...c, age } : c)
-                      }))}
-                      min={0}
-                      max={17}
-                      step={1}
-                    />
-                  </div>
-                  
-                  {/* Childcare Expenses */}
-                  <div>
-                    <Slider
-                      label={`${state.language === 'fr' ? 'Frais de garde' : 'Childcare Expenses'}`}
-                      value={child.childcareExpenses}
-                      onChange={(childcareExpenses) => setState(prev => ({
-                        ...prev,
-                        children: prev.children.map((c, i) => i === index ? { ...c, childcareExpenses } : c)
-                      }))}
-                      min={0}
-                      max={15000}
-                      step={100}
-                      formatter={formatCurrency}
-                    />
-                  </div>
-                  
-                  {/* Childcare Type */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                      {state.language === 'fr' ? 'Service de garde' : 'Childcare Service'}
-                    </label>
-                    <select
-                      value={child.childcareType}
-                      onChange={(e) => setState(prev => ({
-                        ...prev,
-                        children: prev.children.map((c, i) => 
-                          i === index ? { ...c, childcareType: e.target.value as 'subsidized' | 'nonSubsidized' } : c
-                        )
-                      }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                    >
-                      <option value="subsidized">
-                        {state.language === 'fr' ? 'Subventionné' : 'Subsidized'}
-                      </option>
-                      <option value="nonSubsidized">
-                        {state.language === 'fr' ? 'Non subventionné' : 'Non-subsidized'}
-                      </option>
-                    </select>
-                  </div>
+          <div className="mt-6">
+            <AccordionHeader 
+              title={state.language === 'fr' ? 'Informations sur les enfants' : 'Children Information'}
+              section="children"
+              isExpanded={expandedSections.children}
+              showBadge={true}
+              badgeCount={state.numChildren}
+            />
+            {expandedSections.children && (
+              <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+                <div className="space-y-4">
+                  {state.children.map((child, index) => (
+                    <div key={index} className="border-l-4 border-blue-400 pl-4 py-2 bg-white rounded">
+                      <div className="text-sm font-bold text-gray-900 mb-3">
+                        {getChildLabel(index)}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Child Age */}
+                        <div>
+                          <Slider
+                            label={`${state.language === 'fr' ? 'Âge' : 'Age'} (${child.age} ${state.language === 'fr' ? 'ans' : 'years'})`}
+                            value={child.age}
+                            onChange={(age) => setState(prev => ({
+                              ...prev,
+                              children: prev.children.map((c, i) => i === index ? { ...c, age } : c)
+                            }))}
+                            min={0}
+                            max={17}
+                            step={1}
+                          />
+                        </div>
+                        
+                        {/* Childcare Expenses */}
+                        <div>
+                          <Slider
+                            label={`${state.language === 'fr' ? 'Frais de garde' : 'Childcare Expenses'}`}
+                            value={child.childcareExpenses}
+                            onChange={(childcareExpenses) => setState(prev => ({
+                              ...prev,
+                              children: prev.children.map((c, i) => i === index ? { ...c, childcareExpenses } : c)
+                            }))}
+                            min={0}
+                            max={15000}
+                            step={100}
+                            formatter={formatCurrency}
+                          />
+                        </div>
+                        
+                        {/* Childcare Type */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">
+                            {state.language === 'fr' ? 'Service de garde' : 'Childcare Service'}
+                          </label>
+                          <select
+                            value={child.childcareType}
+                            onChange={(e) => setState(prev => ({
+                              ...prev,
+                              children: prev.children.map((c, i) => 
+                                i === index ? { ...c, childcareType: e.target.value as 'subsidized' | 'nonSubsidized' } : c
+                              )
+                            }))}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          >
+                            <option value="subsidized">
+                              {state.language === 'fr' ? 'Subventionné' : 'Subsidized'}
+                            </option>
+                            <option value="nonSubsidized">
+                              {state.language === 'fr' ? 'Non subventionné' : 'Non-subsidized'}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
 
-        {/* Medical Expenses */}
+        {/* Medical Expenses Section - Accordion */}
         <div className="mt-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Slider
-                label={t.medicalExpenses}
-                value={state.medicalExpenses}
-                onChange={(medicalExpenses) => setState(prev => ({
-                  ...prev,
-                  medicalExpenses
-                }))}
-                min={0}
-                max={15000}
-                step={100}
-                formatter={formatCurrency}
-              />
+          <AccordionHeader 
+            title={state.language === 'fr' ? 'Frais médicaux' : 'Medical Expenses'}
+            section="medical"
+            isExpanded={expandedSections.medical}
+          />
+          {expandedSections.medical && (
+            <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Slider
+                    label={t.medicalExpenses}
+                    value={state.medicalExpenses}
+                    onChange={(medicalExpenses) => setState(prev => ({
+                      ...prev,
+                      medicalExpenses
+                    }))}
+                    min={0}
+                    max={15000}
+                    step={100}
+                    formatter={formatCurrency}
+                  />
+                </div>
+                <div></div>
+              </div>
             </div>
-            <div></div>
-          </div>
+          )}
         </div>
 
-        {/* Social Assistance */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">{t.socialAssistance?.title || 'Aide sociale'}</h3>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {/* Employment Constraints */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.socialAssistance?.employmentConstraint || 'Contrainte à l\'emploi (personne principale)'}
-              </label>
-              <select
-                value={state.socialAssistance.employmentConstraint}
-                onChange={(e) => setState(prev => ({
-                  ...prev,
-                  socialAssistance: {
-                    ...prev.socialAssistance,
-                    employmentConstraint: e.target.value as 'none' | 'temporary' | 'severe'
-                  }
-                }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="none">{t.socialAssistance?.constraintNone || 'Aucune contrainte'}</option>
-                <option value="temporary">{t.socialAssistance?.constraintTemporary || 'Contrainte temporaire'}</option>
-                <option value="severe">{t.socialAssistance?.constraintSevere || 'Contrainte sévère'}</option>
-              </select>
-            </div>
+        {/* Social Assistance Section - Accordion */}
+        <div className="mt-6">
+          <AccordionHeader 
+            title={t.socialAssistance?.title || (state.language === 'fr' ? 'Aide sociale' : 'Social Assistance')}
+            section="socialAssistance"
+            isExpanded={expandedSections.socialAssistance}
+          />
+          {expandedSections.socialAssistance && (
+            <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Employment Constraints */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t.socialAssistance?.employmentConstraint || 'Contrainte à l\'emploi (personne principale)'}
+                  </label>
+                  <select
+                    value={state.socialAssistance.employmentConstraint}
+                    onChange={(e) => setState(prev => ({
+                      ...prev,
+                      socialAssistance: {
+                        ...prev.socialAssistance,
+                        employmentConstraint: e.target.value as 'none' | 'temporary' | 'severe'
+                      }
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="none">{t.socialAssistance?.constraintNone || 'Aucune contrainte'}</option>
+                    <option value="temporary">{t.socialAssistance?.constraintTemporary || 'Contrainte temporaire'}</option>
+                    <option value="severe">{t.socialAssistance?.constraintSevere || 'Contrainte sévère'}</option>
+                  </select>
+                </div>
 
-            {/* Partner Employment Constraints (if applicable) */}
-            {hasSpouse && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.socialAssistance?.partnerEmploymentConstraint || 'Contrainte à l\'emploi (conjoint)'}
-                </label>
-                <select
-                  value={state.socialAssistance.partnerEmploymentConstraint}
-                  onChange={(e) => setState(prev => ({
-                    ...prev,
-                    socialAssistance: {
-                      ...prev.socialAssistance,
-                      partnerEmploymentConstraint: e.target.value as 'none' | 'temporary' | 'severe'
-                    }
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="none">{t.socialAssistance?.constraintNone || 'Aucune contrainte'}</option>
-                  <option value="temporary">{t.socialAssistance?.constraintTemporary || 'Contrainte temporaire'}</option>
-                  <option value="severe">{t.socialAssistance?.constraintSevere || 'Contrainte sévère'}</option>
-                </select>
+                {/* Partner Employment Constraints (if applicable) */}
+                {hasSpouse && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t.socialAssistance?.partnerEmploymentConstraint || 'Contrainte à l\'emploi (conjoint)'}
+                    </label>
+                    <select
+                      value={state.socialAssistance.partnerEmploymentConstraint}
+                      onChange={(e) => setState(prev => ({
+                        ...prev,
+                        socialAssistance: {
+                          ...prev.socialAssistance,
+                          partnerEmploymentConstraint: e.target.value as 'none' | 'temporary' | 'severe'
+                        }
+                      }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="none">{t.socialAssistance?.constraintNone || 'Aucune contrainte'}</option>
+                      <option value="temporary">{t.socialAssistance?.constraintTemporary || 'Contrainte temporaire'}</option>
+                      <option value="severe">{t.socialAssistance?.constraintSevere || 'Contrainte sévère'}</option>
+                    </select>
+                  </div>
+                )}
+                
+                {!hasSpouse && <div></div>}
+
+                {/* Liquid Assets */}
+                <div>
+                  <Slider
+                    label={t.socialAssistance?.liquidAssets || 'Avoirs liquides'}
+                    value={state.socialAssistance.liquidAssets}
+                    onChange={(liquidAssets) => setState(prev => ({
+                      ...prev,
+                      socialAssistance: {
+                        ...prev.socialAssistance,
+                        liquidAssets
+                      }
+                    }))}
+                    min={0}
+                    max={5000}
+                    step={50}
+                    formatter={formatCurrency}
+                  />
+                </div>
+
+                <div></div>
+
+                {/* First Time Applicant Checkbox */}
+                <div>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={state.socialAssistance.firstTimeApplicant}
+                      onChange={(e) => setState(prev => ({
+                        ...prev,
+                        socialAssistance: {
+                          ...prev.socialAssistance,
+                          firstTimeApplicant: e.target.checked
+                        }
+                      }))}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      {t.socialAssistance?.firstTimeApplicant || 'Première demande (Programme objectif emploi)'}
+                    </span>
+                  </label>
+                </div>
+
+                {/* Living With Parents Checkbox */}
+                <div>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={state.socialAssistance.livingWithParents}
+                      onChange={(e) => setState(prev => ({
+                        ...prev,
+                        socialAssistance: {
+                          ...prev.socialAssistance,
+                          livingWithParents: e.target.checked
+                        }
+                      }))}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      {t.socialAssistance?.livingWithParents || 'Vit chez ses parents'}
+                    </span>
+                  </label>
+                </div>
               </div>
-            )}
-            
-            {!hasSpouse && <div></div>}
-
-            {/* Liquid Assets */}
-            <div>
-              <Slider
-                label={t.socialAssistance?.liquidAssets || 'Avoirs liquides ($)'}
-                value={state.socialAssistance.liquidAssets}
-                onChange={(liquidAssets) => setState(prev => ({
-                  ...prev,
-                  socialAssistance: {
-                    ...prev.socialAssistance,
-                    liquidAssets
-                  }
-                }))}
-                min={0}
-                max={5000}
-                step={50}
-                formatter={formatCurrency}
-              />
             </div>
-
-            <div></div>
-
-            {/* First Time Applicant Checkbox */}
-            <div>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={state.socialAssistance.firstTimeApplicant}
-                  onChange={(e) => setState(prev => ({
-                    ...prev,
-                    socialAssistance: {
-                      ...prev.socialAssistance,
-                      firstTimeApplicant: e.target.checked
-                    }
-                  }))}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {t.socialAssistance?.firstTimeApplicant || 'Première demande (Programme objectif emploi)'}
-                </span>
-              </label>
-            </div>
-
-            {/* Living With Parents Checkbox */}
-            <div>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={state.socialAssistance.livingWithParents}
-                  onChange={(e) => setState(prev => ({
-                    ...prev,
-                    socialAssistance: {
-                      ...prev.socialAssistance,
-                      livingWithParents: e.target.checked
-                    }
-                  }))}
-                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {t.socialAssistance?.livingWithParents || 'Vit chez ses parents'}
-                </span>
-              </label>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
