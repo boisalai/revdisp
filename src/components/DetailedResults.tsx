@@ -2151,6 +2151,103 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     }
   }
 
+  const getChildcareTaxCreditDetails = (): ProgramDetail | null => {
+    if (!household) return null
+    
+    // Récupérer les résultats du crédit d'impôt pour frais de garde
+    const childcareCreditResult = results.quebec?.childcare_tax_credit
+    if (!childcareCreditResult) return null
+
+    // Paramètres selon l'année
+    const params2023 = {
+      maxExpensesDisabled: 15545, maxExpensesUnder7: 11360, maxExpensesOther: 5720,
+      minIncome: 0, maxIncome: 110880, minRate: 67, maxRate: 78
+    }
+    const params2024 = {
+      maxExpensesDisabled: 16335, maxExpensesUnder7: 11935, maxExpensesOther: 6010,
+      minIncome: 0, maxIncome: 116515, minRate: 67, maxRate: 78
+    }
+    const params2025 = {
+      maxExpensesDisabled: 16800, maxExpensesUnder7: 12275, maxExpensesOther: 6180,
+      minIncome: 0, maxIncome: 119835, minRate: 67, maxRate: 78
+    }
+    const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+
+    const calculationSteps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
+
+    // Informations de base
+    const eligibleChildren = childcareCreditResult.eligible_children?.toNumber() || 0
+    const totalEligibleExpenses = childcareCreditResult.total_eligible_expenses?.toNumber() || 0
+    const creditRate = childcareCreditResult.credit_rate?.toNumber() || 0
+    const grossCredit = childcareCreditResult.gross_credit?.toNumber() || 0
+    const netCredit = childcareCreditResult.net_credit?.toNumber() || 0
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Enfants éligibles' : 'Eligible Children',
+      value: eligibleChildren.toString()
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Total des frais éligibles' : 'Total Eligible Expenses',
+      value: formatCurrencyAmount(totalEligibleExpenses)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Taux de crédit' : 'Credit Rate',
+      value: `${(creditRate * 100).toFixed(0)}%`
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Crédit brut' : 'Gross Credit',
+      value: formatCurrencyAmount(grossCredit)
+    })
+
+    calculationSteps.push({
+      label: language === 'fr' ? 'Crédit net final' : 'Final Net Credit',
+      value: formatCurrencyAmount(netCredit),
+      isTotal: true
+    })
+
+    // Références officielles
+    const webReferences = language === 'fr' ? [
+      {
+        title: 'CFFP - Crédit d\'impôt pour frais de garde d\'enfants',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/credit-impot-frais-garde-enfants/'
+      },
+      {
+        title: 'Revenu Québec - Crédit d\'impôt pour frais de garde d\'enfants',
+        url: 'https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/credit-dimpot-pour-frais-de-garde-denfants/'
+      }
+    ] : [
+      {
+        title: 'CFFP - Childcare Tax Credit',
+        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/credit-impot-frais-garde-enfants/'
+      },
+      {
+        title: 'Revenu Québec - Childcare Tax Credit',
+        url: 'https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/credit-dimpot-pour-frais-de-garde-denfants/'
+      }
+    ]
+
+    calculationSteps.push(...webReferences.map(ref => ({
+      label: ref.title,
+      value: ref.url,
+      isReference: true
+    })))
+
+    return {
+      name: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Childcare Tax Credit',
+      description: language === 'fr' 
+        ? 'Crédit d\'impôt remboursable du Québec pour les frais de garde d\'enfants permettant de réduire l\'impôt à payer ou d\'obtenir un remboursement pour les familles engageant des frais de garde.'
+        : 'Quebec refundable tax credit for childcare expenses allowing families to reduce their taxes or receive a refund for childcare expenses.',
+      formula: language === 'fr' 
+        ? 'Frais éligibles × Taux de crédit (selon le revenu familial)' 
+        : 'Eligible expenses × Credit rate (based on family income)',
+      currentValue: netCredit,
+      parameters: calculationSteps
+    }
+  }
+
   const getCanadaChildBenefitDetails = (): ProgramDetail | null => {
     if (!household) return null
 
@@ -3130,6 +3227,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ? getQuebecMedicalSupplementDetails()
       : displayedProgram === 'aide_sociale'
       ? getSocialAssistanceDetails()
+      : displayedProgram === 'credit_garde'
+      ? getChildcareTaxCreditDetails()
       : programs[displayedProgram as keyof typeof programs]
   ) : null
 
@@ -3195,6 +3294,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.medical_expense_supplement?.amount instanceof Decimal ? results.quebec.medical_expense_supplement.amount.toNumber() : 0
       case 'aide_sociale':
         return results.quebec?.social_assistance?.net_benefit instanceof Decimal ? results.quebec.social_assistance.net_benefit.toNumber() : 0
+      case 'credit_garde_enfants':
+        return results.quebec?.childcare_tax_credit?.net_credit instanceof Decimal ? results.quebec.childcare_tax_credit.net_credit.toNumber() : 0
       case 'fournitures_scolaires':
         return results.quebec?.school_supplies_supplement?.total_amount instanceof Decimal ? results.quebec.school_supplies_supplement.total_amount.toNumber() : 0
       default:
@@ -3223,7 +3324,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           getValueForProgram('fournitures_scolaires'), // fournitures_scolaires
           getValueForProgram('prime_travail'), // prime_travail
           getValueForProgram('credit_solidarite'), // credit_solidarite
-          0, // credit_garde
+          getValueForProgram('credit_garde_enfants'), // credit_garde_enfants
           0, // allocation_logement
           getValueForProgram('supplement_medical_quebec'), // credit_medical
           0  // soutien_aines
@@ -3237,7 +3338,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'fournitures_scolaires', label: language === 'fr' ? 'Supplément pour l\'achat de fournitures scolaires' : 'School Supply Supplement', value: getValueForProgram('fournitures_scolaires') },
         { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: getValueForProgram('prime_travail') },
         { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: getValueForProgram('credit_solidarite') },
-        { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: 0 },
+        { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: getValueForProgram('credit_garde_enfants') },
         { key: 'allocation_logement', label: language === 'fr' ? 'Allocation-logement' : 'Housing Allowance', value: 0 },
         { key: 'credit_medical', label: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux' : 'Medical Expense Tax Credit', value: getValueForProgram('supplement_medical_quebec') },
         { key: 'soutien_aines', label: language === 'fr' ? 'Montant pour le soutien des aînés' : 'Amount for Support of Seniors', value: 0 }
@@ -3362,7 +3463,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires' || item.key === 'credit_garde') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">

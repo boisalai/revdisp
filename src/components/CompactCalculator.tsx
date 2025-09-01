@@ -71,8 +71,135 @@ export default function CompactCalculator() {
 
   // Derived values
   const hasSpouse = [HouseholdType.COUPLE, HouseholdType.RETIRED_COUPLE].includes(state.householdType)
-  const canHaveChildren = [HouseholdType.SINGLE_PARENT, HouseholdType.COUPLE, HouseholdType.RETIRED_COUPLE].includes(state.householdType)
+  const canHaveChildren = [HouseholdType.SINGLE_PARENT, HouseholdType.COUPLE].includes(state.householdType)
   const isRetiredHousehold = [HouseholdType.RETIRED_SINGLE, HouseholdType.RETIRED_COUPLE].includes(state.householdType)
+
+  // Generate household description
+  const generateHouseholdDescription = (): string => {
+    const formatCurrency = (value: number) => 
+      new Intl.NumberFormat(state.language === 'fr' ? 'fr-CA' : 'en-CA', {
+        style: 'currency',
+        currency: 'CAD',
+        maximumFractionDigits: 0
+      }).format(value)
+
+    let description = ''
+
+    // Household type
+    const householdTypeMap = {
+      [HouseholdType.SINGLE]: t.householdTypes.single,
+      [HouseholdType.SINGLE_PARENT]: t.householdTypes.singleParent,
+      [HouseholdType.COUPLE]: t.householdTypes.couple,
+      [HouseholdType.RETIRED_SINGLE]: t.householdTypes.retiredSingle,
+      [HouseholdType.RETIRED_COUPLE]: t.householdTypes.retiredCouple
+    }
+    
+    description += householdTypeMap[state.householdType]
+
+    // Primary person details
+    const primaryAge = state.primaryPerson.age
+    const primaryWorkIncome = state.primaryPerson.grossWorkIncome
+    const primaryRetirementIncome = state.primaryPerson.grossRetirementIncome
+
+    if (state.language === 'fr') {
+      description += `, adulte de ${primaryAge} ans`
+      
+      if (primaryWorkIncome > 0) {
+        description += `, avec un revenu brut de travail de ${formatCurrency(primaryWorkIncome)}`
+      }
+      if (primaryRetirementIncome > 0) {
+        description += `, avec un revenu de retraite de ${formatCurrency(primaryRetirementIncome)}`
+      }
+    } else {
+      description += `, adult aged ${primaryAge} years`
+      
+      if (primaryWorkIncome > 0) {
+        description += `, with gross work income of ${formatCurrency(primaryWorkIncome)}`
+      }
+      if (primaryRetirementIncome > 0) {
+        description += `, with retirement income of ${formatCurrency(primaryRetirementIncome)}`
+      }
+    }
+
+    // Spouse details
+    if (state.spouse) {
+      const spouseAge = state.spouse.age
+      const spouseWorkIncome = state.spouse.grossWorkIncome
+      const spouseRetirementIncome = state.spouse.grossRetirementIncome
+
+      if (state.language === 'fr') {
+        description += `, conjoint de ${spouseAge} ans`
+        
+        if (spouseWorkIncome > 0) {
+          description += ` avec un revenu brut de travail de ${formatCurrency(spouseWorkIncome)}`
+        }
+        if (spouseRetirementIncome > 0) {
+          description += ` avec un revenu de retraite de ${formatCurrency(spouseRetirementIncome)}`
+        }
+      } else {
+        description += `, spouse aged ${spouseAge} years`
+        
+        if (spouseWorkIncome > 0) {
+          description += ` with gross work income of ${formatCurrency(spouseWorkIncome)}`
+        }
+        if (spouseRetirementIncome > 0) {
+          description += ` with retirement income of ${formatCurrency(spouseRetirementIncome)}`
+        }
+      }
+    }
+
+    // Children details
+    if (state.children.length > 0) {
+      if (state.language === 'fr') {
+        if (state.children.length === 1) {
+          const child = state.children[0]
+          description += `, ayant un enfant de ${child.age} ans`
+          if (child.childcareExpenses > 0) {
+            description += `, frais de garde de ${formatCurrency(child.childcareExpenses)} par année`
+          }
+        } else {
+          description += `, ayant ${state.children.length} enfants`
+          const childrenAges = state.children.map(c => `${c.age} ans`).join(', ')
+          description += ` (${childrenAges})`
+          
+          const totalChildcareExpenses = state.children.reduce((sum, c) => sum + c.childcareExpenses, 0)
+          if (totalChildcareExpenses > 0) {
+            description += `, frais de garde totaux de ${formatCurrency(totalChildcareExpenses)} par année`
+          }
+        }
+      } else {
+        if (state.children.length === 1) {
+          const child = state.children[0]
+          description += `, having one child aged ${child.age} years`
+          if (child.childcareExpenses > 0) {
+            description += `, childcare expenses of ${formatCurrency(child.childcareExpenses)} per year`
+          }
+        } else {
+          description += `, having ${state.children.length} children`
+          const childrenAges = state.children.map(c => `${c.age} years`).join(', ')
+          description += ` (${childrenAges})`
+          
+          const totalChildcareExpenses = state.children.reduce((sum, c) => sum + c.childcareExpenses, 0)
+          if (totalChildcareExpenses > 0) {
+            description += `, total childcare expenses of ${formatCurrency(totalChildcareExpenses)} per year`
+          }
+        }
+      }
+    }
+
+    // Medical expenses
+    if (state.medicalExpenses > 0) {
+      if (state.language === 'fr') {
+        description += `, frais médicaux de ${formatCurrency(state.medicalExpenses)} par année`
+      } else {
+        description += `, medical expenses of ${formatCurrency(state.medicalExpenses)} per year`
+      }
+    }
+
+    description += '.'
+
+    return description
+  }
 
   // Update spouse state when household type changes
   useEffect(() => {
@@ -117,6 +244,27 @@ export default function CompactCalculator() {
       }
     }))
   }, [isRetiredHousehold])
+
+  // Adjust number of children when household type changes (Ministry of Finance behavior)
+  useEffect(() => {
+    setState(prev => {
+      let newNumChildren = prev.numChildren
+
+      // Force 0 children for household types that cannot have children
+      if ([HouseholdType.SINGLE, HouseholdType.RETIRED_SINGLE, HouseholdType.RETIRED_COUPLE].includes(prev.householdType)) {
+        newNumChildren = 0
+      }
+      // Force minimum 1 child for single parent families
+      else if (prev.householdType === HouseholdType.SINGLE_PARENT && prev.numChildren === 0) {
+        newNumChildren = 1
+      }
+
+      if (newNumChildren !== prev.numChildren) {
+        return { ...prev, numChildren: newNumChildren }
+      }
+      return prev
+    })
+  }, [state.householdType])
 
   // Auto-calculate when values change
   const handleCalculate = async () => {
@@ -625,6 +773,27 @@ export default function CompactCalculator() {
           </div>
         </div>
       </div>
+
+      {/* Household Description */}
+      {isClient && (
+        <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 mb-4">
+          <div className="flex items-start space-x-2">
+            <div className="flex-shrink-0">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-blue-900 mb-1">
+                {state.language === 'fr' ? 'Description du ménage' : 'Household description'}
+              </h3>
+              <p className="text-sm text-blue-800 leading-relaxed">
+                {generateHouseholdDescription()}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Results - Detailed Table */}
       {isClient && results && (
