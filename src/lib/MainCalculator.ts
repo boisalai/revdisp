@@ -407,6 +407,39 @@ export class RevenuDisponibleCalculator {
       totalTransfers = totalTransfers.plus(quebecMedicalResult.amount)
     }
 
+    // Housing Allowance (Allocation-logement)
+    if (this.calculators.housing_allowance) {
+      // Calculer le revenu familial net (Québec)
+      const familyNetIncome = (results.quebec.net_income?.family || results.quebec.net_income?.individual || new Decimal(0)).toNumber()
+      
+      const housingAllowanceInput = {
+        household_type: household.spouse ? 'couple' : (household.children.length > 0 ? 'single_parent' : 'single') as 'single' | 'couple' | 'single_parent',
+        family_net_income: familyNetIncome,
+        children_count: household.children.length,
+        annual_housing_cost: household.annualHousingCost || 0,
+        applicant_age: household.primaryPerson.age,
+        spouse_age: household.spouse?.age,
+        liquid_assets_value: household.liquidAssetsValue || 0
+      }
+
+      const housingAllowanceResult = (this.calculators.housing_allowance as any).calculateHousingAllowance(housingAllowanceInput)
+      
+      // Store detailed result
+      results.quebec.housing_allowance = {
+        eligible: new Decimal(housingAllowanceResult.eligible ? 1 : 0),
+        housing_effort_rate: new Decimal(housingAllowanceResult.housing_effort_rate),
+        monthly_allowance: new Decimal(housingAllowanceResult.monthly_allowance),
+        annual_allowance: new Decimal(housingAllowanceResult.annual_allowance),
+        ineligibility_reason: housingAllowanceResult.ineligibility_reason,
+        calculation_details: housingAllowanceResult.calculation_details
+      }
+      
+      // Add to total transfers if eligible
+      if (housingAllowanceResult.eligible) {
+        totalTransfers = totalTransfers.plus(housingAllowanceResult.annual_allowance)
+      }
+    }
+
     // Calculate disposable income
     // Gross income - contributions - taxes + transfers
     const grossIncome = this.calculateGrossIncome(household)

@@ -3298,6 +3298,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.childcare_tax_credit?.net_credit instanceof Decimal ? results.quebec.childcare_tax_credit.net_credit.toNumber() : 0
       case 'fournitures_scolaires':
         return results.quebec?.school_supplies_supplement?.total_amount instanceof Decimal ? results.quebec.school_supplies_supplement.total_amount.toNumber() : 0
+      case 'allocation_logement':
+        return results.quebec?.housing_allowance?.annual_allowance instanceof Decimal ? results.quebec.housing_allowance.annual_allowance.toNumber() : 0
       default:
         return 0
     }
@@ -3339,7 +3341,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'prime_travail', label: language === 'fr' ? 'Prime au travail' : 'Work Premium', value: getValueForProgram('prime_travail') },
         { key: 'credit_solidarite', label: language === 'fr' ? 'Crédit pour la solidarité' : 'Solidarity Tax Credit', value: getValueForProgram('credit_solidarite') },
         { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: getValueForProgram('credit_garde_enfants') },
-        { key: 'allocation_logement', label: language === 'fr' ? 'Allocation-logement' : 'Housing Allowance', value: 0 },
+        { key: 'allocation_logement', label: language === 'fr' ? 'Allocation-logement' : 'Housing Allowance', value: getValueForProgram('allocation_logement') },
         { key: 'credit_medical', label: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux' : 'Medical Expense Tax Credit', value: getValueForProgram('supplement_medical_quebec') },
         { key: 'soutien_aines', label: language === 'fr' ? 'Montant pour le soutien des aînés' : 'Amount for Support of Seniors', value: 0 }
       ]
@@ -3463,7 +3465,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires' || item.key === 'credit_garde') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires' || item.key === 'credit_garde' || item.key === 'allocation_logement') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">

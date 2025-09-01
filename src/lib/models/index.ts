@@ -86,6 +86,8 @@ export interface HouseholdData {
   province?: string
   medicalExpenses?: Decimal | number | string
   socialAssistance?: SocialAssistanceData
+  annualHousingCost?: number
+  liquidAssetsValue?: number
 }
 
 export class Household {
@@ -97,6 +99,8 @@ export class Household {
   province: string
   medicalExpenses: Decimal
   socialAssistance?: SocialAssistanceData
+  annualHousingCost: number
+  liquidAssetsValue: number
 
   constructor(data: HouseholdData) {
     this.householdType = data.householdType
@@ -107,6 +111,8 @@ export class Household {
     this.province = data.province || 'QC'
     this.medicalExpenses = new Decimal(data.medicalExpenses || 0)
     this.socialAssistance = data.socialAssistance
+    this.annualHousingCost = data.annualHousingCost || 0
+    this.liquidAssetsValue = data.liquidAssetsValue || 0
 
     this.validate()
   }
@@ -154,8 +160,4 @@ export class Household {
   get totalChildcareExpenses(): number {
     return this.children.reduce((total, child) => total + child.childcareExpenses, 0)
   }
-
-  // Propriétés pour l'allocation-logement
-  annualHousingCost: number = 0     // Coût annuel du logement
-  liquidAssetsValue: number = 0     // Valeur des avoirs liquides (CELI + comptes non enregistrés)
 }

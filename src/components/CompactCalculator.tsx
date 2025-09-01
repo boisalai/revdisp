@@ -35,6 +35,10 @@ interface CalculatorState {
     firstTimeApplicant: boolean
     livingWithParents: boolean
   }
+  housingAllowance: {
+    annualHousingCost: number      // Coût annuel du logement (loyer + charges)
+    liquidAssetsValue: number      // Valeur des avoirs liquides (CELI + comptes non enregistrés)
+  }
 }
 
 export default function CompactCalculator() {
@@ -59,6 +63,10 @@ export default function CompactCalculator() {
       liquidAssets: 0,
       firstTimeApplicant: false,
       livingWithParents: false
+    },
+    housingAllowance: {
+      annualHousingCost: 0,
+      liquidAssetsValue: 0
     }
   })
 
@@ -71,13 +79,14 @@ export default function CompactCalculator() {
   const [expandedSections, setExpandedSections] = useState({
     children: true,      // Show children section by default when applicable
     medical: false,      // Hide medical expenses by default
-    socialAssistance: false  // Hide social assistance by default
+    socialAssistance: false,  // Hide social assistance by default
+    housingAllowance: false   // Hide housing allowance by default
   })
 
   const t: Translation = translations[state.language]
 
   // Toggle accordion sections
-  const toggleSection = (section: 'children' | 'medical' | 'socialAssistance') => {
+  const toggleSection = (section: 'children' | 'medical' | 'socialAssistance' | 'housingAllowance') => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
@@ -93,7 +102,7 @@ export default function CompactCalculator() {
     badgeCount = 0 
   }: { 
     title: string
-    section: 'children' | 'medical' | 'socialAssistance'
+    section: 'children' | 'medical' | 'socialAssistance' | 'housingAllowance'
     isExpanded: boolean
     showBadge?: boolean
     badgeCount?: number
@@ -346,7 +355,9 @@ export default function CompactCalculator() {
         numChildren: state.numChildren,
         children: state.children,
         medicalExpenses: state.medicalExpenses,
-        socialAssistance: state.socialAssistance
+        socialAssistance: state.socialAssistance,
+        annualHousingCost: state.housingAllowance.annualHousingCost,
+        liquidAssetsValue: state.housingAllowance.liquidAssetsValue
       })
 
       console.log('Starting calculation for household:', household)
@@ -850,6 +861,79 @@ export default function CompactCalculator() {
                       {t.socialAssistance?.livingWithParents || 'Vit chez ses parents'}
                     </span>
                   </label>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Housing Allowance Section - Accordion */}
+        <div className="mt-6">
+          <AccordionHeader 
+            title={state.language === 'fr' ? 'Allocation-logement' : 'Housing Allowance'}
+            section="housingAllowance"
+            isExpanded={expandedSections.housingAllowance}
+          />
+          {expandedSections.housingAllowance && (
+            <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+              <div className="grid grid-cols-1 gap-4">
+                {/* Annual Housing Cost */}
+                <div>
+                  <Slider
+                    label={state.language === 'fr' ? 'Coût annuel du logement (loyer + charges)' : 'Annual housing cost (rent + charges)'}
+                    value={state.housingAllowance.annualHousingCost}
+                    onChange={(annualHousingCost) => setState(prev => ({
+                      ...prev,
+                      housingAllowance: {
+                        ...prev.housingAllowance,
+                        annualHousingCost
+                      }
+                    }))}
+                    min={0}
+                    max={50000}
+                    step={500}
+                    formatter={formatCurrency}
+                  />
+                </div>
+
+                {/* Liquid Assets Value */}
+                <div>
+                  <Slider
+                    label={state.language === 'fr' ? 'Valeur des avoirs liquides (CELI + comptes non enregistrés)' : 'Liquid assets value (TFSA + non-registered accounts)'}
+                    value={state.housingAllowance.liquidAssetsValue}
+                    onChange={(liquidAssetsValue) => setState(prev => ({
+                      ...prev,
+                      housingAllowance: {
+                        ...prev.housingAllowance,
+                        liquidAssetsValue
+                      }
+                    }))}
+                    min={0}
+                    max={60000}
+                    step={1000}
+                    formatter={formatCurrency}
+                  />
+                </div>
+
+                {/* Information note */}
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <div className="flex items-start space-x-2">
+                    <div className="flex-shrink-0">
+                      <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium">
+                        {state.language === 'fr' ? 'Conditions d\'admissibilité :' : 'Eligibility conditions:'}
+                      </p>
+                      <ul className="mt-1 space-y-1 text-xs">
+                        <li>• {state.language === 'fr' ? 'Familles avec enfants OU personne de 50 ans et plus' : 'Families with children OR person 50+ years old'}</li>
+                        <li>• {state.language === 'fr' ? 'Avoirs liquides < 50 000$' : 'Liquid assets < $50,000'}</li>
+                        <li>• {state.language === 'fr' ? 'Coût du logement ≥ 30% du revenu familial' : 'Housing cost ≥ 30% of family income'}</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
