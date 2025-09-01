@@ -75,62 +75,16 @@ export default function CompactCalculator() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  // Accordion state for sections
-  const [expandedSections, setExpandedSections] = useState({
-    children: true,      // Show children section by default when applicable
-    medical: false,      // Hide medical expenses by default
-    socialAssistance: false,  // Hide social assistance by default
-    housingAllowance: false   // Hide housing allowance by default
-  })
+  // Tabs state for sections (GOV.UK style)
+  const [activeTab, setActiveTab] = useState<'medical' | 'socialAssistance' | 'housingAllowance' | 'children'>('medical')
 
   const t: Translation = translations[state.language]
 
-  // Toggle accordion sections
-  const toggleSection = (section: 'children' | 'medical' | 'socialAssistance' | 'housingAllowance') => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }))
+  // Switch active tab
+  const switchTab = (tab: 'medical' | 'socialAssistance' | 'housingAllowance' | 'children') => {
+    setActiveTab(tab)
   }
 
-  // Accordion header component
-  const AccordionHeader = ({ 
-    title, 
-    section, 
-    isExpanded, 
-    showBadge = false, 
-    badgeCount = 0 
-  }: { 
-    title: string
-    section: 'children' | 'medical' | 'socialAssistance' | 'housingAllowance'
-    isExpanded: boolean
-    showBadge?: boolean
-    badgeCount?: number
-  }) => (
-    <button
-      onClick={() => toggleSection(section)}
-      className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-      <div className="flex items-center space-x-3">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {showBadge && badgeCount > 0 && (
-          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-            {badgeCount}
-          </span>
-        )}
-      </div>
-      <div className="flex items-center">
-        <svg
-          className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-    </button>
-  )
 
   // Derived values
   const hasSpouse = [HouseholdType.COUPLE, HouseholdType.RETIRED_COUPLE].includes(state.householdType)
@@ -442,7 +396,7 @@ export default function CompactCalculator() {
               onClick={() => setState(prev => ({ ...prev, language: 'fr' }))}
               className={`px-3 py-1 text-xs font-medium transition-colors ${
                 state.language === 'fr'
-                  ? 'bg-govuk-blue text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -452,7 +406,7 @@ export default function CompactCalculator() {
               onClick={() => setState(prev => ({ ...prev, language: 'en' }))}
               className={`px-3 py-1 text-xs font-medium transition-colors ${
                 state.language === 'en'
-                  ? 'bg-govuk-blue text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -629,18 +583,91 @@ export default function CompactCalculator() {
           )}
         </div>
 
-        {/* Children Section - Accordion */}
+        {/* GOV.UK Tabs - Additional Options */}
+        <div className="mt-8">
+          {/* Tabs title for mobile */}
+          <h2 className="block sm:hidden text-xl font-semibold text-gray-900 mb-4">
+            {state.language === 'fr' ? 'Options additionnelles' : 'Additional Options'}
+          </h2>
+          
+          {/* Tab navigation - hidden on mobile (< 640px) */}
+          <div className="hidden sm:block">
+            <ul className="flex border-b border-gray-300" role="tablist">
+              {canHaveChildren && state.numChildren > 0 && (
+                <li role="presentation">
+                  <button
+                    onClick={() => switchTab('children')}
+                    className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === 'children'
+                        ? 'border-black text-black'
+                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    }`}
+                    role="tab"
+                    aria-selected={activeTab === 'children'}
+                  >
+                    <span className="flex items-center space-x-2">
+                      <span>{state.language === 'fr' ? 'Enfants' : 'Children'}</span>
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                        {state.numChildren}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              )}
+              <li role="presentation">
+                <button
+                  onClick={() => switchTab('medical')}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === 'medical'
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === 'medical'}
+                >
+                  {state.language === 'fr' ? 'Frais médicaux' : 'Medical'}
+                </button>
+              </li>
+              <li role="presentation">
+                <button
+                  onClick={() => switchTab('socialAssistance')}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === 'socialAssistance'
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === 'socialAssistance'}
+                >
+                  {state.language === 'fr' ? 'Aide sociale' : 'Social Assistance'}
+                </button>
+              </li>
+              <li role="presentation">
+                <button
+                  onClick={() => switchTab('housingAllowance')}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === 'housingAllowance'
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                  role="tab"
+                  aria-selected={activeTab === 'housingAllowance'}
+                >
+                  {state.language === 'fr' ? 'Logement' : 'Housing'}
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Children Section - Tab Panel */}
         {canHaveChildren && state.numChildren > 0 && (
-          <div className="mt-6">
-            <AccordionHeader 
-              title={state.language === 'fr' ? 'Informations sur les enfants' : 'Children Information'}
-              section="children"
-              isExpanded={expandedSections.children}
-              showBadge={true}
-              badgeCount={state.numChildren}
-            />
-            {expandedSections.children && (
-              <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+          <div className={`mt-6 ${activeTab === 'children' ? 'block' : 'hidden'}`} role="tabpanel">
+            {/* Mobile title */}
+            <h3 className="block sm:hidden text-lg font-semibold text-gray-900 mb-4">
+              {state.language === 'fr' ? 'Informations sur les enfants' : 'Children Information'}
+            </h3>
+            <div className="border border-gray-200 rounded-lg bg-gray-50 p-4">
                 <div className="space-y-4">
                   {state.children.map((child, index) => (
                     <div key={index} className="border-l-4 border-blue-400 pl-4 py-2 bg-white rounded">
@@ -708,19 +735,16 @@ export default function CompactCalculator() {
                   ))}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
         )}
 
-        {/* Medical Expenses Section - Accordion */}
-        <div className="mt-6">
-          <AccordionHeader 
-            title={state.language === 'fr' ? 'Frais médicaux' : 'Medical Expenses'}
-            section="medical"
-            isExpanded={expandedSections.medical}
-          />
-          {expandedSections.medical && (
-            <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+        {/* Medical Expenses Section - Tab Panel */}
+        <div className={`mt-6 ${activeTab === 'medical' ? 'block' : 'hidden'}`} role="tabpanel">
+          {/* Mobile title */}
+          <h3 className="block sm:hidden text-lg font-semibold text-gray-900 mb-4">
+            {state.language === 'fr' ? 'Frais médicaux' : 'Medical Expenses'}
+          </h3>
+          <div className="border border-gray-200 rounded-lg bg-gray-50 p-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Slider
@@ -739,18 +763,15 @@ export default function CompactCalculator() {
                 <div></div>
               </div>
             </div>
-          )}
         </div>
 
-        {/* Social Assistance Section - Accordion */}
-        <div className="mt-6">
-          <AccordionHeader 
-            title={t.socialAssistance?.title || (state.language === 'fr' ? 'Aide sociale' : 'Social Assistance')}
-            section="socialAssistance"
-            isExpanded={expandedSections.socialAssistance}
-          />
-          {expandedSections.socialAssistance && (
-            <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+        {/* Social Assistance Section - Tab Panel */}
+        <div className={`mt-6 ${activeTab === 'socialAssistance' ? 'block' : 'hidden'}`} role="tabpanel">
+          {/* Mobile title */}
+          <h3 className="block sm:hidden text-lg font-semibold text-gray-900 mb-4">
+            {t.socialAssistance?.title || (state.language === 'fr' ? 'Aide sociale' : 'Social Assistance')}
+          </h3>
+          <div className="border border-gray-200 rounded-lg bg-gray-50 p-4">
               <div className="grid grid-cols-2 gap-4">
                 {/* Employment Constraints */}
                 <div>
@@ -864,18 +885,15 @@ export default function CompactCalculator() {
                 </div>
               </div>
             </div>
-          )}
         </div>
 
-        {/* Housing Allowance Section - Accordion */}
-        <div className="mt-6">
-          <AccordionHeader 
-            title={state.language === 'fr' ? 'Allocation-logement' : 'Housing Allowance'}
-            section="housingAllowance"
-            isExpanded={expandedSections.housingAllowance}
-          />
-          {expandedSections.housingAllowance && (
-            <div className="border border-t-0 border-gray-200 rounded-b-lg bg-gray-50 p-4">
+        {/* Housing Allowance Section - Tab Panel */}
+        <div className={`mt-6 ${activeTab === 'housingAllowance' ? 'block' : 'hidden'}`} role="tabpanel">
+          {/* Mobile title */}
+          <h3 className="block sm:hidden text-lg font-semibold text-gray-900 mb-4">
+            {state.language === 'fr' ? 'Allocation-logement' : 'Housing Allowance'}
+          </h3>
+          <div className="border border-gray-200 rounded-lg bg-gray-50 p-4">
               <div className="grid grid-cols-1 gap-4">
                 {/* Annual Housing Cost */}
                 <div>
@@ -937,7 +955,6 @@ export default function CompactCalculator() {
                 </div>
               </div>
             </div>
-          )}
         </div>
       </div>
 
