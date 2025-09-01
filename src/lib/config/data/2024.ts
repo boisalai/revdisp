@@ -475,5 +475,63 @@ export const config2024: TaxYearConfig = {
       couple_no_children: 1340,         // Couple sans enfant
       couple_with_children: 1793        // Couple avec enfant(s)
     }
+  },
+
+  /**
+   * Crédit d'impôt pour frais de garde d'enfants - Québec 2024
+   * 
+   * Sources:
+   * - Budget Finances Québec
+   * - CFFP Université de Sherbrooke
+   * - Revenu Québec
+   */
+  childcare_tax_credit: {
+    max_expenses: {
+      disabled_child: 16335,            // Maximum pour enfant handicapé
+      under_7: 11935,                   // Maximum pour enfant de moins de 7 ans
+      other_children: 6010              // Maximum pour autres enfants éligibles
+    },
+    rate_schedule: [
+      { income_min: 0, income_max: 24110, rate: 0.78 },           // 78% jusqu'à 24 110$
+      { income_min: 24110, income_max: 30470, rate: 0.77 },       // 77%
+      { income_min: 30470, income_max: 36835, rate: 0.76 },       // 76%
+      { income_min: 36835, income_max: 43200, rate: 0.75 },       // 75%
+      { income_min: 43200, income_max: 49560, rate: 0.74 },       // 74%
+      { income_min: 49560, income_max: 55925, rate: 0.73 },       // 73%
+      { income_min: 55925, income_max: 62285, rate: 0.72 },       // 72%
+      { income_min: 62285, income_max: 68650, rate: 0.71 },       // 71%
+      { income_min: 68650, income_max: 75010, rate: 0.70 },       // 70%
+      { income_min: 75010, income_max: 81375, rate: 0.69 },       // 69%
+      { income_min: 81375, income_max: 87735, rate: 0.68 },       // 68%
+      { income_min: 87735, income_max: 116515, rate: 0.67 },      // 67% jusqu'à 116 515$
+      { income_min: 116515, income_max: 999999999, rate: 0.67 }   // 67% au-delà
+    ]
+  },
+  /**
+   * Allocation-logement du Québec 2024
+   * 
+   * Programme d'aide financière pour les ménages à faible revenu qui consacrent
+   * une proportion importante de leur revenu au logement.
+   * 
+   * Sources:
+   * - Revenu Québec: Programme allocation-logement
+   * - CFFP: Guide des mesures fiscales
+   */
+  housing_allowance: {
+    max_liquid_assets: 50000,
+    amounts: {
+      tier_30_49: 100,    // 100$ pour 30-49.9% d'effort
+      tier_50_79: 150,    // 150$ pour 50-79.9% d'effort
+      tier_80_plus: 170   // 170$ pour 80%+ d'effort
+    },
+    thresholds: {
+      single_no_children: 24440,        // Personne seule 50+ ans
+      couple_no_children: 33540,        // Couple sans enfants (50+ ans)
+      single_parent_1_2_children: 40740,  // Parent seul, 1-2 enfants
+      single_parent_3plus_children: 46640, // Parent seul, 3+ enfants
+      couple_1_child: 40740,            // Couple avec 1 enfant
+      couple_2plus_children: 46640      // Couple avec 2+ enfants
+    },
+    reduction_threshold_ratio: 0.85     // Seuil de réduction progressive
   }
 } as const

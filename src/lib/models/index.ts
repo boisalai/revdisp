@@ -154,4 +154,8 @@ export class Household {
   get totalChildcareExpenses(): number {
     return this.children.reduce((total, child) => total + child.childcareExpenses, 0)
   }
+
+  // Propriétés pour l'allocation-logement
+  annualHousingCost: number = 0     // Coût annuel du logement
+  liquidAssetsValue: number = 0     // Valeur des avoirs liquides (CELI + comptes non enregistrés)
 }

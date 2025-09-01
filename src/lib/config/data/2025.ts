@@ -511,29 +511,87 @@ export const config2025: TaxYearConfig = {
         adjustment: 103
       },
       couple: {
-        base: 1747,
-        adjustment: 118
+        base: 1787,                     // Montant couple solidarité sociale 2025
+        adjustment: 103                 // Ajustement solidarité sociale
       },
       couple_with_parents: {
-        base: 1644,
-        adjustment: 118
+        base: 1684,
+        adjustment: 103
       }
     },
     objectif_emploi: {
-      single_adjustment: 46             // Ajustement programme objectif emploi
+      single_adjustment: 45             // Ajustement programme objectif emploi
     },
     work_income_exemption: {
-      single: 200,                      // Exemption revenus de travail personne seule
-      couple: 300                       // Exemption revenus de travail couple
+      single: 200,                      // Exemption revenus de travail mensuelle
+      couple: 300
     },
-    work_income_supplement_rate: 0.25,        // 25% de supplément (entrée en vigueur 2025)
-    work_income_supplement_start_year: 2025,  // Année d'entrée en vigueur
-    work_income_supplement_max_monthly: 10000,  // Pas de limite mensuelle spécifiée
+    work_income_supplement_rate: 0.25,         // 25% de supplément (entrée en vigueur 2025)
+    work_income_supplement_start_year: 2025,   // Année d'entrée en vigueur
+    work_income_supplement_max_monthly: 200,   // Maximum mensuel du supplément
     liquid_asset_limits: {
-      single_no_children: 904,
-      single_with_children: 1367,
-      couple_no_children: 1367,
-      couple_with_children: 1829
+      single_no_children: 913,          // Montants indexés 2025
+      single_with_children: 1379,
+      couple_no_children: 1379,
+      couple_with_children: 1845
     }
+  },
+
+  /**
+   * Crédit d'impôt pour frais de garde d'enfants - Québec 2025
+   * 
+   * Sources:
+   * - Budget Finances Québec
+   * - CFFP Université de Sherbrooke
+   * - Revenu Québec
+   */
+  childcare_tax_credit: {
+    max_expenses: {
+      disabled_child: 16800,            // Maximum pour enfant handicapé
+      under_7: 12275,                   // Maximum pour enfant de moins de 7 ans
+      other_children: 6180              // Maximum pour autres enfants éligibles
+    },
+    rate_schedule: [
+      { income_min: 0, income_max: 24795, rate: 0.78 },           // 78% jusqu'à 24 795$
+      { income_min: 24795, income_max: 31310, rate: 0.77 },       // 77%
+      { income_min: 31310, income_max: 37825, rate: 0.76 },       // 76%
+      { income_min: 37825, income_max: 44340, rate: 0.75 },       // 75%
+      { income_min: 44340, income_max: 50855, rate: 0.74 },       // 74%
+      { income_min: 50855, income_max: 57370, rate: 0.73 },       // 73%
+      { income_min: 57370, income_max: 63885, rate: 0.72 },       // 72%
+      { income_min: 63885, income_max: 70400, rate: 0.71 },       // 71%
+      { income_min: 70400, income_max: 76915, rate: 0.70 },       // 70%
+      { income_min: 76915, income_max: 83430, rate: 0.69 },       // 69%
+      { income_min: 83430, income_max: 89945, rate: 0.68 },       // 68%
+      { income_min: 89945, income_max: 119835, rate: 0.67 },      // 67% jusqu'à 119 835$
+      { income_min: 119835, income_max: 999999999, rate: 0.67 }   // 67% au-delà
+    ]
+  },
+  /**
+   * Allocation-logement du Québec 2025
+   * 
+   * Paramètres indexés selon l'inflation (estimations basées sur 2024).
+   * Les seuils sont généralement indexés annuellement.
+   * 
+   * Sources:
+   * - Revenu Québec: Programme allocation-logement
+   * - Indexation estimée à +3% par rapport à 2024
+   */
+  housing_allowance: {
+    max_liquid_assets: 50000,
+    amounts: {
+      tier_30_49: 100,    // Maintenu à 100$ jusqu'en septembre 2027
+      tier_50_79: 155,    // 150$ + indexation estimée
+      tier_80_plus: 175   // 170$ + indexation estimée
+    },
+    thresholds: {
+      single_no_children: 25173,        // 24440$ + indexation (~3%)
+      couple_no_children: 34546,        // 33540$ + indexation
+      single_parent_1_2_children: 41962,  // 40740$ + indexation
+      single_parent_3plus_children: 48039, // 46640$ + indexation
+      couple_1_child: 41962,            // 40740$ + indexation
+      couple_2plus_children: 48039      // 46640$ + indexation
+    },
+    reduction_threshold_ratio: 0.85     // Ratio maintenu
   }
 }

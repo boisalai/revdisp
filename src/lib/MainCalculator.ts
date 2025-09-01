@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'school_supplies_supplement', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'school_supplies_supplement', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance', 'childcare_tax_credit', 'housing_allowance']
       
       for (const type of calculatorTypes) {
         try {
@@ -247,6 +247,37 @@ export class RevenuDisponibleCalculator {
       
       // Add to total transfers
       totalTransfers = totalTransfers.plus(schoolSuppliesResult.total_amount)
+    }
+
+    // Childcare Tax Credit (Crédit d'impôt pour frais de garde d'enfants)
+    if (this.calculators.childcare_tax_credit && household.children.length > 0) {
+      // Calculate family net income (Quebec)
+      const familyNetIncome = (results.quebec.net_income?.family || results.quebec.net_income?.individual || new Decimal(0)).toNumber()
+      
+      // Prepare input for childcare tax credit
+      const childcareInput = {
+        family_net_income: familyNetIncome,
+        children: household.children.map(child => ({
+          age: child.age,
+          has_disability: false, // TODO: Add disability flag to ChildData model
+          childcare_expenses: child.childcareExpenses || 0
+        }))
+      }
+
+      const childcareCreditResult = (this.calculators.childcare_tax_credit as any).calculateChildcareTaxCredit(childcareInput)
+      
+      // Store detailed result
+      results.quebec.childcare_tax_credit = {
+        eligible_children: new Decimal(childcareCreditResult.eligible_children),
+        total_eligible_expenses: new Decimal(childcareCreditResult.total_eligible_expenses),
+        credit_rate: new Decimal(childcareCreditResult.credit_rate),
+        gross_credit: new Decimal(childcareCreditResult.gross_credit),
+        net_credit: new Decimal(childcareCreditResult.net_credit),
+        breakdown: childcareCreditResult.breakdown
+      }
+      
+      // Add to total transfers
+      totalTransfers = totalTransfers.plus(childcareCreditResult.net_credit)
     }
 
     // Social Assistance (Aide sociale)

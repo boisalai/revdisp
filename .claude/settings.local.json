@@ -2,23 +2,35 @@
   "permissions": {
     "allow": [
       "Bash(cat:*)",
-      "Bash(npm run build:*)",
+      "Bash(cp:*)",
+      "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(GITHUB_REPOSITORY=\"boisalai/revdisp\" NODE_ENV=production npm run build)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
+      "Bash(ls:*)",
       "Bash(git add:*)",
+      "Bash(npm run build:*)",
       "mcp__playwright",
       "WebFetch(domain:www.canada.ca)",
       "WebFetch(domain:www.taxtips.ca)",
       "WebFetch(domain:www.revenuquebec.ca)",
       "WebFetch(domain:www.calculconversion.com)",
-      "WebSearch"
+      "Bash(GITHUB_REPOSITORY=\"boisalai/revdisp\" NODE_ENV=production npm run build)",
+      "WebSearch",
+      "WebFetch(domain:www.budget.finances.gouv.qc.ca)",
+      "WebFetch(domain:www.quebec.ca)",
+      "WebFetch(domain:www.legisquebec.gouv.qc.ca)",
+      "Bash(npx tsx:*)",
+      "WebFetch(domain:www.finances.gouv.qc.ca)",
+      "WebFetch(domain:www.retraitequebec.gouv.qc.ca)",
+      "WebFetch(domain:cffp.recherche.usherbrooke.ca)",
+      "Bash(npm run lint)",
+      "Bash(tsc:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:www.habitation.gouv.qc.ca)"
     ],
-    "deny": []
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bun x ccusage statusline"
+    "deny": [
+      "Bash(rm -fr:*)"
+    ]
   }
 }

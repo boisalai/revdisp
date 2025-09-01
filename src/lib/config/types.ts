@@ -353,6 +353,8 @@ export interface TaxYearConfig {
   medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
   school_supplies_supplement: SchoolSuppliesSupplementConfig
   social_assistance: SocialAssistanceConfig
+  childcare_tax_credit: ChildcareTaxCreditConfig
+  housing_allowance: HousingAllowanceConfig
 }
 
 /**
@@ -384,6 +386,8 @@ export interface ConfigTypes {
   medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
   school_supplies_supplement: SchoolSuppliesSupplementConfig
   social_assistance: SocialAssistanceConfig
+  childcare_tax_credit: ChildcareTaxCreditConfig
+  housing_allowance: HousingAllowanceConfig
 }
 
 export interface SchoolSuppliesSupplementConfig {
@@ -391,4 +395,35 @@ export interface SchoolSuppliesSupplementConfig {
   min_age: number
   max_age: number
   max_age_with_disability: number
+}
+
+export interface ChildcareTaxCreditConfig {
+  max_expenses: {
+    disabled_child: number
+    under_7: number
+    other_children: number
+  }
+  rate_schedule: Array<{
+    income_min: number
+    income_max: number
+    rate: number
+  }>
+}
+
+export interface HousingAllowanceConfig {
+  max_liquid_assets: number
+  amounts: {
+    tier_30_49: number    // 100$ (30-49.9% d'effort)
+    tier_50_79: number    // 150$ (50-79.9% d'effort)
+    tier_80_plus: number  // 170$ (80%+ d'effort)
+  }
+  thresholds: {
+    single_no_children: number        // 24 440$ (50+ ans)
+    couple_no_children: number        // 33 540$ (50+ ans)
+    single_parent_1_2_children: number  // 40 740$
+    single_parent_3plus_children: number // 46 640$
+    couple_1_child: number            // 40 740$
+    couple_2plus_children: number     // 46 640$
+  }
+  reduction_threshold_ratio: number   // Ratio du seuil de réduction (ex: 0.85)
 }

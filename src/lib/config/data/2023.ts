@@ -465,5 +465,62 @@ export const config2023: TaxYearConfig = {
       couple_no_children: 1298,
       couple_with_children: 1737
     }
+  },
+
+  /**
+   * Crédit d'impôt pour frais de garde d'enfants - Québec 2023
+   * 
+   * Sources:
+   * - Budget Finances Québec
+   * - CFFP Université de Sherbrooke
+   * - Revenu Québec
+   */
+  childcare_tax_credit: {
+    max_expenses: {
+      disabled_child: 15545,            // Maximum pour enfant handicapé
+      under_7: 11360,                   // Maximum pour enfant de moins de 7 ans
+      other_children: 5720              // Maximum pour autres enfants éligibles
+    },
+    rate_schedule: [
+      { income_min: 0, income_max: 22945, rate: 0.78 },           // 78% jusqu'à 22 945$
+      { income_min: 22945, income_max: 28975, rate: 0.77 },       // 77%
+      { income_min: 28975, income_max: 35005, rate: 0.76 },       // 76%
+      { income_min: 35005, income_max: 41035, rate: 0.75 },       // 75%
+      { income_min: 41035, income_max: 47065, rate: 0.74 },       // 74%
+      { income_min: 47065, income_max: 53095, rate: 0.73 },       // 73%
+      { income_min: 53095, income_max: 59130, rate: 0.72 },       // 72%
+      { income_min: 59130, income_max: 65160, rate: 0.71 },       // 71%
+      { income_min: 65160, income_max: 71190, rate: 0.70 },       // 70%
+      { income_min: 71190, income_max: 77220, rate: 0.69 },       // 69%
+      { income_min: 77220, income_max: 83250, rate: 0.68 },       // 68%
+      { income_min: 83250, income_max: 110880, rate: 0.67 },      // 67% jusqu'à 110 880$
+      { income_min: 110880, income_max: 999999999, rate: 0.67 }   // 67% au-delà
+    ]
+  },
+  /**
+   * Allocation-logement du Québec 2023
+   * 
+   * Paramètres historiques du programme d'aide au logement.
+   * 
+   * Sources:
+   * - Archives Revenu Québec
+   * - CFFP: Guide des mesures fiscales 2023
+   */
+  housing_allowance: {
+    max_liquid_assets: 50000,
+    amounts: {
+      tier_30_49: 100,    // 100$ (augmenté de 80$ en novembre 2021)
+      tier_50_79: 145,    // Montant 2023 estimé
+      tier_80_plus: 165   // Montant 2023 estimé
+    },
+    thresholds: {
+      single_no_children: 23725,        // Seuils 2023 (pré-indexation 2024)
+      couple_no_children: 32560,        // Estimé avec déflation ~3%
+      single_parent_1_2_children: 39550,  // Seuils ajustés pour 2023
+      single_parent_3plus_children: 45280, // Estimé
+      couple_1_child: 39550,            // Cohérent avec parent seul
+      couple_2plus_children: 45280      // Cohérent avec 3+ enfants
+    },
+    reduction_threshold_ratio: 0.85     // Ratio standard
   }
 } as const

@@ -1,0 +1,147 @@
+// Nouvelle fonction getSocialAssistanceDetails améliorée
+const getSocialAssistanceDetails = (): ProgramDetail | null => {
+  if (!household) return null
+  const socialAssistanceResult = results.quebec?.social_assistance
+  if (!socialAssistanceResult) return null
+  
+  const netBenefit = socialAssistanceResult.net_benefit instanceof Decimal ? socialAssistanceResult.net_benefit.toNumber() : 0
+  const baseBenefit = socialAssistanceResult.base_benefit instanceof Decimal ? socialAssistanceResult.base_benefit.toNumber() : 0
+  const constraintAllocation = socialAssistanceResult.constraint_allocation instanceof Decimal ? socialAssistanceResult.constraint_allocation.toNumber() : 0
+  const singleAdjustment = socialAssistanceResult.single_adjustment instanceof Decimal ? socialAssistanceResult.single_adjustment.toNumber() : 0
+  const workIncomeExemption = socialAssistanceResult.work_income_exemption instanceof Decimal ? socialAssistanceResult.work_income_exemption.toNumber() : 0
+  const workIncomeSuplement = socialAssistanceResult.work_income_supplement instanceof Decimal ? socialAssistanceResult.work_income_supplement.toNumber() : 0
+  const incomeReduction = socialAssistanceResult.income_reduction instanceof Decimal ? socialAssistanceResult.income_reduction.toNumber() : 0
+  const totalWorkIncome = socialAssistanceResult.total_work_income instanceof Decimal ? socialAssistanceResult.total_work_income.toNumber() : 0
+  const eligible = socialAssistanceResult.eligible instanceof Decimal ? socialAssistanceResult.eligible.toNumber() === 1 : false
+  const program = socialAssistanceResult.program ? socialAssistanceResult.program.toString() : 'aide_sociale'
+  
+  const calculationSteps = []
+  
+  if (!eligible) {
+    calculationSteps.push({
+      label: language === 'fr' ? 'Statut d\'admissibilité' : 'Eligibility Status',
+      value: language === 'fr' ? 'Non admissible' : 'Not eligible'
+    })
+    calculationSteps.push({
+      label: language === 'fr' ? 'Raison' : 'Reason',
+      value: socialAssistanceResult.ineligibility_reason?.toString() || (language === 'fr' ? 'Critères non respectés' : 'Criteria not met')
+    })
+  } else {
+    // Déterminer le type de programme
+    const programName = program === 'objectif_emploi' 
+      ? (language === 'fr' ? 'Programme objectif emploi' : 'Employment objective program')
+      : program === 'solidarite_sociale'
+      ? (language === 'fr' ? 'Solidarité sociale' : 'Social solidarity') 
+      : (language === 'fr' ? 'Aide sociale' : 'Social assistance')
+    
+    // Calculs mensuels pour l'affichage détaillé
+    const monthlyWorkIncome = totalWorkIncome / 12
+    const monthlyExemption = workIncomeExemption / 12
+    const monthlyReduction = incomeReduction / 12
+    const monthlySupplement = workIncomeSuplement / 12
+    const monthlyNet = netBenefit / 12
+    const monthlyConstraint = constraintAllocation / 12
+    const monthlySingle = singleAdjustment / 12
+    
+    // Configuration officielle 2025
+    const configBase = taxYear === 2025 ? 784 : 762
+    const configAdjustment = 45
+    
+    calculationSteps.push({
+      label: language === 'fr' ? 'Programme applicable' : 'Applicable program',
+      value: programName
+    })
+    
+    calculationSteps.push({
+      label: language === 'fr' ? 'Prestation de base' : 'Base benefit',
+      value: `${formatCurrency(configBase)},00 $`
+    })
+    
+    calculationSteps.push({
+      label: language === 'fr' ? 'Ajustement' : 'Adjustment',
+      value: `${formatCurrency(configAdjustment)},00 $`
+    })
+    
+    if (constraintAllocation > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Allocation contrainte temporaire' : 'Temporary constraint allocation',
+        value: `${formatCurrency(monthlyConstraint)},00 $`
+      })
+    }
+    
+    if (singleAdjustment > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? 'Ajustement objectif emploi' : 'Employment objective adjustment',
+        value: `${formatCurrency(monthlySingle)},00 $`
+      })
+    }
+    
+    const monthlyGrossBenefit = configBase + configAdjustment + monthlyConstraint + monthlySingle
+    calculationSteps.push({
+      label: language === 'fr' ? 'Prestation totale' : 'Total benefit',
+      value: `${formatCurrency(monthlyGrossBenefit)},00 $`
+    })
+    
+    if (totalWorkIncome > 0) {
+      calculationSteps.push({
+        label: language === 'fr' ? `Revenus de travail (${formatCurrency(totalWorkIncome)} $/an)` : `Work income (${formatCurrency(totalWorkIncome)} $/year)`,
+        value: `${formatCurrency(monthlyWorkIncome)} $/mois`
+      })
+      
+      calculationSteps.push({
+        label: language === 'fr' ? 'Revenus de travail exclus' : 'Excluded work income',
+        value: `${formatCurrency(monthlyExemption)},00 $`
+      })
+      
+      calculationSteps.push({
+        label: language === 'fr' ? `Réduction de la prestation mensuelle (max(0;${formatCurrency(monthlyWorkIncome)}$-${formatCurrency(monthlyExemption)}$))` : `Monthly benefit reduction (max(0;${formatCurrency(monthlyWorkIncome)}$-${formatCurrency(monthlyExemption)}$))`,
+        value: monthlyReduction > 0 ? `-${formatCurrency(monthlyReduction)} $` : '0,00 $'
+      })
+      
+      if (workIncomeSuplement > 0) {
+        calculationSteps.push({
+          label: language === 'fr' ? 'Supplément 25% (2025)' : '25% supplement (2025)',
+          value: `+${formatCurrency(monthlySupplement)} $`
+        })
+      }
+    }
+    
+    calculationSteps.push({
+      label: language === 'fr' ? 'Prestation mensuelle' : 'Monthly benefit',
+      value: `${formatCurrency(monthlyNet)} $`
+    })
+    
+    calculationSteps.push({
+      label: language === 'fr' ? `Prestation annuelle (${formatCurrency(monthlyNet)}$ × 12)` : `Annual benefit (${formatCurrency(monthlyNet)}$ × 12)`,
+      value: `${formatCurrency(netBenefit)} $`
+    })
+  }
+  
+  // Références officielles
+  const webReferences = [
+    {
+      title: language === 'fr' 
+        ? 'Gouvernement du Québec - Aide sociale et solidarité sociale'
+        : 'Government of Quebec - Social assistance and social solidarity',
+      url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale'
+    }
+  ]
+  
+  calculationSteps.push(...webReferences.map(ref => ({
+    label: ref.title,
+    value: ref.url,
+    isReference: true
+  })))
+  
+  return {
+    name: language === 'fr' ? 'Aide sociale du Québec' : 'Quebec Social Assistance',
+    description: language === 'fr'
+      ? 'Programme d\'assistance financière de dernier recours pour les personnes et familles dans le besoin au Québec.'
+      : 'Last resort financial assistance program for individuals and families in need in Quebec.',
+    formula: language === 'fr'
+      ? 'Prestation de base + Ajustement + Allocations - Réduction revenus + Supplément'
+      : 'Base benefit + Adjustment + Allowances - Income reduction + Supplement',
+    currentValue: netBenefit,
+    parameters: calculationSteps
+  }
+}
