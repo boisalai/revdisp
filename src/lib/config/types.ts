@@ -352,6 +352,7 @@ export interface TaxYearConfig {
   medical_expense_supplement_federal: MedicalExpenseSupplementConfig
   medical_expense_supplement_quebec: MedicalExpenseSupplementConfig
   school_supplies_supplement: SchoolSuppliesSupplementConfig
+  senior_support: SeniorSupportConfig
   social_assistance: SocialAssistanceConfig
   childcare_tax_credit: ChildcareTaxCreditConfig
   housing_allowance: HousingAllowanceConfig
@@ -395,6 +396,23 @@ export interface SchoolSuppliesSupplementConfig {
   min_age: number
   max_age: number
   max_age_with_disability: number
+}
+
+export interface SeniorSupportConfig {
+  min_age: number
+  max_credit: {
+    single: number
+    couple: number
+  }
+  income_thresholds: {
+    single: number
+    couple: number
+  }
+  income_limits: {
+    single: number
+    couple: number
+  }
+  reduction_rate: number
 }
 
 export interface ChildcareTaxCreditConfig {

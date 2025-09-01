@@ -375,6 +375,33 @@ export const config2025: TaxYearConfig = {
     max_age_with_disability: 17     // Âge maximum si supplément enfant handicapé
   },
 
+  /**
+   * Crédit d'impôt pour le soutien aux aînés 2025
+   * 
+   * Crédit d'impôt remboursable du Québec pour les personnes âgées de 70 ans et plus.
+   * 
+   * Sources:
+   * - Revenu Québec: https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/credit-dimpot-pour-soutien-aux-aines/
+   * - Budget Québec: Dépenses fiscales 2024 (fiche 110108)
+   * - CFFP: Guide des mesures fiscales
+   */
+  senior_support: {
+    min_age: 70,                    // Âge minimum requis (70 ans au 31 décembre)
+    max_credit: {
+      single: 2000,                 // Crédit maximal personne seule
+      couple: 4000                  // Crédit maximal couple (2000$ par conjoint admissible)
+    },
+    income_thresholds: {
+      single: 27870,                // Seuil de réduction personne seule (estimé avec indexation ~3%)
+      couple: 45360                 // Seuil de réduction couple (estimé avec indexation ~3%)
+    },
+    income_limits: {
+      single: 64872,                // Revenu maximum personne seule
+      couple: 119344                // Revenu maximum couple
+    },
+    reduction_rate: 0.0540          // Taux de réduction 5,40% (2025)
+  },
+
   old_age_security: {
     quarters: {
       q1: {

@@ -21,9 +21,10 @@ import { MedicalExpenseSupplementFederalCalculator } from './MedicalExpenseSuppl
 import { MedicalExpenseSupplementQuebecCalculator } from './MedicalExpenseSupplementQuebecCalculator'
 import { SocialAssistanceCalculator } from './SocialAssistanceCalculator'
 import { SchoolSuppliesSupplementCalculator } from './SchoolSuppliesSupplementCalculator'
+import { SeniorSupportCalculator } from './SeniorSupportCalculator'
 import { ChildcareTaxCreditCalculator } from './ChildcareTaxCreditCalculator'
 import { HousingAllowanceCalculator } from './HousingAllowanceCalculator'
 import { MarginalRateCalculator } from './MarginalRateCalculator'
 
 // Export them
-export { QppCalculator, EmploymentInsuranceCalculator, RqapCalculator, FssCalculator, QcTaxCalculator, FederalTaxCalculator, RamqCalculator, SolidarityCalculator, WorkPremiumCalculator, FamilyAllowanceCalculator, SchoolSuppliesSupplementCalculator, ChildcareTaxCreditCalculator, HousingAllowanceCalculator, CanadaChildBenefitCalculator, GstCreditCalculator, CanadaWorkersBenefitCalculator, OldAgeSecurityCalculator, MedicalExpenseSupplementFederalCalculator, MedicalExpenseSupplementQuebecCalculator, SocialAssistanceCalculator, MarginalRateCalculator }
+export { QppCalculator, EmploymentInsuranceCalculator, RqapCalculator, FssCalculator, QcTaxCalculator, FederalTaxCalculator, RamqCalculator, SolidarityCalculator, WorkPremiumCalculator, FamilyAllowanceCalculator, SchoolSuppliesSupplementCalculator, SeniorSupportCalculator, ChildcareTaxCreditCalculator, HousingAllowanceCalculator, CanadaChildBenefitCalculator, GstCreditCalculator, CanadaWorkersBenefitCalculator, OldAgeSecurityCalculator, MedicalExpenseSupplementFederalCalculator, MedicalExpenseSupplementQuebecCalculator, SocialAssistanceCalculator, MarginalRateCalculator }

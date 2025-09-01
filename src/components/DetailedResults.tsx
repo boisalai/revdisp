@@ -147,6 +147,26 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
           { label: 'Référence officielle', value: 'Retraite Québec - Supplément fournitures scolaires', isReference: true }
         ]
       }
+    })(),
+    soutien_aines: (() => {
+      const params2023 = { maxCredit: 2000, singleThreshold: 25755, coupleThreshold: 41885, rate: 5.16 }
+      const params2024 = { maxCredit: 2000, singleThreshold: 27065, coupleThreshold: 44015, rate: 5.31 }
+      const params2025 = { maxCredit: 2000, singleThreshold: 27870, coupleThreshold: 45360, rate: 5.40 }
+      const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+      
+      return {
+        name: 'Crédit d\'impôt pour le soutien aux aînés',
+        description: 'Crédit d\'impôt remboursable du Québec pour les personnes âgées de 70 ans et plus afin de les soutenir financièrement.',
+        formula: 'Montant maximal - (Revenu familial excédentaire × Taux de réduction)',
+        parameters: [
+          { label: 'Âge minimum', value: '70 ans' },
+          { label: `Crédit maximal (${taxYear})`, value: `${params.maxCredit.toLocaleString()} $` },
+          { label: 'Seuil de réduction (personne seule)', value: `${params.singleThreshold.toLocaleString()} $` },
+          { label: 'Seuil de réduction (couple)', value: `${params.coupleThreshold.toLocaleString()} $` },
+          { label: 'Taux de réduction', value: `${params.rate.toFixed(2)}%` },
+          { label: 'Référence officielle', value: 'Revenu Québec - Crédit pour soutien aux aînés', isReference: true }
+        ]
+      }
     })()
   },
   en: {
@@ -307,6 +327,26 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
           { label: 'Maximum age', value: '16 years old' },
           { label: 'Payment', value: 'Annual (with family allowance)' },
           { label: 'Official reference', value: 'Retraite Québec - School Supply Supplement', isReference: true }
+        ]
+      }
+    })(),
+    soutien_aines: (() => {
+      const params2023 = { maxCredit: 2000, singleThreshold: 25755, coupleThreshold: 41885, rate: 5.16 }
+      const params2024 = { maxCredit: 2000, singleThreshold: 27065, coupleThreshold: 44015, rate: 5.31 }
+      const params2025 = { maxCredit: 2000, singleThreshold: 27870, coupleThreshold: 45360, rate: 5.40 }
+      const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
+      
+      return {
+        name: 'Senior Support Tax Credit',
+        description: 'Refundable Quebec tax credit for seniors aged 70 and over to provide them with financial support.',
+        formula: 'Maximum amount - (Excess family income × Reduction rate)',
+        parameters: [
+          { label: 'Minimum age', value: '70 years old' },
+          { label: `Maximum credit (${taxYear})`, value: `$${params.maxCredit.toLocaleString()}` },
+          { label: 'Reduction threshold (single)', value: `$${params.singleThreshold.toLocaleString()}` },
+          { label: 'Reduction threshold (couple)', value: `$${params.coupleThreshold.toLocaleString()}` },
+          { label: 'Reduction rate', value: `${params.rate.toFixed(2)}%` },
+          { label: 'Official reference', value: 'Revenu Québec - Senior Support Tax Credit', isReference: true }
         ]
       }
     })()
@@ -3298,6 +3338,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return results.quebec?.childcare_tax_credit?.net_credit instanceof Decimal ? results.quebec.childcare_tax_credit.net_credit.toNumber() : 0
       case 'fournitures_scolaires':
         return results.quebec?.school_supplies_supplement?.total_amount instanceof Decimal ? results.quebec.school_supplies_supplement.total_amount.toNumber() : 0
+      case 'soutien_aines':
+        return results.quebec?.senior_support?.total_credit instanceof Decimal ? results.quebec.senior_support.total_credit.toNumber() : 0
       case 'allocation_logement':
         return results.quebec?.housing_allowance?.annual_allowance instanceof Decimal ? results.quebec.housing_allowance.annual_allowance.toNumber() : 0
       default:
@@ -3329,7 +3371,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           getValueForProgram('credit_garde_enfants'), // credit_garde_enfants
           0, // allocation_logement
           getValueForProgram('supplement_medical_quebec'), // credit_medical
-          0  // soutien_aines
+          getValueForProgram('soutien_aines')  // soutien_aines
         ]
         return quebecPrograms.reduce((sum, value) => sum + value, 0)
       })(),
@@ -3343,7 +3385,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { key: 'credit_garde', label: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Child Care Tax Credit', value: getValueForProgram('credit_garde_enfants') },
         { key: 'allocation_logement', label: language === 'fr' ? 'Allocation-logement' : 'Housing Allowance', value: getValueForProgram('allocation_logement') },
         { key: 'credit_medical', label: language === 'fr' ? 'Crédit d\'impôt remboursable pour frais médicaux' : 'Medical Expense Tax Credit', value: getValueForProgram('supplement_medical_quebec') },
-        { key: 'soutien_aines', label: language === 'fr' ? 'Montant pour le soutien des aînés' : 'Amount for Support of Seniors', value: 0 }
+        { key: 'soutien_aines', label: language === 'fr' ? 'Crédit d\'impôt pour le soutien aux aînés' : 'Senior Support Tax Credit', value: getValueForProgram('soutien_aines') }
       ]
     },
     {
@@ -3465,7 +3507,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                       <td className="px-4 py-2 pl-8 flex items-center justify-between" style={{ color: '#000000' }}>
                         <span>{item.label}</span>
                         {/* Indicateur d'épinglage pour tous les programmes socio-fiscaux principaux */}
-                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires' || item.key === 'credit_garde' || item.key === 'allocation_logement') && (
+                        {(item.key === 'assurance_emploi' || item.key === 'rrq' || item.key === 'rqap' || item.key === 'fss' || item.key === 'ramq' || item.key === 'quebec_tax' || item.key === 'federal_tax' || item.key === 'credit_solidarite' || item.key === 'prime_travail' || item.key === 'allocation_enfants' || item.key === 'credit_tps' || item.key === 'allocation_travailleurs' || item.key === 'securite_vieillesse' || item.key === 'supplement_medical_federal' || item.key === 'credit_medical' || item.key === 'aide_sociale' || item.key === 'fournitures_scolaires' || item.key === 'soutien_aines' || item.key === 'credit_garde' || item.key === 'allocation_logement') && (
                           <div className="ml-2">
                             {pinnedProgram === item.key ? (
                               <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
