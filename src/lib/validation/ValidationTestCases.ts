@@ -26,7 +26,7 @@ export interface ValidationTestCase {
   expectedResults: {
     // Revenus
     revenuBrut: number
-    revenuDisponible: number
+    revenu_disponible: number
     
     // Régime fiscal du Québec
     regimeFiscalQuebec: number
@@ -70,7 +70,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 25000,
-      revenuDisponible: 22850, // À ajuster selon le calculateur officiel
+      revenu_disponible: 22850, // À ajuster selon le calculateur officiel
       regimeFiscalQuebec: 1200,
       impotRevenuQuebec: 0, // En dessous du seuil
       creditSolidarite: 1200,
@@ -100,7 +100,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 35000,
-      revenuDisponible: 30980, // À ajuster
+      revenu_disponible: 30980, // À ajuster
       regimeFiscalQuebec: 1850,
       impotRevenuQuebec: 650,
       creditSolidarite: 1200,
@@ -130,7 +130,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 50000,
-      revenuDisponible: 41250, // À ajuster
+      revenu_disponible: 41250, // À ajuster
       regimeFiscalQuebec: 4100,
       impotRevenuQuebec: 2900,
       creditSolidarite: 1200,
@@ -160,7 +160,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 75000,
-      revenuDisponible: 58200, // À ajuster
+      revenu_disponible: 58200, // À ajuster
       regimeFiscalQuebec: 9800,
       impotRevenuQuebec: 8600,
       creditSolidarite: 1200,
@@ -192,7 +192,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 95000,
-      revenuDisponible: 78500, // À ajuster
+      revenu_disponible: 78500, // À ajuster
       regimeFiscalQuebec: 7800,
       impotRevenuQuebec: 5400,
       creditSolidarite: 2400,
@@ -224,7 +224,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 45000,
-      revenuDisponible: 42500, // À ajuster avec allocations
+      revenu_disponible: 42500, // À ajuster avec allocations
       regimeFiscalQuebec: 5200,
       impotRevenuQuebec: 2100,
       creditSolidarite: 1800,
@@ -262,7 +262,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 95000,
-      revenuDisponible: 85200, // À ajuster avec allocations
+      revenu_disponible: 85200, // À ajuster avec allocations
       regimeFiscalQuebec: 9500,
       impotRevenuQuebec: 4300,
       creditSolidarite: 2400,
@@ -295,7 +295,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 25000,
-      revenuDisponible: 23800, // À ajuster
+      revenu_disponible: 23800, // À ajuster
       regimeFiscalQuebec: 1500,
       impotRevenuQuebec: 300,
       creditSolidarite: 1200,
@@ -326,7 +326,7 @@ export const validationTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 50000,
-      revenuDisponible: 47600, // À ajuster
+      revenu_disponible: 47600, // À ajuster
       regimeFiscalQuebec: 2800,
       impotRevenuQuebec: 1400,
       creditSolidarite: 2400,
@@ -361,7 +361,7 @@ export const edgeCaseTestCases: ValidationTestCase[] = [
     },
     expectedResults: {
       revenuBrut: 150000,
-      revenuDisponible: 105000, // À ajuster
+      revenu_disponible: 105000, // À ajuster
       regimeFiscalQuebec: 25000,
       impotRevenuQuebec: 24000,
       creditSolidarite: 0, // Éliminé à ce niveau de revenu

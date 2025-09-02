@@ -377,7 +377,7 @@ export class MassTestGenerator {
 
     return {
       revenuBrut: totalIncome,
-      revenuDisponible: totalIncome - totalCotisations - estimatedQuebecTax - estimatedFederalTax,
+      revenu_disponible: totalIncome - totalCotisations - estimatedQuebecTax - estimatedFederalTax,
       regimeFiscalQuebec: estimatedQuebecTax,
       impotRevenuQuebec: estimatedQuebecTax,
       creditSolidarite: totalIncome < 50000 ? 1200 : 0,

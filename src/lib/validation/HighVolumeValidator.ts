@@ -314,7 +314,7 @@ export class HighVolumeValidator {
       updatedExpectedResults.rqap = officialResult.rqap_total
     }
     if (officialResult.revenu_disponible !== undefined) {
-      updatedExpectedResults.revenuDisponible = officialResult.revenu_disponible
+      updatedExpectedResults.revenu_disponible = officialResult.revenu_disponible
     }
     
     return {

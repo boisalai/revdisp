@@ -26,7 +26,7 @@ export const RAMQValidationTests: ValidationTestCase[] = [
     expectedResults: {
       // Revenus
       revenuBrut: 50000,
-      revenuDisponible: 45262, // Estimation
+      revenu_disponible: 45262, // Estimation
       
       // Régime fiscal du Québec
       regimeFiscalQuebec: 0,
@@ -67,7 +67,7 @@ export const RAMQValidationTests: ValidationTestCase[] = [
     expectedResults: {
       // Revenus
       revenuBrut: 50000,
-      revenuDisponible: 45256, // Estimation
+      revenu_disponible: 45256, // Estimation
       
       // Régime fiscal du Québec
       regimeFiscalQuebec: 0,
@@ -113,7 +113,7 @@ export const RAMQValidationTests: ValidationTestCase[] = [
     expectedResults: {
       // Revenus
       revenuBrut: 100000,
-      revenuDisponible: 90624, // Estimation
+      revenu_disponible: 90624, // Estimation
       
       // Régime fiscal du Québec
       regimeFiscalQuebec: 0,
