@@ -142,6 +142,11 @@ npm run validate:fss     # FSS validation
 
 #### Mass Validation System (NEW)
 ```bash
+# PROGRESSIVE VALIDATION (RECOMMENDED) - 10→100→1000+ cases with trend analysis
+npm run validate:progressive                    # Standard progressive validation 2024
+npm run validate:progressive:2025               # For specific tax year
+npm run validate:progressive -- --verbose       # With detailed logging
+
 # Generate thousands of test cases
 npm run validate:generate -- -n 5000 -s monte_carlo -o generated-cases.json
 
@@ -196,6 +201,9 @@ npm run validate:continuous -- \
 ```bash
 # Configure and test the mass validation system
 ./scripts/setup-mass-validation.sh
+
+# Run progressive validation demonstration (RECOMMENDED)
+./scripts/example-progressive-validation.sh
 
 # Run example demonstration
 ./scripts/example-mass-validation.sh
@@ -557,3 +565,51 @@ npm run check  # See what failed
 - Garde en mémoire que l'impôt sur le revenu des particuliers du régime fiscal du Québec est déjà implémenté.
 - Garde en mémoire que le crédit pour la solidarité serait maintenant implémenté.
 - Garde en mémoire le fait que la prime au travail du Québec serait opérationnelle.
+
+## Naming Convention Rules
+
+### Critical Property Naming Convention
+**IMPORTANT**: This codebase uses **underscore_case** for all main calculator result properties and data structures.
+
+**✅ CORRECT Examples:**
+```typescript
+// Main calculator results
+const result = calculationResult.revenu_disponible
+const taxes = calculationResult.impot_quebec
+const contributions = calculationResult.cotisations.assurance_emploi
+
+// Configuration keys
+const config = getConfigValue('senior_support')
+const maxCredit = config.max_credit.single
+
+// Database/API property names
+{ 
+  revenu_disponible: Decimal,
+  impot_total: Decimal,
+  transferts_totaux: Decimal 
+}
+```
+
+**❌ INCORRECT Examples:**
+```typescript
+// DO NOT use camelCase for main results
+const result = calculationResult.revenuDisponible  // ❌ Wrong
+const taxes = calculationResult.impotQuebec        // ❌ Wrong
+
+// DO NOT mix naming conventions
+const mixedResult = { 
+  revenu_disponible: Decimal,  // ✅ Correct
+  impotTotal: Decimal          // ❌ Wrong - inconsistent
+}
+```
+
+**Key Areas Using underscore_case:**
+1. **Main calculator output properties** (revenu_disponible, impot_total, etc.)
+2. **Configuration data keys** in 2023.ts, 2024.ts, 2025.ts files
+3. **Database field names** and external API responses
+4. **Validation system property access**
+5. **Results display and reporting**
+
+**Exception**: TypeScript interface properties in models (e.g., PersonData, HouseholdData) may use camelCase for internal consistency, but all external-facing and calculation result properties must use underscore_case.
+
+**Validation Rule**: When accessing calculation results, always use underscore_case property names. Any property access errors typically indicate a naming convention mismatch.
