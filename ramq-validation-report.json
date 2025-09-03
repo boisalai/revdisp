@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-09-02T12:26:45.520Z",
+  "timestamp": "2025-09-03T00:45:27.135Z",
   "summary": {
     "total": 3,
-    "passed": 3,
+    "passed": 2,
     "warnings": 0,
-    "failed": 0
+    "failed": 1
   },
   "results": [
     {
@@ -31,11 +31,11 @@
       "testId": "ramq_2024_couple_100k",
       "taxYear": 2024,
       "expected": 1475,
-      "actual": 1475,
-      "difference": 0,
-      "percentageDifference": 0,
-      "status": "PASS",
-      "threshold": 2
+      "actual": 737.5,
+      "difference": 737.5,
+      "percentageDifference": 50,
+      "status": "FAIL",
+      "threshold": 20
     }
   ]
 }

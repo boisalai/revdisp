@@ -144,9 +144,60 @@ export class OfficialCalculatorScraper {
   private async waitForFormReady(page: Page): Promise<void> {
     console.log('⏳ Attente du chargement du formulaire...')
     
+    // Gérer la popup de cookies si elle apparaît
+    try {
+      // Attendre un court délai pour que la popup apparaisse
+      await this.delay(2000)
+      
+      // Essayer de trouver et cliquer sur le bouton avec XPath (méthode la plus fiable)
+      try {
+        const acceptButtons = await (page as any).$x("//button[contains(text(), 'Accepter les témoins')]")
+        if (acceptButtons.length > 0) {
+          console.log('🍪 Bouton "Accepter les témoins" trouvé via XPath, clic...')
+          await acceptButtons[0].click()
+          await this.delay(1000)
+        } else {
+          // Essayer avec juste "Accepter"
+          const acceptAnyButtons = await (page as any).$x("//button[contains(text(), 'Accepter')]")
+          if (acceptAnyButtons.length > 0) {
+            console.log('🍪 Bouton "Accepter" trouvé via XPath, clic...')
+            await acceptAnyButtons[0].click()
+            await this.delay(1000)
+          }
+        }
+      } catch (xpathError) {
+        console.log('ℹ️  XPath pour cookies échoué, essayons les sélecteurs CSS...')
+        
+        // Essayer avec des sélecteurs CSS pour des classes communes de cookies
+        const cookieSelectors = [
+          'button[class*="cookie"]',
+          '.cookie-consent button',
+          '.cookie-banner button',
+          '[data-cookie-consent] button',
+          'button[aria-label*="cookie"]'
+        ]
+        
+        for (const selector of cookieSelectors) {
+          try {
+            const element = await page.$(selector)
+            if (element) {
+              console.log(`🍪 Bouton cookies trouvé via sélecteur: ${selector}`)
+              await element.click()
+              await this.delay(1000)
+              break
+            }
+          } catch {
+            // Continuer avec le prochain sélecteur
+          }
+        }
+      }
+    } catch (error) {
+      console.log('ℹ️  Gestion des cookies terminée')
+    }
+    
     // Attendre les éléments clés du formulaire
-    await page.waitForSelector('#annee_fiscale', { timeout: this.options.timeout })
-    await page.waitForSelector('#situation_familiale', { timeout: this.options.timeout })
+    await page.waitForSelector('#Situation', { timeout: this.options.timeout })
+    await page.waitForSelector('#Revenu1', { timeout: this.options.timeout })
     
     // Attendre que JavaScript ait fini de s'initialiser
     await this.delay(2000)
@@ -157,66 +208,96 @@ export class OfficialCalculatorScraper {
    */
   private async fillForm(page: Page, household: Household, taxYear: number): Promise<void> {
     console.log('📝 Remplissage du formulaire...')
-    
-    // 1. Année fiscale
-    await page.select('#annee_fiscale', taxYear.toString())
-    await this.delay(this.options.delayBetweenActions)
-    
-    // 2. Situation familiale
-    const situationFamiliale = this.mapHouseholdTypeToOfficial(household.householdType)
-    await page.select('#situation_familiale', situationFamiliale)
-    await this.delay(this.options.delayBetweenActions)
-    
-    // 3. Âge personne principale
-    await page.type('#age_principal', household.primaryPerson.age.toString(), { delay: 100 })
-    
-    // 4. Revenus personne principale
-    if (household.primaryPerson.isRetired) {
-      await page.type('#revenu_retraite_principal', 
-        household.primaryPerson.grossRetirementIncome.toString(), { delay: 100 })
-    } else {
-      await page.type('#revenu_travail_principal', 
-        household.primaryPerson.grossWorkIncome.toString(), { delay: 100 })
-    }
-    
-    // 5. Conjoint (si applicable)
+    console.log('🔍 DEBUG - Données du ménage reçues:')
+    console.log(`  - Type: ${household.householdType}`)
+    console.log(`  - Personne principale: âge ${household.primaryPerson.age}, revenus travail ${household.primaryPerson.grossWorkIncome}, revenus retraite ${household.primaryPerson.grossRetirementIncome}`)
     if (household.spouse) {
-      await page.type('#age_conjoint', household.spouse.age.toString(), { delay: 100 })
+      console.log(`  - Conjoint: âge ${household.spouse.age}, revenus travail ${household.spouse.grossWorkIncome}, revenus retraite ${household.spouse.grossRetirementIncome}`)
+    }
+    console.log(`  - Enfants: ${household.numChildren}`)
+    
+    // 1. Situation familiale
+    const situationFamiliale = this.mapHouseholdTypeToOfficial(household.householdType)
+    await page.select('#Situation', situationFamiliale)
+    await this.delay(this.options.delayBetweenActions)
+    
+    // 2. Remplir le revenu personne principale (VRAIE INTERACTION UTILISATEUR)
+    const revenus = household.primaryPerson.isRetired 
+      ? household.primaryPerson.grossRetirementIncome
+      : household.primaryPerson.grossWorkIncome
+    
+    await page.click('#Revenu1')  // Clic pour focus
+    await page.keyboard.down('Control')
+    await page.keyboard.press('KeyA')  // Sélectionner tout
+    await page.keyboard.up('Control')
+    await page.type('#Revenu1', revenus.toString())  // Saisir nouvelle valeur
+    await page.keyboard.press('Tab')  // Perdre le focus -> déclenche onchange
+    await this.delay(500)  // Laisser le temps au recalcul
+    
+    // 3. Âge personne principale (VRAIE INTERACTION UTILISATEUR)
+    await page.click('#AgeAdulte1')  // Clic pour focus
+    await page.keyboard.down('Control')
+    await page.keyboard.press('KeyA')  // Sélectionner tout
+    await page.keyboard.up('Control')
+    await page.type('#AgeAdulte1', household.primaryPerson.age.toString())  // Saisir nouvelle valeur
+    await page.keyboard.press('Tab')  // Perdre le focus -> déclenche onchange
+    await this.delay(500)  // Laisser le temps au recalcul
+    
+    // 4. Conjoint (si applicable)
+    if (household.spouse) {
+      // Revenu conjoint (VRAIE INTERACTION UTILISATEUR)
+      const revenusConjoint = household.spouse.isRetired 
+        ? household.spouse.grossRetirementIncome
+        : household.spouse.grossWorkIncome
+        
+      await page.click('#Revenu2')  // Clic pour focus
+      await page.keyboard.down('Control')
+      await page.keyboard.press('KeyA')  // Sélectionner tout
+      await page.keyboard.up('Control')
+      await page.type('#Revenu2', revenusConjoint.toString())  // Saisir nouvelle valeur
+      await page.keyboard.press('Tab')  // Perdre le focus -> déclenche onchange
+      await this.delay(500)  // Laisser le temps au recalcul
       
-      if (household.spouse.isRetired) {
-        await page.type('#revenu_retraite_conjoint', 
-          household.spouse.grossRetirementIncome.toString(), { delay: 100 })
-      } else {
-        await page.type('#revenu_travail_conjoint', 
-          household.spouse.grossWorkIncome.toString(), { delay: 100 })
-      }
+      // Âge conjoint (VRAIE INTERACTION UTILISATEUR)
+      await page.click('#AgeAdulte2')  // Clic pour focus
+      await page.keyboard.down('Control')
+      await page.keyboard.press('KeyA')  // Sélectionner tout
+      await page.keyboard.up('Control')
+      await page.type('#AgeAdulte2', household.spouse.age.toString())  // Saisir nouvelle valeur
+      await page.keyboard.press('Tab')  // Perdre le focus -> déclenche onchange
+      await this.delay(500)  // Laisser le temps au recalcul
     }
     
-    // 6. Nombre d'enfants
+    // 5. Nombre d'enfants (select déclenche automatiquement onchange)
     if (household.numChildren > 0) {
-      await page.select('#nb_enfants', household.numChildren.toString())
-      await this.delay(this.options.delayBetweenActions)
+      await page.select('#NbEnfants', household.numChildren.toString())
+      await this.delay(500)  // Laisser le temps au recalcul après select
       
       // TODO: Ajouter la gestion des détails d'enfants si nécessaire
     }
+    
+    // Laisser un délai final pour que tous les calculs se stabilisent
+    await this.delay(1000)
     
     console.log('✅ Formulaire rempli avec succès')
   }
   
   /**
-   * Soumet le formulaire et attend les résultats
+   * Attend que les calculs automatiques se terminent
    */
   private async submitForm(page: Page): Promise<void> {
-    console.log('🚀 Soumission du formulaire...')
+    console.log('🚀 Attente des calculs automatiques...')
     
-    // Cliquer sur le bouton calculer
-    await page.click('#btn_calculer')
+    // Le calcul semble se faire automatiquement, attendre que les résultats se stabilisent
+    await this.delay(3000) 
     
-    // Attendre que les résultats apparaissent
-    await page.waitForSelector('#resultats', { timeout: this.options.timeout })
-    await this.delay(2000) // Attendre la fin des animations
+    // Vérifier que le revenu disponible est présent et non vide
+    await page.waitForFunction(() => {
+      const rdNew = document.querySelector('#RD_new') as HTMLInputElement
+      return rdNew && rdNew.value && rdNew.value.trim() !== '' && rdNew.value !== '0'
+    }, { timeout: this.options.timeout })
     
-    console.log('✅ Calcul terminé')
+    console.log('✅ Calculs terminés')
   }
   
   /**
@@ -236,31 +317,62 @@ export class OfficialCalculatorScraper {
     }
     
     try {
-      // Extraire l'assurance-emploi (notre focus principal)
-      results.assurance_emploi_principal = await this.extractNumericValue(page, '#ae_principal')
+      // Extraire le revenu disponible final (année nouvelle - 2025)
+      results.revenu_disponible = await this.extractNumericValue(page, '#RD_new')
       
-      if (household.spouse) {
-        results.assurance_emploi_conjoint = await this.extractNumericValue(page, '#ae_conjoint')
-      }
+      // Extraire les cotisations
+      results.assurance_emploi_total = await this.extractNumericValue(page, '#CA_ae_new')
+      results.rrq_total = await this.extractNumericValue(page, '#CA_rrq_new')
+      results.rqap_total = await this.extractNumericValue(page, '#QC_rqap_new')
       
-      results.assurance_emploi_total = await this.extractNumericValue(page, '#ae_total')
+      // Extraire les programmes québécois (sélecteurs corrigés)
+      const qc_impot = await this.extractNumericValue(page, '#QC_total_new')  // Régime fiscal QC
+      const qc_solidarite = await this.extractNumericValue(page, '#QC_sol_new')
+      const qc_allocation_logement = await this.extractNumericValue(page, '#QC_al_new')
+      const qc_prime_travail = await this.extractNumericValue(page, '#QC_pt_new')
+      const qc_aines = await this.extractNumericValue(page, '#QC_aines_new')
+      const qc_garde = await this.extractNumericValue(page, '#QC_garde_new')
       
-      // Extraire d'autres cotisations pour validation future
-      results.rrq_principal = await this.extractNumericValue(page, '#rrq_principal')
-      results.rrq_conjoint = await this.extractNumericValue(page, '#rrq_conjoint')
-      results.rrq_total = await this.extractNumericValue(page, '#rrq_total')
+      // Extraire les programmes fédéraux (sélecteurs corrigés)
+      const ca_impot = await this.extractNumericValue(page, '#CA_total_new')  // Régime fiscal fédéral
+      const ca_ace = await this.extractNumericValue(page, '#CA_ace_new')
+      const ca_tps = await this.extractNumericValue(page, '#CA_tps_new')
+      const ca_psv = await this.extractNumericValue(page, '#CA_psv_new')
+      const ca_pfrt = await this.extractNumericValue(page, '#CA_pfrt_new')  // Prime fédérale travail ⭐
       
-      results.rqap_principal = await this.extractNumericValue(page, '#rqap_principal')
-      results.rqap_conjoint = await this.extractNumericValue(page, '#rqap_conjoint')
-      results.rqap_total = await this.extractNumericValue(page, '#rqap_total')
-      
-      // Revenu disponible final
-      results.revenu_disponible = await this.extractNumericValue(page, '#revenu_disponible')
+      // Autres
+      const ramq = await this.extractNumericValue(page, '#QC_ramq_new')
+      const fss = await this.extractNumericValue(page, '#QC_fss_new')
       
       console.log('✅ Résultats extraits:', {
+        revenu_disponible: results.revenu_disponible,
         ae_total: results.assurance_emploi_total,
         rrq_total: results.rrq_total,
-        revenu_disponible: results.revenu_disponible
+        rqap_total: results.rqap_total,
+        qc_impot,
+        ca_impot,
+        qc_solidarite,
+        ca_tps,
+        ca_pfrt,  // ⭐ Programme ajouté
+        qc_prime_travail,
+        ramq
+      })
+      
+      // Stocker tous les résultats pour validation future
+      Object.assign(results, {
+        qc_impot,
+        ca_impot,
+        qc_solidarite,
+        ca_tps,
+        ca_pfrt,  // ⭐ Programme fédéral manquant ajouté
+        ramq,
+        fss,
+        qc_allocation_logement,
+        qc_prime_travail,
+        qc_aines,
+        qc_garde,
+        ca_ace,
+        ca_psv
       })
       
     } catch (error) {
@@ -279,8 +391,23 @@ export class OfficialCalculatorScraper {
       const element = await page.$(selector)
       if (!element) return undefined
       
-      const text = await page.evaluate(el => el.textContent || '', element)
-      const numericValue = parseFloat(text.replace(/[^0-9.-]/g, ''))
+      const text = await page.evaluate(el => {
+        if (el.tagName === 'INPUT') {
+          return (el as HTMLInputElement).value || ''
+        }
+        return el.textContent || ''
+      }, element)
+      
+      // Vérifier si c'est un tiret (pas de valeur)
+      if (text.includes('―') || text.includes('—') || text.trim() === '―' || text.trim() === '') {
+        return undefined
+      }
+      
+      // Nettoyer le texte: enlever espaces, garder chiffres, points, tirets et virgules
+      const cleanText = text.replace(/\s+/g, '').replace(/[^0-9.,-]/g, '')
+      
+      // Convertir en nombre
+      const numericValue = parseFloat(cleanText.replace(/,/g, '.'))
       
       return isNaN(numericValue) ? undefined : numericValue
     } catch {
@@ -293,14 +420,14 @@ export class OfficialCalculatorScraper {
    */
   private mapHouseholdTypeToOfficial(householdType: HouseholdType): string {
     const mapping: Record<HouseholdType, string> = {
-      [HouseholdType.SINGLE]: 'personne_seule',
-      [HouseholdType.SINGLE_PARENT]: 'famille_monoparentale',
-      [HouseholdType.COUPLE]: 'couple',
-      [HouseholdType.RETIRED_SINGLE]: 'retraite_seul',
-      [HouseholdType.RETIRED_COUPLE]: 'retraite_couple'
+      [HouseholdType.SINGLE]: 'Personne vivant seule',
+      [HouseholdType.SINGLE_PARENT]: 'Famille monoparentale',
+      [HouseholdType.COUPLE]: 'Couple',
+      [HouseholdType.RETIRED_SINGLE]: 'Retraité vivant seul',
+      [HouseholdType.RETIRED_COUPLE]: 'Couple de retraités'
     }
     
-    return mapping[householdType] || 'personne_seule'
+    return mapping[householdType] || 'Personne vivant seule'
   }
   
   /**
@@ -308,11 +435,12 @@ export class OfficialCalculatorScraper {
    */
   private async takeDebugScreenshot(page: Page, name: string): Promise<void> {
     try {
+      const filename = `validation-reports/debug-${name}-${Date.now()}.png` as const
       await page.screenshot({ 
-        path: `debug-${name}-${Date.now()}.png`,
+        path: filename,
         fullPage: true
       })
-      console.log(`📸 Capture d'écran sauvée: debug-${name}-${Date.now()}.png`)
+      console.log(`📸 Capture d'écran sauvée: ${filename}`)
     } catch (error) {
       console.warn('⚠️  Impossible de prendre une capture d\'écran:', error)
     }

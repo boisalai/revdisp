@@ -311,7 +311,7 @@ export class CorrectOfficialCalculatorScraper {
    */
   private async takeDebugScreenshot(page: Page, name: string): Promise<void> {
     try {
-      const filename = `debug-${name}-${Date.now()}.png` as const
+      const filename = `validation-reports/debug-${name}-${Date.now()}.png` as const
       await page.screenshot({ 
         path: filename,
         fullPage: true

@@ -1,0 +1,940 @@
+{
+  "casesCount": 100,
+  "accuracy": 0,
+  "averageError": 100,
+  "worstPrograms": [
+    {
+      "program": "assuranceEmploi",
+      "averageError": 5.2,
+      "errorRate": 15
+    },
+    {
+      "program": "rrq",
+      "averageError": 3.8,
+      "errorRate": 12
+    },
+    {
+      "program": "impotRevenuQuebec",
+      "averageError": 2.1,
+      "errorRate": 8
+    },
+    {
+      "program": "creditSolidarite",
+      "averageError": 1.9,
+      "errorRate": 6
+    },
+    {
+      "program": "primeTravail",
+      "averageError": 1.2,
+      "errorRate": 4
+    }
+  ],
+  "criticalIssues": [
+    "Précision globale insuffisante (<70%) - révision majeure requise",
+    "Taux d'échec élevé (>20%) - problèmes systémiques détectés",
+    "Écarts importants détectés sur plusieurs programmes"
+  ],
+  "processingTime": 166,
+  "results": [
+    {
+      "testId": "phase2_1",
+      "description": "Personne seule - Test 1",
+      "ourResult": 0,
+      "expectedResult": 17600,
+      "difference": 17600,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_2",
+      "description": "Personne seule - Test 2",
+      "ourResult": 0,
+      "expectedResult": 31838,
+      "difference": 31838,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_3",
+      "description": "Personne seule - Test 3",
+      "ourResult": 0,
+      "expectedResult": 46218,
+      "difference": 46218,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_4",
+      "description": "Couple - Test 4",
+      "ourResult": 0,
+      "expectedResult": 61040,
+      "difference": 61040,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_5",
+      "description": "Couple - Test 5",
+      "ourResult": 0,
+      "expectedResult": 67267,
+      "difference": 67267,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_6",
+      "description": "Famille monoparentale - Test 6",
+      "ourResult": 0,
+      "expectedResult": 31864,
+      "difference": 31864,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_7",
+      "description": "Famille monoparentale - Test 7",
+      "ourResult": 0,
+      "expectedResult": 40806,
+      "difference": 40806,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_8",
+      "description": "Retraité seul - Test 8",
+      "ourResult": 0,
+      "expectedResult": 20700,
+      "difference": 20700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_9",
+      "description": "Couple retraité - Test 9",
+      "ourResult": 0,
+      "expectedResult": 24960,
+      "difference": 24960,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_10",
+      "description": "Couple retraité - Test 10",
+      "ourResult": 0,
+      "expectedResult": 37620,
+      "difference": 37620,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_11",
+      "description": "Personne seule - Test 11",
+      "ourResult": 0,
+      "expectedResult": 18480,
+      "difference": 18480,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_12",
+      "description": "Personne seule - Test 12",
+      "ourResult": 0,
+      "expectedResult": 33422,
+      "difference": 33422,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_13",
+      "description": "Personne seule - Test 13",
+      "ourResult": 0,
+      "expectedResult": 48506,
+      "difference": 48506,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_14",
+      "description": "Couple - Test 14",
+      "ourResult": 0,
+      "expectedResult": 63308,
+      "difference": 63308,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_15",
+      "description": "Couple - Test 15",
+      "ourResult": 0,
+      "expectedResult": 69535,
+      "difference": 69535,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_16",
+      "description": "Famille monoparentale - Test 16",
+      "ourResult": 0,
+      "expectedResult": 33272,
+      "difference": 33272,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_17",
+      "description": "Famille monoparentale - Test 17",
+      "ourResult": 0,
+      "expectedResult": 42495,
+      "difference": 42495,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_18",
+      "description": "Retraité seul - Test 18",
+      "ourResult": 0,
+      "expectedResult": 21700,
+      "difference": 21700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_19",
+      "description": "Couple retraité - Test 19",
+      "ourResult": 0,
+      "expectedResult": 26160,
+      "difference": 26160,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_20",
+      "description": "Couple retraité - Test 20",
+      "ourResult": 0,
+      "expectedResult": 39420,
+      "difference": 39420,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_21",
+      "description": "Personne seule - Test 21",
+      "ourResult": 0,
+      "expectedResult": 19360,
+      "difference": 19360,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_22",
+      "description": "Personne seule - Test 22",
+      "ourResult": 0,
+      "expectedResult": 35006,
+      "difference": 35006,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_23",
+      "description": "Personne seule - Test 23",
+      "ourResult": 0,
+      "expectedResult": 50794,
+      "difference": 50794,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_24",
+      "description": "Couple - Test 24",
+      "ourResult": 0,
+      "expectedResult": 65576,
+      "difference": 65576,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_25",
+      "description": "Couple - Test 25",
+      "ourResult": 0,
+      "expectedResult": 71803,
+      "difference": 71803,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_26",
+      "description": "Famille monoparentale - Test 26",
+      "ourResult": 0,
+      "expectedResult": 34680,
+      "difference": 34680,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_27",
+      "description": "Famille monoparentale - Test 27",
+      "ourResult": 0,
+      "expectedResult": 44185,
+      "difference": 44185,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_28",
+      "description": "Retraité seul - Test 28",
+      "ourResult": 0,
+      "expectedResult": 22700,
+      "difference": 22700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_29",
+      "description": "Couple retraité - Test 29",
+      "ourResult": 0,
+      "expectedResult": 27360,
+      "difference": 27360,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_30",
+      "description": "Couple retraité - Test 30",
+      "ourResult": 0,
+      "expectedResult": 41220,
+      "difference": 41220,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_31",
+      "description": "Personne seule - Test 31",
+      "ourResult": 0,
+      "expectedResult": 20240,
+      "difference": 20240,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_32",
+      "description": "Personne seule - Test 32",
+      "ourResult": 0,
+      "expectedResult": 36590,
+      "difference": 36590,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_33",
+      "description": "Personne seule - Test 33",
+      "ourResult": 0,
+      "expectedResult": 53002,
+      "difference": 53002,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_34",
+      "description": "Couple - Test 34",
+      "ourResult": 0,
+      "expectedResult": 67844,
+      "difference": 67844,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_35",
+      "description": "Couple - Test 35",
+      "ourResult": 0,
+      "expectedResult": 74071,
+      "difference": 74071,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_36",
+      "description": "Famille monoparentale - Test 36",
+      "ourResult": 0,
+      "expectedResult": 36088,
+      "difference": 36088,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_37",
+      "description": "Famille monoparentale - Test 37",
+      "ourResult": 0,
+      "expectedResult": 45875,
+      "difference": 45875,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_38",
+      "description": "Retraité seul - Test 38",
+      "ourResult": 0,
+      "expectedResult": 23700,
+      "difference": 23700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_39",
+      "description": "Couple retraité - Test 39",
+      "ourResult": 0,
+      "expectedResult": 28560,
+      "difference": 28560,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_40",
+      "description": "Couple retraité - Test 40",
+      "ourResult": 0,
+      "expectedResult": 43020,
+      "difference": 43020,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_41",
+      "description": "Personne seule - Test 41",
+      "ourResult": 0,
+      "expectedResult": 21120,
+      "difference": 21120,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_42",
+      "description": "Personne seule - Test 42",
+      "ourResult": 0,
+      "expectedResult": 38174,
+      "difference": 38174,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_43",
+      "description": "Personne seule - Test 43",
+      "ourResult": 0,
+      "expectedResult": 54640,
+      "difference": 54640,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_44",
+      "description": "Couple - Test 44",
+      "ourResult": 0,
+      "expectedResult": 70112,
+      "difference": 70112,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_45",
+      "description": "Couple - Test 45",
+      "ourResult": 0,
+      "expectedResult": 76339,
+      "difference": 76339,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_46",
+      "description": "Famille monoparentale - Test 46",
+      "ourResult": 0,
+      "expectedResult": 37496,
+      "difference": 37496,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_47",
+      "description": "Famille monoparentale - Test 47",
+      "ourResult": 0,
+      "expectedResult": 47564,
+      "difference": 47564,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_48",
+      "description": "Retraité seul - Test 48",
+      "ourResult": 0,
+      "expectedResult": 24700,
+      "difference": 24700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_49",
+      "description": "Couple retraité - Test 49",
+      "ourResult": 0,
+      "expectedResult": 29760,
+      "difference": 29760,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_50",
+      "description": "Couple retraité - Test 50",
+      "ourResult": 0,
+      "expectedResult": 44820,
+      "difference": 44820,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_51",
+      "description": "Personne seule - Test 51",
+      "ourResult": 0,
+      "expectedResult": 22000,
+      "difference": 22000,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_52",
+      "description": "Personne seule - Test 52",
+      "ourResult": 0,
+      "expectedResult": 39758,
+      "difference": 39758,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_53",
+      "description": "Personne seule - Test 53",
+      "ourResult": 0,
+      "expectedResult": 56278,
+      "difference": 56278,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_54",
+      "description": "Couple - Test 54",
+      "ourResult": 0,
+      "expectedResult": 72380,
+      "difference": 72380,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_55",
+      "description": "Couple - Test 55",
+      "ourResult": 0,
+      "expectedResult": 78607,
+      "difference": 78607,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_56",
+      "description": "Famille monoparentale - Test 56",
+      "ourResult": 0,
+      "expectedResult": 38904,
+      "difference": 38904,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_57",
+      "description": "Famille monoparentale - Test 57",
+      "ourResult": 0,
+      "expectedResult": 49254,
+      "difference": 49254,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_58",
+      "description": "Retraité seul - Test 58",
+      "ourResult": 0,
+      "expectedResult": 25700,
+      "difference": 25700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_59",
+      "description": "Couple retraité - Test 59",
+      "ourResult": 0,
+      "expectedResult": 30960,
+      "difference": 30960,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_60",
+      "description": "Couple retraité - Test 60",
+      "ourResult": 0,
+      "expectedResult": 46620,
+      "difference": 46620,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_61",
+      "description": "Personne seule - Test 61",
+      "ourResult": 0,
+      "expectedResult": 22880,
+      "difference": 22880,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_62",
+      "description": "Personne seule - Test 62",
+      "ourResult": 0,
+      "expectedResult": 41342,
+      "difference": 41342,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_63",
+      "description": "Personne seule - Test 63",
+      "ourResult": 0,
+      "expectedResult": 57916,
+      "difference": 57916,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_64",
+      "description": "Couple - Test 64",
+      "ourResult": 0,
+      "expectedResult": 74648,
+      "difference": 74648,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_65",
+      "description": "Couple - Test 65",
+      "ourResult": 0,
+      "expectedResult": 80875,
+      "difference": 80875,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_66",
+      "description": "Famille monoparentale - Test 66",
+      "ourResult": 0,
+      "expectedResult": 40312,
+      "difference": 40312,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_67",
+      "description": "Famille monoparentale - Test 67",
+      "ourResult": 0,
+      "expectedResult": 50943,
+      "difference": 50943,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_68",
+      "description": "Retraité seul - Test 68",
+      "ourResult": 0,
+      "expectedResult": 26700,
+      "difference": 26700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_69",
+      "description": "Couple retraité - Test 69",
+      "ourResult": 0,
+      "expectedResult": 32160,
+      "difference": 32160,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_70",
+      "description": "Couple retraité - Test 70",
+      "ourResult": 0,
+      "expectedResult": 48420,
+      "difference": 48420,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_71",
+      "description": "Personne seule - Test 71",
+      "ourResult": 0,
+      "expectedResult": 23760,
+      "difference": 23760,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_72",
+      "description": "Personne seule - Test 72",
+      "ourResult": 0,
+      "expectedResult": 42926,
+      "difference": 42926,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_73",
+      "description": "Personne seule - Test 73",
+      "ourResult": 0,
+      "expectedResult": 59554,
+      "difference": 59554,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_74",
+      "description": "Couple - Test 74",
+      "ourResult": 0,
+      "expectedResult": 76916,
+      "difference": 76916,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_75",
+      "description": "Couple - Test 75",
+      "ourResult": 0,
+      "expectedResult": 83143,
+      "difference": 83143,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_76",
+      "description": "Famille monoparentale - Test 76",
+      "ourResult": 0,
+      "expectedResult": 41720,
+      "difference": 41720,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_77",
+      "description": "Famille monoparentale - Test 77",
+      "ourResult": 0,
+      "expectedResult": 52633,
+      "difference": 52633,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_78",
+      "description": "Retraité seul - Test 78",
+      "ourResult": 0,
+      "expectedResult": 27700,
+      "difference": 27700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_79",
+      "description": "Couple retraité - Test 79",
+      "ourResult": 0,
+      "expectedResult": 33360,
+      "difference": 33360,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_80",
+      "description": "Couple retraité - Test 80",
+      "ourResult": 0,
+      "expectedResult": 50220,
+      "difference": 50220,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_81",
+      "description": "Personne seule - Test 81",
+      "ourResult": 0,
+      "expectedResult": 24640,
+      "difference": 24640,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_82",
+      "description": "Personne seule - Test 82",
+      "ourResult": 0,
+      "expectedResult": 44510,
+      "difference": 44510,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_83",
+      "description": "Personne seule - Test 83",
+      "ourResult": 0,
+      "expectedResult": 61192,
+      "difference": 61192,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_84",
+      "description": "Couple - Test 84",
+      "ourResult": 0,
+      "expectedResult": 79184,
+      "difference": 79184,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_85",
+      "description": "Couple - Test 85",
+      "ourResult": 0,
+      "expectedResult": 85411,
+      "difference": 85411,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_86",
+      "description": "Famille monoparentale - Test 86",
+      "ourResult": 0,
+      "expectedResult": 43128,
+      "difference": 43128,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_87",
+      "description": "Famille monoparentale - Test 87",
+      "ourResult": 0,
+      "expectedResult": 54323,
+      "difference": 54323,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_88",
+      "description": "Retraité seul - Test 88",
+      "ourResult": 0,
+      "expectedResult": 28700,
+      "difference": 28700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_89",
+      "description": "Couple retraité - Test 89",
+      "ourResult": 0,
+      "expectedResult": 34560,
+      "difference": 34560,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_90",
+      "description": "Couple retraité - Test 90",
+      "ourResult": 0,
+      "expectedResult": 52020,
+      "difference": 52020,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_91",
+      "description": "Personne seule - Test 91",
+      "ourResult": 0,
+      "expectedResult": 25520,
+      "difference": 25520,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_92",
+      "description": "Personne seule - Test 92",
+      "ourResult": 0,
+      "expectedResult": 46094,
+      "difference": 46094,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_93",
+      "description": "Personne seule - Test 93",
+      "ourResult": 0,
+      "expectedResult": 62830,
+      "difference": 62830,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_94",
+      "description": "Couple - Test 94",
+      "ourResult": 0,
+      "expectedResult": 81452,
+      "difference": 81452,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_95",
+      "description": "Couple - Test 95",
+      "ourResult": 0,
+      "expectedResult": 87679,
+      "difference": 87679,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_96",
+      "description": "Famille monoparentale - Test 96",
+      "ourResult": 0,
+      "expectedResult": 44536,
+      "difference": 44536,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_97",
+      "description": "Famille monoparentale - Test 97",
+      "ourResult": 0,
+      "expectedResult": 56012,
+      "difference": 56012,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_98",
+      "description": "Retraité seul - Test 98",
+      "ourResult": 0,
+      "expectedResult": 29700,
+      "difference": 29700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_99",
+      "description": "Couple retraité - Test 99",
+      "ourResult": 0,
+      "expectedResult": 35760,
+      "difference": 35760,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase2_100",
+      "description": "Couple retraité - Test 100",
+      "ourResult": 0,
+      "expectedResult": 53820,
+      "difference": 53820,
+      "percentageDifference": 100,
+      "status": "fail"
+    }
+  ]
+}

@@ -1,0 +1,627 @@
+{
+  "batchIndex": 1,
+  "totalResults": 10,
+  "timestamp": "2025-09-02T00:30:03.264Z",
+  "results": [
+    {
+      "testCase": {
+        "id": "grid_1",
+        "description": "Personne seule - 15000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 25,
+            "grossWorkIncome": 15000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 15000,
+          "revenuDisponible": 13690.2,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 324,
+          "rqap": 94.8,
+          "rrq": 891,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "low",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_2",
+        "description": "Personne seule - 15000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 35,
+            "grossWorkIncome": 15000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 15000,
+          "revenuDisponible": 13690.2,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 324,
+          "rqap": 94.8,
+          "rrq": 891,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "low",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_3",
+        "description": "Personne seule - 15000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 45,
+            "grossWorkIncome": 15000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 15000,
+          "revenuDisponible": 13690.2,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 324,
+          "rqap": 94.8,
+          "rrq": 891,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "low",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_4",
+        "description": "Personne seule - 15000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 55,
+            "grossWorkIncome": 15000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 15000,
+          "revenuDisponible": 13690.2,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 324,
+          "rqap": 94.8,
+          "rrq": 891,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "low",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 15000,
+        "revenuDisponible": 13690.2,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 324,
+        "rqap": 94.8,
+        "rrq": 891,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_5",
+        "description": "Personne seule - 25000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 25,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 25000,
+          "revenuDisponible": 22817,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 540,
+          "rqap": 158,
+          "rrq": 1485,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 25000,
+        "revenuDisponible": 22817,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 540,
+        "rqap": 158,
+        "rrq": 1485,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_6",
+        "description": "Personne seule - 25000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 35,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 25000,
+          "revenuDisponible": 22817,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 540,
+          "rqap": 158,
+          "rrq": 1485,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 25000,
+        "revenuDisponible": 22817,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 540,
+        "rqap": 158,
+        "rrq": 1485,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_7",
+        "description": "Personne seule - 25000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 45,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 25000,
+          "revenuDisponible": 22817,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 540,
+          "rqap": 158,
+          "rrq": 1485,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 25000,
+        "revenuDisponible": 22817,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 540,
+        "rqap": 158,
+        "rrq": 1485,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_8",
+        "description": "Personne seule - 25000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 55,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 25000,
+          "revenuDisponible": 22817,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 540,
+          "rqap": 158,
+          "rrq": 1485,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 25000,
+        "revenuDisponible": 22817,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 540,
+        "rqap": 158,
+        "rrq": 1485,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_9",
+        "description": "Personne seule - 35000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 25,
+            "grossWorkIncome": 35000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 35000,
+          "revenuDisponible": 31943.8,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 3056.2,
+          "assuranceEmploi": 756,
+          "rqap": 221.20000000000002,
+          "rrq": 2079,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 35000,
+        "revenuDisponible": 31943.8,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 3056.2,
+        "assuranceEmploi": 756,
+        "rqap": 221.20000000000002,
+        "rrq": 2079,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    },
+    {
+      "testCase": {
+        "id": "grid_10",
+        "description": "Personne seule - 35000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 35,
+            "grossWorkIncome": 35000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 35000,
+          "revenuDisponible": 31943.8,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 3056.2,
+          "assuranceEmploi": 756,
+          "rqap": 221.20000000000002,
+          "rrq": 2079,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": null,
+      "expectedResults": {
+        "revenuBrut": 35000,
+        "revenuDisponible": 31943.8,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 3056.2,
+        "assuranceEmploi": 756,
+        "rqap": 221.20000000000002,
+        "rrq": 2079,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [],
+      "totalAbsoluteDifference": 0,
+      "totalPercentageDifference": 0,
+      "status": "error",
+      "errorMessage": "Waiting for selector `#annee_fiscale` failed: Waiting failed: 30000ms exceeded"
+    }
+  ]
+}

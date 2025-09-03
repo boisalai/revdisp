@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-09-02T11:19:08.853Z",
+  "summary": {
+    "total": 10,
+    "success": 4,
+    "warnings": 6,
+    "errors": 0,
+    "accuracy": 40
+  },
+  "results": [
+    {
+      "id": "single_25k",
+      "description": "Personne seule, 25 ans, 25 000$ travail",
+      "status": "warning",
+      "ourResult": 25862.44,
+      "expected": "20,000$ - 24,000$",
+      "message": "⚠️  Hors de la fourchette attendue 20,000$ - 24,000$"
+    },
+    {
+      "id": "single_45k",
+      "description": "Personne seule, 35 ans, 45 000$ travail",
+      "status": "success",
+      "ourResult": 35601.35,
+      "expected": "35,000$ - 42,000$",
+      "message": "✅ Résultat plausible"
+    },
+    {
+      "id": "couple_basic",
+      "description": "Couple, 30/28 ans, 40k$ + 30k$ travail",
+      "status": "success",
+      "ourResult": 58472.42,
+      "expected": "55,000$ - 65,000$",
+      "message": "✅ Résultat plausible"
+    },
+    {
+      "id": "single_parent",
+      "description": "Monoparental, 32 ans, 35k$ travail, 1 enfant",
+      "status": "success",
+      "ourResult": 46881.45,
+      "expected": "40,000$ - 50,000$",
+      "message": "✅ Résultat plausible"
+    },
+    {
+      "id": "couple_with_kids",
+      "description": "Couple avec enfants, 35k$ + 25k$, 2 enfants",
+      "status": "warning",
+      "ourResult": 76092.7,
+      "expected": "65,000$ - 75,000$",
+      "message": "⚠️  Hors de la fourchette attendue 65,000$ - 75,000$"
+    },
+    {
+      "id": "retiree_basic",
+      "description": "Retraité seul, 67 ans, 20k$ retraite",
+      "status": "warning",
+      "ourResult": 42643.61,
+      "expected": "18,000$ - 22,000$",
+      "message": "⚠️  Hors de la fourchette attendue 18,000$ - 22,000$"
+    },
+    {
+      "id": "high_income_single",
+      "description": "Personne seule, revenu élevé, 80k$ travail",
+      "status": "warning",
+      "ourResult": 55086.51,
+      "expected": "58,000$ - 68,000$",
+      "message": "⚠️  Hors de la fourchette attendue 58,000$ - 68,000$"
+    },
+    {
+      "id": "low_income_single",
+      "description": "Personne seule, faible revenu, 18k$ travail",
+      "status": "warning",
+      "ourResult": 21031.41,
+      "expected": "16,000$ - 20,000$",
+      "message": "⚠️  Hors de la fourchette attendue 16,000$ - 20,000$"
+    },
+    {
+      "id": "retired_couple",
+      "description": "Couple retraité, 68/65 ans, 25k$ + 15k$ retraite",
+      "status": "warning",
+      "ourResult": 73315.98,
+      "expected": "35,000$ - 42,000$",
+      "message": "⚠️  Hors de la fourchette attendue 35,000$ - 42,000$"
+    },
+    {
+      "id": "middle_income_couple",
+      "description": "Couple revenus moyens, 55k$ + 45k$ travail",
+      "status": "success",
+      "ourResult": 77855.716,
+      "expected": "75,000$ - 85,000$",
+      "message": "✅ Résultat plausible"
+    }
+  ]
+}

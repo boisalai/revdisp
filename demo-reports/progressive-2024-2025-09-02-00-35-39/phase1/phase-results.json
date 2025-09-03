@@ -1,0 +1,130 @@
+{
+  "casesCount": 10,
+  "accuracy": 0,
+  "averageError": 100,
+  "worstPrograms": [
+    {
+      "program": "assuranceEmploi",
+      "averageError": 5.2,
+      "errorRate": 15
+    },
+    {
+      "program": "rrq",
+      "averageError": 3.8,
+      "errorRate": 12
+    },
+    {
+      "program": "impotRevenuQuebec",
+      "averageError": 2.1,
+      "errorRate": 8
+    },
+    {
+      "program": "creditSolidarite",
+      "averageError": 1.9,
+      "errorRate": 6
+    },
+    {
+      "program": "primeTravail",
+      "averageError": 1.2,
+      "errorRate": 4
+    }
+  ],
+  "criticalIssues": [
+    "Précision globale insuffisante (<70%) - révision majeure requise",
+    "Taux d'échec élevé (>20%) - problèmes systémiques détectés",
+    "Écarts importants détectés sur plusieurs programmes"
+  ],
+  "processingTime": 25,
+  "results": [
+    {
+      "testId": "phase1_1",
+      "description": "Personne seule - Test 1",
+      "ourResult": 0,
+      "expectedResult": 22000,
+      "difference": 22000,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_2",
+      "description": "Personne seule - Test 2",
+      "ourResult": 0,
+      "expectedResult": 39600,
+      "difference": 39600,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_3",
+      "description": "Personne seule - Test 3",
+      "ourResult": 0,
+      "expectedResult": 55950,
+      "difference": 55950,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_4",
+      "description": "Couple - Test 4",
+      "ourResult": 0,
+      "expectedResult": 71700,
+      "difference": 71700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_5",
+      "description": "Couple - Test 5",
+      "ourResult": 0,
+      "expectedResult": 77700,
+      "difference": 77700,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_6",
+      "description": "Famille monoparentale - Test 6",
+      "ourResult": 0,
+      "expectedResult": 38200,
+      "difference": 38200,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_7",
+      "description": "Famille monoparentale - Test 7",
+      "ourResult": 0,
+      "expectedResult": 48240,
+      "difference": 48240,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_8",
+      "description": "Retraité seul - Test 8",
+      "ourResult": 0,
+      "expectedResult": 25000,
+      "difference": 25000,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_9",
+      "description": "Couple retraité - Test 9",
+      "ourResult": 0,
+      "expectedResult": 30000,
+      "difference": 30000,
+      "percentageDifference": 100,
+      "status": "fail"
+    },
+    {
+      "testId": "phase1_10",
+      "description": "Couple retraité - Test 10",
+      "ourResult": 0,
+      "expectedResult": 45000,
+      "difference": 45000,
+      "percentageDifference": 100,
+      "status": "fail"
+    }
+  ]
+}

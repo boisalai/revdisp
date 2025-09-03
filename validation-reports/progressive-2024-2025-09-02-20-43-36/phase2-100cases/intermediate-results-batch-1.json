@@ -1,962 +1,83 @@
 {
-  "summary": {
-    "totalTests": 10,
-    "passed": 0,
-    "failed": 10,
-    "errors": 0,
-    "averageAccuracy": 54.392741184255364
-  },
-  "worstCases": [
+  "batchIndex": 1,
+  "totalResults": 10,
+  "timestamp": "2025-09-02T20:44:29.584Z",
+  "results": [
     {
       "testCase": {
-        "id": "single_75k",
-        "description": "Personne seule, 40 ans, 75 000$ travail",
+        "id": "grid_1",
+        "description": "Personne seule - 15000$",
         "input": {
           "taxYear": 2024,
           "householdType": "single",
           "primaryPerson": {
-            "age": 40,
-            "grossWorkIncome": 75000,
+            "age": 25,
+            "grossWorkIncome": 15000,
             "grossRetirementIncome": 0
           },
           "numChildren": 0
         },
         "expectedResults": {
-          "revenuBrut": 75000,
-          "revenu_disponible": 58200,
-          "regimeFiscalQuebec": 9800,
-          "impotRevenuQuebec": 8600,
+          "revenuBrut": 15000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
           "creditSolidarite": 1200,
           "primeTravail": 0,
-          "regimeFiscalFederal": 7000,
-          "impotRevenuFederal": 6150,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
           "creditTPS": 850,
-          "totalCotisations": 7000,
-          "assuranceEmploi": 858,
-          "rqap": 474,
-          "rrq": 4455,
-          "fss": 1213,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
           "ramq": 0
         },
-        "priority": "high",
+        "priority": "low",
         "category": "single"
       },
       "ourResults": {
         "cotisations": {
-          "rrq": "3936",
-          "assurance_emploi": "834.24",
-          "rqap": "370.5",
-          "fss": "776.77",
-          "ramq": "737.5",
-          "total": "6655.01"
+          "rrq": "736",
+          "assurance_emploi": "198",
+          "rqap": "74.1",
+          "fss": "0",
+          "ramq": "0",
+          "total": "1008.1"
         },
         "taxes": {
-          "quebec": "8017.07",
-          "canada": "8892.71",
-          "total": "16909.78"
+          "quebec": "0",
+          "canada": "0",
+          "total": "0"
         },
         "quebec": {
           "net_income": {
-            "individual": "61842.19",
-            "family": "61842.19"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "solidarity": {
             "tvq_component": "510",
             "housing_component": "711",
             "northern_village_component": "0",
             "gross_total": "1221",
-            "family_net_income": "60966.55",
-            "reduction_amount": "1188.993",
-            "net_credit": "32.007",
-            "components_count": 2,
-            "is_eligible": true
-          },
-          "work_premium": {
-            "work_income": "75000",
-            "family_net_income": "60966.55",
-            "eligible_work_income": "72600",
-            "growth_rate": "0.116",
-            "basic_premium": "1152",
-            "reduction_threshold": "22795",
-            "reduction_amount": "1152",
-            "net_premium": "0",
-            "is_eligible": true,
-            "calculation_phase": "zero",
-            "household_type_category": "single"
-          },
-          "family_allowance": {
-            "basic_allowance": "0",
-            "single_parent_supplement": "0",
-            "school_supplies_supplement": "0",
-            "disabled_child_supplement": "0",
-            "gross_total": "0",
-            "reduction_amount": "0",
-            "net_allowance": "0",
-            "family_net_income": "0",
-            "eligible_children": 0,
-            "reduction_threshold": "0"
-          },
-          "school_supplies_supplement": {
-            "total_amount": "0",
-            "amount_per_child": "0",
-            "eligible_children": 0,
-            "min_age": "4",
-            "max_age": "16",
-            "max_age_with_disability": "17"
-          },
-          "social_assistance": {
-            "base_benefit": "9144",
-            "constraint_allocation": "0",
-            "single_adjustment": "0",
-            "total_work_income": "75000",
-            "work_income_exemption": "2400",
-            "work_income_supplement": "0",
-            "income_reduction": "72600",
-            "gross_benefit": "9684",
-            "net_benefit": "0",
-            "eligible": "1",
-            "program": "aide_sociale",
-            "calculation_details": {
-              "base_benefit_category": "Personne seule",
-              "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 6250.00$, Exemption: 200.00$, Réduction: 6050.00$",
-              "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
-              "monthly_net_benefit": 0
-            }
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "75000",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          },
-          "housing_allowance": {
-            "eligible": "0",
-            "housing_effort_rate": "0",
-            "monthly_allowance": "0",
-            "annual_allowance": "0",
-            "ineligibility_reason": "age_too_young_single",
-            "calculation_details": {
-              "income_threshold": 0,
-              "housing_cost_minimum": 0,
-              "effort_rate_tier": "below_30%",
-              "progressive_reduction": 0
-            }
-          }
-        },
-        "canada": {
-          "net_income": {
-            "individual": "60966.55",
-            "family": "60966.55"
-          },
-          "child_benefit": {
-            "base_benefit": "0",
-            "disability_benefit": "0",
-            "reduction_amount": "0",
-            "net_benefit": "0",
-            "eligible_children_under_6": 0,
-            "eligible_children_6_to_17": 0,
-            "eligible_children_disabled": 0,
-            "family_net_income": "60966.55",
-            "reduction_phase": "none",
-            "effective_reduction_rate": "0"
-          },
-          "gst_credit": {
-            "amount": "0",
-            "base_credit": "340",
-            "single_supplement": "179",
-            "children_credit": "0",
-            "family_income": "75000",
-            "income_above_threshold": "30676",
-            "reduction_amount": "1534",
-            "annual_amount": "0",
-            "quarterly_payment": "0",
-            "has_spouse": "0",
-            "is_single_parent": "0",
-            "children_count": "0"
-          },
-          "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
-            "disability_supplement": "0",
-            "work_income": "75000",
-            "total_income": "75000",
-            "is_family": "0",
-            "minimum_work_income_met": "1",
-            "phase_in_amount": "1590",
-            "phase_out_reduction": "7328"
-          },
-          "old_age_security": {
-            "primary": {
-              "amount": "0",
-              "eligible": "0",
-              "age_requirement_met": "0",
-              "gis_amount": "0",
-              "gis_eligible": "0",
-              "combined_amount": "0"
-            },
-            "spouse": null,
-            "total_amount": "0"
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "75000",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          }
-        },
-        "revenu_disponible": "51467.217"
-      },
-      "expectedResults": {
-        "revenuBrut": 75000,
-        "revenu_disponible": 58200,
-        "regimeFiscalQuebec": 9800,
-        "impotRevenuQuebec": 8600,
-        "creditSolidarite": 1200,
-        "primeTravail": 0,
-        "regimeFiscalFederal": 7000,
-        "impotRevenuFederal": 6150,
-        "creditTPS": 850,
-        "totalCotisations": 7000,
-        "assuranceEmploi": 858,
-        "rqap": 474,
-        "rrq": 4455,
-        "fss": 1213,
-        "ramq": 0
-      },
-      "differences": [
-        {
-          "field": "assuranceEmploi",
-          "expected": 858,
-          "actual": 834.24,
-          "absoluteDifference": 23.75999999999999,
-          "percentageDifference": 2.7692307692307683,
-          "severity": "minor"
-        },
-        {
-          "field": "rqap",
-          "expected": 474,
-          "actual": 370.5,
-          "absoluteDifference": 103.5,
-          "percentageDifference": 21.835443037974684,
-          "severity": "critical"
-        },
-        {
-          "field": "rrq",
-          "expected": 4455,
-          "actual": 3936,
-          "absoluteDifference": 519,
-          "percentageDifference": 11.64983164983165,
-          "severity": "critical"
-        },
-        {
-          "field": "fss",
-          "expected": 1213,
-          "actual": 776.77,
-          "absoluteDifference": 436.23,
-          "percentageDifference": 35.96290189612531,
-          "severity": "critical"
-        },
-        {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 737.5,
-          "absoluteDifference": 737.5,
-          "percentageDifference": 100,
-          "severity": "critical"
-        },
-        {
-          "field": "totalCotisations",
-          "expected": 7000,
-          "actual": 6655.01,
-          "absoluteDifference": 344.9899999999998,
-          "percentageDifference": 4.928428571428569,
-          "severity": "major"
-        }
-      ],
-      "totalAbsoluteDifference": 2164.9799999999996,
-      "totalPercentageDifference": 29.52430598743183,
-      "status": "fail"
-    },
-    {
-      "testCase": {
-        "id": "couple_55k_40k_2children",
-        "description": "Couple, 34/32 ans, 55 000$/40 000$, 2 enfants (3 et 7 ans)",
-        "input": {
-          "taxYear": 2024,
-          "householdType": "couple",
-          "primaryPerson": {
-            "age": 34,
-            "grossWorkIncome": 55000,
-            "grossRetirementIncome": 0
-          },
-          "spouse": {
-            "age": 32,
-            "grossWorkIncome": 40000,
-            "grossRetirementIncome": 0
-          },
-          "numChildren": 2,
-          "children": [
-            {
-              "age": 3,
-              "childcareExpenses": 10000,
-              "childcareType": "subsidized"
-            },
-            {
-              "age": 7,
-              "childcareExpenses": 5000,
-              "childcareType": "nonSubsidized"
-            }
-          ]
-        },
-        "expectedResults": {
-          "revenuBrut": 95000,
-          "revenu_disponible": 85200,
-          "regimeFiscalQuebec": 9500,
-          "impotRevenuQuebec": 4300,
-          "creditSolidarite": 2400,
-          "primeTravail": 2800,
-          "allocationFamiliale": 4500,
-          "regimeFiscalFederal": 5100,
-          "impotRevenuFederal": 6200,
-          "allocationCanadienneEnfants": 11300,
-          "creditTPS": 2100,
-          "totalCotisations": 8700,
-          "assuranceEmploi": 1630,
-          "rqap": 601,
-          "rrq": 5643,
-          "fss": 826,
-          "ramq": 0
-        },
-        "priority": "high",
-        "category": "family"
-      },
-      "ourResults": {
-        "cotisations": {
-          "rrq": "5632",
-          "assurance_emploi": "1254",
-          "rqap": "469.3",
-          "fss": "300",
-          "ramq": "737.5",
-          "total": "8392.8"
-        },
-        "taxes": {
-          "quebec": "6184.84",
-          "canada": "7331.92",
-          "total": "13516.76"
-        },
-        "quebec": {
-          "net_income": {
-            "individual": "43502.28",
-            "family": "74104.56"
-          },
-          "solidarity": {
-            "tvq_component": "692",
-            "housing_component": "1165",
-            "northern_village_component": "0",
-            "gross_total": "1857",
-            "family_net_income": "42853.75",
-            "reduction_amount": "102.225",
-            "net_credit": "1754.775",
-            "components_count": 2,
-            "is_eligible": true
-          },
-          "work_premium": {
-            "work_income": "95000",
-            "family_net_income": "42853.75",
-            "eligible_work_income": "91400",
-            "growth_rate": "0.25",
-            "basic_premium": "3873",
-            "reduction_threshold": "57822",
-            "reduction_amount": "0",
-            "net_premium": "3873",
-            "is_eligible": true,
-            "calculation_phase": "maximum",
-            "household_type_category": "couple_with_children"
-          },
-          "family_allowance": {
-            "basic_allowance": "5846",
-            "single_parent_supplement": "0",
-            "school_supplies_supplement": "0",
-            "disabled_child_supplement": "0",
-            "gross_total": "5846",
-            "reduction_amount": "605.42",
-            "net_allowance": "5240.58",
-            "family_net_income": "72957.5",
-            "eligible_children": 2,
-            "reduction_threshold": "57822"
-          },
-          "school_supplies_supplement": {
-            "total_amount": "242",
-            "amount_per_child": "121",
-            "eligible_children": 2,
-            "min_age": "4",
-            "max_age": "16",
-            "max_age_with_disability": "17"
-          },
-          "social_assistance": {
-            "base_benefit": "14148",
-            "constraint_allocation": "0",
-            "single_adjustment": "0",
-            "total_work_income": "95000",
-            "work_income_exemption": "3600",
-            "work_income_supplement": "0",
-            "income_reduction": "91400",
-            "gross_benefit": "14688",
-            "net_benefit": "0",
-            "eligible": "1",
-            "program": "aide_sociale",
-            "calculation_details": {
-              "base_benefit_category": "Couple",
-              "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 7916.67$, Exemption: 300.00$, Réduction: 7616.67$",
-              "liquid_assets_check": "Avoirs: 0$ / Limite: 1340$",
-              "monthly_net_benefit": 0
-            }
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "95000",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          },
-          "housing_allowance": {
-            "eligible": "0",
-            "housing_effort_rate": "0",
-            "monthly_allowance": "0",
-            "annual_allowance": "0",
-            "ineligibility_reason": "age_too_young_couple",
-            "calculation_details": {
-              "income_threshold": 0,
-              "housing_cost_minimum": 0,
-              "effort_rate_tier": "below_30%",
-              "progressive_reduction": 0
-            }
-          }
-        },
-        "canada": {
-          "net_income": {
-            "individual": "42853.75",
-            "family": "72957.5"
-          },
-          "child_benefit": {
-            "base_benefit": "14357",
-            "disability_benefit": "0",
-            "reduction_amount": "857.48625",
-            "net_benefit": "13499.51375",
-            "eligible_children_under_6": 1,
-            "eligible_children_6_to_17": 1,
-            "eligible_children_disabled": 0,
-            "family_net_income": "42853.75",
-            "reduction_phase": "first",
-            "effective_reduction_rate": "0.135"
-          },
-          "gst_credit": {
-            "amount": "0",
-            "base_credit": "680",
-            "single_supplement": "0",
-            "children_credit": "358",
-            "family_income": "95000",
-            "income_above_threshold": "50676",
-            "reduction_amount": "2534",
-            "annual_amount": "0",
-            "quarterly_payment": "0",
-            "has_spouse": "1",
-            "is_single_parent": "0",
-            "children_count": "2"
-          },
-          "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
-            "disability_supplement": "0",
-            "work_income": "81000",
-            "total_income": "95000",
-            "is_family": "1",
-            "minimum_work_income_met": "1",
-            "phase_in_amount": "2739",
-            "phase_out_reduction": "9775"
-          },
-          "old_age_security": {
-            "primary": {
-              "amount": "0",
-              "eligible": "0",
-              "age_requirement_met": "0",
-              "gis_amount": "0",
-              "gis_eligible": "0",
-              "combined_amount": "0"
-            },
-            "spouse": {
-              "amount": "0",
-              "eligible": "0",
-              "age_requirement_met": "0",
-              "gis_amount": "0",
-              "gis_eligible": "0",
-              "combined_amount": "0"
-            },
-            "total_amount": "0"
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "95000",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          }
-        },
-        "revenu_disponible": "97700.30875"
-      },
-      "expectedResults": {
-        "revenuBrut": 95000,
-        "revenu_disponible": 85200,
-        "regimeFiscalQuebec": 9500,
-        "impotRevenuQuebec": 4300,
-        "creditSolidarite": 2400,
-        "primeTravail": 2800,
-        "allocationFamiliale": 4500,
-        "regimeFiscalFederal": 5100,
-        "impotRevenuFederal": 6200,
-        "allocationCanadienneEnfants": 11300,
-        "creditTPS": 2100,
-        "totalCotisations": 8700,
-        "assuranceEmploi": 1630,
-        "rqap": 601,
-        "rrq": 5643,
-        "fss": 826,
-        "ramq": 0
-      },
-      "differences": [
-        {
-          "field": "assuranceEmploi",
-          "expected": 1630,
-          "actual": 1254,
-          "absoluteDifference": 376,
-          "percentageDifference": 23.06748466257669,
-          "severity": "critical"
-        },
-        {
-          "field": "rqap",
-          "expected": 601,
-          "actual": 469.3,
-          "absoluteDifference": 131.7,
-          "percentageDifference": 21.913477537437604,
-          "severity": "critical"
-        },
-        {
-          "field": "rrq",
-          "expected": 5643,
-          "actual": 5632,
-          "absoluteDifference": 11,
-          "percentageDifference": 0.1949317738791423,
-          "severity": "minor"
-        },
-        {
-          "field": "fss",
-          "expected": 826,
-          "actual": 300,
-          "absoluteDifference": 526,
-          "percentageDifference": 63.68038740920097,
-          "severity": "critical"
-        },
-        {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 737.5,
-          "absoluteDifference": 737.5,
-          "percentageDifference": 100,
-          "severity": "critical"
-        },
-        {
-          "field": "totalCotisations",
-          "expected": 8700,
-          "actual": 8392.8,
-          "absoluteDifference": 307.2000000000007,
-          "percentageDifference": 3.531034482758629,
-          "severity": "major"
-        }
-      ],
-      "totalAbsoluteDifference": 2089.4000000000005,
-      "totalPercentageDifference": 35.39788597764217,
-      "status": "fail"
-    },
-    {
-      "testCase": {
-        "id": "couple_50k_45k",
-        "description": "Couple, 30/28 ans, 50 000$/45 000$ travail",
-        "input": {
-          "taxYear": 2024,
-          "householdType": "couple",
-          "primaryPerson": {
-            "age": 30,
-            "grossWorkIncome": 50000,
-            "grossRetirementIncome": 0
-          },
-          "spouse": {
-            "age": 28,
-            "grossWorkIncome": 45000,
-            "grossRetirementIncome": 0
-          },
-          "numChildren": 0
-        },
-        "expectedResults": {
-          "revenuBrut": 95000,
-          "revenu_disponible": 78500,
-          "regimeFiscalQuebec": 7800,
-          "impotRevenuQuebec": 5400,
-          "creditSolidarite": 2400,
-          "primeTravail": 0,
-          "regimeFiscalFederal": 8350,
-          "impotRevenuFederal": 6650,
-          "creditTPS": 1700,
-          "totalCotisations": 8650,
-          "assuranceEmploi": 1716,
-          "rqap": 601,
-          "rrq": 5643,
-          "fss": 690,
-          "ramq": 0
-        },
-        "priority": "high",
-        "category": "couple"
-      },
-      "ourResults": {
-        "cotisations": {
-          "rrq": "5632",
-          "assurance_emploi": "1254",
-          "rqap": "469.3",
-          "fss": "300",
-          "ramq": "737.5",
-          "total": "8392.8"
-        },
-        "taxes": {
-          "quebec": "6184.84",
-          "canada": "7331.92",
-          "total": "13516.76"
-        },
-        "quebec": {
-          "net_income": {
-            "individual": "39202.28",
-            "family": "74104.56"
-          },
-          "solidarity": {
-            "tvq_component": "692",
-            "housing_component": "863",
-            "northern_village_component": "0",
-            "gross_total": "1555",
-            "family_net_income": "38603.75",
-            "reduction_amount": "0",
-            "net_credit": "1555",
-            "components_count": 2,
-            "is_eligible": true
-          },
-          "work_premium": {
-            "work_income": "95000",
-            "family_net_income": "38603.75",
-            "eligible_work_income": "91400",
-            "growth_rate": "0.116",
-            "basic_premium": "1152",
-            "reduction_threshold": "34500",
-            "reduction_amount": "410.375",
-            "net_premium": "741.625",
-            "is_eligible": true,
-            "calculation_phase": "maximum",
-            "household_type_category": "couple_without_children"
-          },
-          "family_allowance": {
-            "basic_allowance": "0",
-            "single_parent_supplement": "0",
-            "school_supplies_supplement": "0",
-            "disabled_child_supplement": "0",
-            "gross_total": "0",
-            "reduction_amount": "0",
-            "net_allowance": "0",
-            "family_net_income": "0",
-            "eligible_children": 0,
-            "reduction_threshold": "0"
-          },
-          "school_supplies_supplement": {
-            "total_amount": "0",
-            "amount_per_child": "0",
-            "eligible_children": 0,
-            "min_age": "4",
-            "max_age": "16",
-            "max_age_with_disability": "17"
-          },
-          "social_assistance": {
-            "base_benefit": "14148",
-            "constraint_allocation": "0",
-            "single_adjustment": "0",
-            "total_work_income": "95000",
-            "work_income_exemption": "3600",
-            "work_income_supplement": "0",
-            "income_reduction": "91400",
-            "gross_benefit": "14688",
-            "net_benefit": "0",
-            "eligible": "1",
-            "program": "aide_sociale",
-            "calculation_details": {
-              "base_benefit_category": "Couple",
-              "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 7916.67$, Exemption: 300.00$, Réduction: 7616.67$",
-              "liquid_assets_check": "Avoirs: 0$ / Limite: 1340$",
-              "monthly_net_benefit": 0
-            }
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "95000",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          },
-          "housing_allowance": {
-            "eligible": "0",
-            "housing_effort_rate": "0",
-            "monthly_allowance": "0",
-            "annual_allowance": "0",
-            "ineligibility_reason": "age_too_young_couple",
-            "calculation_details": {
-              "income_threshold": 0,
-              "housing_cost_minimum": 0,
-              "effort_rate_tier": "below_30%",
-              "progressive_reduction": 0
-            }
-          }
-        },
-        "canada": {
-          "net_income": {
-            "individual": "38603.75",
-            "family": "72957.5"
-          },
-          "child_benefit": {
-            "base_benefit": "0",
-            "disability_benefit": "0",
-            "reduction_amount": "0",
-            "net_benefit": "0",
-            "eligible_children_under_6": 0,
-            "eligible_children_6_to_17": 0,
-            "eligible_children_disabled": 0,
-            "family_net_income": "38603.75",
-            "reduction_phase": "none",
-            "effective_reduction_rate": "0"
-          },
-          "gst_credit": {
-            "amount": "0",
-            "base_credit": "680",
-            "single_supplement": "0",
-            "children_credit": "0",
-            "family_income": "95000",
-            "income_above_threshold": "50676",
-            "reduction_amount": "2534",
-            "annual_amount": "0",
-            "quarterly_payment": "0",
-            "has_spouse": "1",
-            "is_single_parent": "0",
-            "children_count": "0"
-          },
-          "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
-            "disability_supplement": "0",
-            "work_income": "81000",
-            "total_income": "95000",
-            "is_family": "1",
-            "minimum_work_income_met": "1",
-            "phase_in_amount": "2739",
-            "phase_out_reduction": "9775"
-          },
-          "old_age_security": {
-            "primary": {
-              "amount": "0",
-              "eligible": "0",
-              "age_requirement_met": "0",
-              "gis_amount": "0",
-              "gis_eligible": "0",
-              "combined_amount": "0"
-            },
-            "spouse": {
-              "amount": "0",
-              "eligible": "0",
-              "age_requirement_met": "0",
-              "gis_amount": "0",
-              "gis_eligible": "0",
-              "combined_amount": "0"
-            },
-            "total_amount": "0"
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "95000",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          }
-        },
-        "revenu_disponible": "75387.065"
-      },
-      "expectedResults": {
-        "revenuBrut": 95000,
-        "revenu_disponible": 78500,
-        "regimeFiscalQuebec": 7800,
-        "impotRevenuQuebec": 5400,
-        "creditSolidarite": 2400,
-        "primeTravail": 0,
-        "regimeFiscalFederal": 8350,
-        "impotRevenuFederal": 6650,
-        "creditTPS": 1700,
-        "totalCotisations": 8650,
-        "assuranceEmploi": 1716,
-        "rqap": 601,
-        "rrq": 5643,
-        "fss": 690,
-        "ramq": 0
-      },
-      "differences": [
-        {
-          "field": "assuranceEmploi",
-          "expected": 1716,
-          "actual": 1254,
-          "absoluteDifference": 462,
-          "percentageDifference": 26.923076923076923,
-          "severity": "critical"
-        },
-        {
-          "field": "rqap",
-          "expected": 601,
-          "actual": 469.3,
-          "absoluteDifference": 131.7,
-          "percentageDifference": 21.913477537437604,
-          "severity": "critical"
-        },
-        {
-          "field": "rrq",
-          "expected": 5643,
-          "actual": 5632,
-          "absoluteDifference": 11,
-          "percentageDifference": 0.1949317738791423,
-          "severity": "minor"
-        },
-        {
-          "field": "fss",
-          "expected": 690,
-          "actual": 300,
-          "absoluteDifference": 390,
-          "percentageDifference": 56.52173913043478,
-          "severity": "critical"
-        },
-        {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 737.5,
-          "absoluteDifference": 737.5,
-          "percentageDifference": 100,
-          "severity": "critical"
-        },
-        {
-          "field": "totalCotisations",
-          "expected": 8650,
-          "actual": 8392.8,
-          "absoluteDifference": 257.2000000000007,
-          "percentageDifference": 2.973410404624286,
-          "severity": "major"
-        }
-      ],
-      "totalAbsoluteDifference": 1989.4000000000008,
-      "totalPercentageDifference": 34.754439294908785,
-      "status": "fail"
-    },
-    {
-      "testCase": {
-        "id": "single_35k",
-        "description": "Personne seule, 30 ans, 35 000$ travail",
-        "input": {
-          "taxYear": 2024,
-          "householdType": "single",
-          "primaryPerson": {
-            "age": 30,
-            "grossWorkIncome": 35000,
-            "grossRetirementIncome": 0
-          },
-          "numChildren": 0
-        },
-        "expectedResults": {
-          "revenuBrut": 35000,
-          "revenu_disponible": 30980,
-          "regimeFiscalQuebec": 1850,
-          "impotRevenuQuebec": 650,
-          "creditSolidarite": 1200,
-          "primeTravail": 0,
-          "regimeFiscalFederal": 1170,
-          "impotRevenuFederal": 320,
-          "creditTPS": 850,
-          "totalCotisations": 3200,
-          "assuranceEmploi": 756,
-          "rqap": 221,
-          "rrq": 2079,
-          "fss": 144,
-          "ramq": 0
-        },
-        "priority": "high",
-        "category": "single"
-      },
-      "ourResults": {
-        "cotisations": {
-          "rrq": "2016",
-          "assurance_emploi": "462",
-          "rqap": "172.9",
-          "fss": "150",
-          "ramq": "737.5",
-          "total": "3538.4"
-        },
-        "taxes": {
-          "quebec": "1736.43",
-          "canada": "2496.62",
-          "total": "4233.05"
-        },
-        "quebec": {
-          "net_income": {
-            "individual": "30612.67",
-            "family": "30612.67"
-          },
-          "solidarity": {
-            "tvq_component": "510",
-            "housing_component": "711",
-            "northern_village_component": "0",
-            "gross_total": "1221",
-            "family_net_income": "29852.49",
+            "family_net_income": "13991.9",
             "reduction_amount": "0",
             "net_credit": "1221",
             "components_count": 2,
             "is_eligible": true
           },
           "work_premium": {
-            "work_income": "35000",
-            "family_net_income": "29852.49",
-            "eligible_work_income": "32600",
+            "work_income": "15000",
+            "family_net_income": "13991.9",
+            "eligible_work_income": "12600",
             "growth_rate": "0.116",
             "basic_premium": "1152",
             "reduction_threshold": "22795",
-            "reduction_amount": "705.749",
-            "net_premium": "446.251",
+            "reduction_amount": "0",
+            "net_premium": "1152",
             "is_eligible": true,
             "calculation_phase": "maximum",
             "household_type_category": "single"
@@ -985,10 +106,10 @@
             "base_benefit": "9144",
             "constraint_allocation": "0",
             "single_adjustment": "0",
-            "total_work_income": "35000",
+            "total_work_income": "15000",
             "work_income_exemption": "2400",
             "work_income_supplement": "0",
-            "income_reduction": "32600",
+            "income_reduction": "12600",
             "gross_benefit": "9684",
             "net_benefit": "0",
             "eligible": "1",
@@ -996,7 +117,7 @@
             "calculation_details": {
               "base_benefit_category": "Personne seule",
               "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 2916.67$, Exemption: 200.00$, Réduction: 2716.67$",
+              "work_income_calculation": "Revenus totaux: 1250.00$, Exemption: 200.00$, Réduction: 1050.00$",
               "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
               "monthly_net_benefit": 0
             }
@@ -1004,7 +125,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "35000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1027,8 +148,8 @@
         },
         "canada": {
           "net_income": {
-            "individual": "29852.49",
-            "family": "29852.49"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "child_benefit": {
             "base_benefit": "0",
@@ -1038,34 +159,34 @@
             "eligible_children_under_6": 0,
             "eligible_children_6_to_17": 0,
             "eligible_children_disabled": 0,
-            "family_net_income": "29852.49",
+            "family_net_income": "13991.9",
             "reduction_phase": "none",
             "effective_reduction_rate": "0"
           },
           "gst_credit": {
-            "amount": "519",
+            "amount": "419",
             "base_credit": "340",
-            "single_supplement": "179",
+            "single_supplement": "79",
             "children_credit": "0",
-            "family_income": "35000",
+            "family_income": "15000",
             "income_above_threshold": "0",
             "reduction_amount": "0",
-            "annual_amount": "519",
-            "quarterly_payment": "130",
+            "annual_amount": "419",
+            "quarterly_payment": "105",
             "has_spouse": "0",
             "is_single_parent": "0",
             "children_count": "0"
           },
           "workers_benefit": {
-            "amount": "262",
-            "basic_amount": "262",
+            "amount": "1590",
+            "basic_amount": "1590",
             "disability_supplement": "0",
-            "work_income": "35000",
-            "total_income": "35000",
+            "work_income": "15000",
+            "total_income": "15000",
             "is_family": "0",
             "minimum_work_income_met": "1",
             "phase_in_amount": "1590",
-            "phase_out_reduction": "1328"
+            "phase_out_reduction": "0"
           },
           "old_age_security": {
             "primary": {
@@ -1082,7 +203,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "35000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1090,154 +211,142 @@
             "minimum_work_income_met": "0"
           }
         },
-        "revenu_disponible": "29676.801"
+        "revenu_disponible": "18373.9"
       },
       "expectedResults": {
-        "revenuBrut": 35000,
-        "revenu_disponible": 30980,
-        "regimeFiscalQuebec": 1850,
-        "impotRevenuQuebec": 650,
+        "revenuBrut": 15000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
         "creditSolidarite": 1200,
         "primeTravail": 0,
-        "regimeFiscalFederal": 1170,
-        "impotRevenuFederal": 320,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
         "creditTPS": 850,
-        "totalCotisations": 3200,
-        "assuranceEmploi": 756,
-        "rqap": 221,
-        "rrq": 2079,
-        "fss": 144,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
         "ramq": 0
       },
       "differences": [
         {
           "field": "assuranceEmploi",
-          "expected": 756,
-          "actual": 462,
-          "absoluteDifference": 294,
-          "percentageDifference": 38.88888888888889,
+          "expected": 861,
+          "actual": 198,
+          "absoluteDifference": 663,
+          "percentageDifference": 77.00348432055749,
           "severity": "critical"
         },
         {
           "field": "rqap",
-          "expected": 221,
-          "actual": 172.9,
-          "absoluteDifference": 48.099999999999994,
-          "percentageDifference": 21.76470588235294,
+          "expected": 484,
+          "actual": 74.1,
+          "absoluteDifference": 409.9,
+          "percentageDifference": 84.69008264462809,
           "severity": "critical"
         },
         {
           "field": "rrq",
-          "expected": 2079,
-          "actual": 2016,
-          "absoluteDifference": 63,
-          "percentageDifference": 3.0303030303030303,
-          "severity": "minor"
-        },
-        {
-          "field": "fss",
-          "expected": 144,
-          "actual": 150,
-          "absoluteDifference": 6,
-          "percentageDifference": 4.166666666666666,
-          "severity": "minor"
-        },
-        {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 737.5,
-          "absoluteDifference": 737.5,
-          "percentageDifference": 100,
+          "expected": 4735,
+          "actual": 736,
+          "absoluteDifference": 3999,
+          "percentageDifference": 84.45617740232314,
           "severity": "critical"
         },
         {
           "field": "totalCotisations",
-          "expected": 3200,
-          "actual": 3538.4,
-          "absoluteDifference": 338.4000000000001,
-          "percentageDifference": 10.575000000000003,
-          "severity": "major"
+          "expected": 1309.8,
+          "actual": 1008.1,
+          "absoluteDifference": 301.69999999999993,
+          "percentageDifference": 23.03405100015269,
+          "severity": "critical"
         }
       ],
-      "totalAbsoluteDifference": 1487,
-      "totalPercentageDifference": 29.737594078035254,
+      "totalAbsoluteDifference": 5373.599999999999,
+      "totalPercentageDifference": 67.29594884191536,
       "status": "fail"
     },
     {
       "testCase": {
-        "id": "single_50k",
-        "description": "Personne seule, 35 ans, 50 000$ travail",
+        "id": "grid_2",
+        "description": "Personne seule - 15000$",
         "input": {
           "taxYear": 2024,
           "householdType": "single",
           "primaryPerson": {
             "age": 35,
-            "grossWorkIncome": 50000,
+            "grossWorkIncome": 15000,
             "grossRetirementIncome": 0
           },
           "numChildren": 0
         },
         "expectedResults": {
-          "revenuBrut": 50000,
-          "revenu_disponible": 41250,
-          "regimeFiscalQuebec": 4100,
-          "impotRevenuQuebec": 2900,
+          "revenuBrut": 15000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
           "creditSolidarite": 1200,
           "primeTravail": 0,
-          "regimeFiscalFederal": 4650,
-          "impotRevenuFederal": 3800,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
           "creditTPS": 850,
-          "totalCotisations": 4600,
-          "assuranceEmploi": 858,
-          "rqap": 316,
-          "rrq": 2970,
-          "fss": 456,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
           "ramq": 0
         },
-        "priority": "high",
+        "priority": "low",
         "category": "single"
       },
       "ourResults": {
         "cotisations": {
-          "rrq": "2976",
-          "assurance_emploi": "660",
-          "rqap": "247",
-          "fss": "150",
-          "ramq": "737.5",
-          "total": "4770.5"
+          "rrq": "736",
+          "assurance_emploi": "198",
+          "rqap": "74.1",
+          "fss": "0",
+          "ramq": "0",
+          "total": "1008.1"
         },
         "taxes": {
-          "quebec": "3663.94",
-          "canada": "4561.8",
-          "total": "8225.74"
+          "quebec": "0",
+          "canada": "0",
+          "total": "0"
         },
         "quebec": {
           "net_income": {
-            "individual": "42453.06",
-            "family": "42453.06"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "solidarity": {
             "tvq_component": "510",
             "housing_component": "711",
             "northern_village_component": "0",
             "gross_total": "1221",
-            "family_net_income": "41555.2",
-            "reduction_amount": "24.312",
-            "net_credit": "1196.688",
+            "family_net_income": "13991.9",
+            "reduction_amount": "0",
+            "net_credit": "1221",
             "components_count": 2,
             "is_eligible": true
           },
           "work_premium": {
-            "work_income": "50000",
-            "family_net_income": "41555.2",
-            "eligible_work_income": "47600",
+            "work_income": "15000",
+            "family_net_income": "13991.9",
+            "eligible_work_income": "12600",
             "growth_rate": "0.116",
             "basic_premium": "1152",
             "reduction_threshold": "22795",
-            "reduction_amount": "1152",
-            "net_premium": "0",
+            "reduction_amount": "0",
+            "net_premium": "1152",
             "is_eligible": true,
-            "calculation_phase": "zero",
+            "calculation_phase": "maximum",
             "household_type_category": "single"
           },
           "family_allowance": {
@@ -1264,10 +373,10 @@
             "base_benefit": "9144",
             "constraint_allocation": "0",
             "single_adjustment": "0",
-            "total_work_income": "50000",
+            "total_work_income": "15000",
             "work_income_exemption": "2400",
             "work_income_supplement": "0",
-            "income_reduction": "47600",
+            "income_reduction": "12600",
             "gross_benefit": "9684",
             "net_benefit": "0",
             "eligible": "1",
@@ -1275,7 +384,7 @@
             "calculation_details": {
               "base_benefit_category": "Personne seule",
               "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 4166.67$, Exemption: 200.00$, Réduction: 3966.67$",
+              "work_income_calculation": "Revenus totaux: 1250.00$, Exemption: 200.00$, Réduction: 1050.00$",
               "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
               "monthly_net_benefit": 0
             }
@@ -1283,7 +392,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "50000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1306,8 +415,8 @@
         },
         "canada": {
           "net_income": {
-            "individual": "41555.2",
-            "family": "41555.2"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "child_benefit": {
             "base_benefit": "0",
@@ -1317,34 +426,34 @@
             "eligible_children_under_6": 0,
             "eligible_children_6_to_17": 0,
             "eligible_children_disabled": 0,
-            "family_net_income": "41555.2",
+            "family_net_income": "13991.9",
             "reduction_phase": "none",
             "effective_reduction_rate": "0"
           },
           "gst_credit": {
-            "amount": "235",
+            "amount": "419",
             "base_credit": "340",
-            "single_supplement": "179",
+            "single_supplement": "79",
             "children_credit": "0",
-            "family_income": "50000",
-            "income_above_threshold": "5676",
-            "reduction_amount": "284",
-            "annual_amount": "235",
-            "quarterly_payment": "59",
+            "family_income": "15000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "419",
+            "quarterly_payment": "105",
             "has_spouse": "0",
             "is_single_parent": "0",
             "children_count": "0"
           },
           "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
+            "amount": "1590",
+            "basic_amount": "1590",
             "disability_supplement": "0",
-            "work_income": "50000",
-            "total_income": "50000",
+            "work_income": "15000",
+            "total_income": "15000",
             "is_family": "0",
             "minimum_work_income_met": "1",
             "phase_in_amount": "1590",
-            "phase_out_reduction": "3578"
+            "phase_out_reduction": "0"
           },
           "old_age_security": {
             "primary": {
@@ -1361,7 +470,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "50000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1369,154 +478,142 @@
             "minimum_work_income_met": "0"
           }
         },
-        "revenu_disponible": "38435.448"
+        "revenu_disponible": "18373.9"
       },
       "expectedResults": {
-        "revenuBrut": 50000,
-        "revenu_disponible": 41250,
-        "regimeFiscalQuebec": 4100,
-        "impotRevenuQuebec": 2900,
+        "revenuBrut": 15000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
         "creditSolidarite": 1200,
         "primeTravail": 0,
-        "regimeFiscalFederal": 4650,
-        "impotRevenuFederal": 3800,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
         "creditTPS": 850,
-        "totalCotisations": 4600,
-        "assuranceEmploi": 858,
-        "rqap": 316,
-        "rrq": 2970,
-        "fss": 456,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
         "ramq": 0
       },
       "differences": [
         {
           "field": "assuranceEmploi",
-          "expected": 858,
-          "actual": 660,
-          "absoluteDifference": 198,
-          "percentageDifference": 23.076923076923077,
+          "expected": 861,
+          "actual": 198,
+          "absoluteDifference": 663,
+          "percentageDifference": 77.00348432055749,
           "severity": "critical"
         },
         {
           "field": "rqap",
-          "expected": 316,
-          "actual": 247,
-          "absoluteDifference": 69,
-          "percentageDifference": 21.835443037974684,
+          "expected": 484,
+          "actual": 74.1,
+          "absoluteDifference": 409.9,
+          "percentageDifference": 84.69008264462809,
           "severity": "critical"
         },
         {
           "field": "rrq",
-          "expected": 2970,
-          "actual": 2976,
-          "absoluteDifference": 6,
-          "percentageDifference": 0.20202020202020202,
-          "severity": "minor"
-        },
-        {
-          "field": "fss",
-          "expected": 456,
-          "actual": 150,
-          "absoluteDifference": 306,
-          "percentageDifference": 67.10526315789474,
-          "severity": "critical"
-        },
-        {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 737.5,
-          "absoluteDifference": 737.5,
-          "percentageDifference": 100,
+          "expected": 4735,
+          "actual": 736,
+          "absoluteDifference": 3999,
+          "percentageDifference": 84.45617740232314,
           "severity": "critical"
         },
         {
           "field": "totalCotisations",
-          "expected": 4600,
-          "actual": 4770.5,
-          "absoluteDifference": 170.5,
-          "percentageDifference": 3.7065217391304346,
-          "severity": "major"
+          "expected": 1309.8,
+          "actual": 1008.1,
+          "absoluteDifference": 301.69999999999993,
+          "percentageDifference": 23.03405100015269,
+          "severity": "critical"
         }
       ],
-      "totalAbsoluteDifference": 1487,
-      "totalPercentageDifference": 35.987695202323856,
+      "totalAbsoluteDifference": 5373.599999999999,
+      "totalPercentageDifference": 67.29594884191536,
       "status": "fail"
     },
     {
       "testCase": {
-        "id": "edge_high_income",
-        "description": "Revenu élevé, 45 ans, 150 000$ travail",
+        "id": "grid_3",
+        "description": "Personne seule - 15000$",
         "input": {
           "taxYear": 2024,
           "householdType": "single",
           "primaryPerson": {
             "age": 45,
-            "grossWorkIncome": 150000,
+            "grossWorkIncome": 15000,
             "grossRetirementIncome": 0
           },
           "numChildren": 0
         },
         "expectedResults": {
-          "revenuBrut": 150000,
-          "revenu_disponible": 105000,
-          "regimeFiscalQuebec": 25000,
-          "impotRevenuQuebec": 24000,
-          "creditSolidarite": 0,
+          "revenuBrut": 15000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
           "primeTravail": 0,
-          "regimeFiscalFederal": 20000,
-          "impotRevenuFederal": 19150,
-          "creditTPS": 0,
-          "totalCotisations": 10000,
-          "assuranceEmploi": 858,
-          "rqap": 474,
-          "rrq": 4455,
-          "fss": 4213,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
           "ramq": 0
         },
-        "priority": "medium",
+        "priority": "low",
         "category": "single"
       },
       "ourResults": {
         "cotisations": {
-          "rrq": "3936",
-          "assurance_emploi": "834.24",
-          "rqap": "464.36",
-          "fss": "4211.77",
-          "ramq": "737.5",
-          "total": "10183.87"
+          "rrq": "736",
+          "assurance_emploi": "198",
+          "rqap": "74.1",
+          "fss": "0",
+          "ramq": "0",
+          "total": "1008.1"
         },
         "taxes": {
-          "quebec": "24995.48",
-          "canada": "26065.25",
-          "total": "51060.73"
+          "quebec": "0",
+          "canada": "0",
+          "total": "0"
         },
         "quebec": {
           "net_income": {
-            "individual": "119769.92",
-            "family": "119769.92"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "solidarity": {
             "tvq_component": "510",
             "housing_component": "711",
             "northern_village_component": "0",
             "gross_total": "1221",
-            "family_net_income": "118700.15",
-            "reduction_amount": "1221",
-            "net_credit": "0",
+            "family_net_income": "13991.9",
+            "reduction_amount": "0",
+            "net_credit": "1221",
             "components_count": 2,
             "is_eligible": true
           },
           "work_premium": {
-            "work_income": "150000",
-            "family_net_income": "118700.15",
-            "eligible_work_income": "147600",
+            "work_income": "15000",
+            "family_net_income": "13991.9",
+            "eligible_work_income": "12600",
             "growth_rate": "0.116",
             "basic_premium": "1152",
             "reduction_threshold": "22795",
-            "reduction_amount": "1152",
-            "net_premium": "0",
+            "reduction_amount": "0",
+            "net_premium": "1152",
             "is_eligible": true,
-            "calculation_phase": "zero",
+            "calculation_phase": "maximum",
             "household_type_category": "single"
           },
           "family_allowance": {
@@ -1543,10 +640,10 @@
             "base_benefit": "9144",
             "constraint_allocation": "0",
             "single_adjustment": "0",
-            "total_work_income": "150000",
+            "total_work_income": "15000",
             "work_income_exemption": "2400",
             "work_income_supplement": "0",
-            "income_reduction": "147600",
+            "income_reduction": "12600",
             "gross_benefit": "9684",
             "net_benefit": "0",
             "eligible": "1",
@@ -1554,7 +651,7 @@
             "calculation_details": {
               "base_benefit_category": "Personne seule",
               "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 12500.00$, Exemption: 200.00$, Réduction: 12300.00$",
+              "work_income_calculation": "Revenus totaux: 1250.00$, Exemption: 200.00$, Réduction: 1050.00$",
               "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
               "monthly_net_benefit": 0
             }
@@ -1562,7 +659,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "150000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1585,8 +682,8 @@
         },
         "canada": {
           "net_income": {
-            "individual": "118700.15",
-            "family": "118700.15"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "child_benefit": {
             "base_benefit": "0",
@@ -1596,34 +693,34 @@
             "eligible_children_under_6": 0,
             "eligible_children_6_to_17": 0,
             "eligible_children_disabled": 0,
-            "family_net_income": "118700.15",
+            "family_net_income": "13991.9",
             "reduction_phase": "none",
             "effective_reduction_rate": "0"
           },
           "gst_credit": {
-            "amount": "0",
+            "amount": "419",
             "base_credit": "340",
-            "single_supplement": "179",
+            "single_supplement": "79",
             "children_credit": "0",
-            "family_income": "150000",
-            "income_above_threshold": "105676",
-            "reduction_amount": "5284",
-            "annual_amount": "0",
-            "quarterly_payment": "0",
+            "family_income": "15000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "419",
+            "quarterly_payment": "105",
             "has_spouse": "0",
             "is_single_parent": "0",
             "children_count": "0"
           },
           "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
+            "amount": "1590",
+            "basic_amount": "1590",
             "disability_supplement": "0",
-            "work_income": "150000",
-            "total_income": "150000",
+            "work_income": "15000",
+            "total_income": "15000",
             "is_family": "0",
             "minimum_work_income_met": "1",
             "phase_in_amount": "1590",
-            "phase_out_reduction": "18578"
+            "phase_out_reduction": "0"
           },
           "old_age_security": {
             "primary": {
@@ -1640,7 +737,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "150000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1648,181 +745,160 @@
             "minimum_work_income_met": "0"
           }
         },
-        "revenu_disponible": "88755.4"
+        "revenu_disponible": "18373.9"
       },
       "expectedResults": {
-        "revenuBrut": 150000,
-        "revenu_disponible": 105000,
-        "regimeFiscalQuebec": 25000,
-        "impotRevenuQuebec": 24000,
-        "creditSolidarite": 0,
+        "revenuBrut": 15000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
         "primeTravail": 0,
-        "regimeFiscalFederal": 20000,
-        "impotRevenuFederal": 19150,
-        "creditTPS": 0,
-        "totalCotisations": 10000,
-        "assuranceEmploi": 858,
-        "rqap": 474,
-        "rrq": 4455,
-        "fss": 4213,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
         "ramq": 0
       },
       "differences": [
         {
           "field": "assuranceEmploi",
-          "expected": 858,
-          "actual": 834.24,
-          "absoluteDifference": 23.75999999999999,
-          "percentageDifference": 2.7692307692307683,
-          "severity": "minor"
-        },
-        {
-          "field": "rqap",
-          "expected": 474,
-          "actual": 464.36,
-          "absoluteDifference": 9.639999999999986,
-          "percentageDifference": 2.0337552742616003,
-          "severity": "minor"
-        },
-        {
-          "field": "rrq",
-          "expected": 4455,
-          "actual": 3936,
-          "absoluteDifference": 519,
-          "percentageDifference": 11.64983164983165,
+          "expected": 861,
+          "actual": 198,
+          "absoluteDifference": 663,
+          "percentageDifference": 77.00348432055749,
           "severity": "critical"
         },
         {
-          "field": "fss",
-          "expected": 4213,
-          "actual": 4211.77,
-          "absoluteDifference": 1.2299999999995634,
-          "percentageDifference": 0.02919534773319638,
-          "severity": "minor"
+          "field": "rqap",
+          "expected": 484,
+          "actual": 74.1,
+          "absoluteDifference": 409.9,
+          "percentageDifference": 84.69008264462809,
+          "severity": "critical"
         },
         {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 737.5,
-          "absoluteDifference": 737.5,
-          "percentageDifference": 100,
+          "field": "rrq",
+          "expected": 4735,
+          "actual": 736,
+          "absoluteDifference": 3999,
+          "percentageDifference": 84.45617740232314,
           "severity": "critical"
         },
         {
           "field": "totalCotisations",
-          "expected": 10000,
-          "actual": 10183.87,
-          "absoluteDifference": 183.8700000000008,
-          "percentageDifference": 1.838700000000008,
-          "severity": "major"
+          "expected": 1309.8,
+          "actual": 1008.1,
+          "absoluteDifference": 301.69999999999993,
+          "percentageDifference": 23.03405100015269,
+          "severity": "critical"
         }
       ],
-      "totalAbsoluteDifference": 1475.0000000000005,
-      "totalPercentageDifference": 19.7201188401762,
+      "totalAbsoluteDifference": 5373.599999999999,
+      "totalPercentageDifference": 67.29594884191536,
       "status": "fail"
     },
     {
       "testCase": {
-        "id": "single_parent_45k_1child",
-        "description": "Famille monoparentale, 32 ans, 45 000$, 1 enfant 5 ans",
+        "id": "grid_4",
+        "description": "Personne seule - 15000$",
         "input": {
           "taxYear": 2024,
-          "householdType": "single_parent",
+          "householdType": "single",
           "primaryPerson": {
-            "age": 32,
-            "grossWorkIncome": 45000,
+            "age": 55,
+            "grossWorkIncome": 15000,
             "grossRetirementIncome": 0
           },
-          "numChildren": 1,
-          "children": [
-            {
-              "age": 5,
-              "childcareExpenses": 8000,
-              "childcareType": "subsidized"
-            }
-          ]
+          "numChildren": 0
         },
         "expectedResults": {
-          "revenuBrut": 45000,
-          "revenu_disponible": 42500,
-          "regimeFiscalQuebec": 5200,
-          "impotRevenuQuebec": 2100,
-          "creditSolidarite": 1800,
-          "primeTravail": 1200,
-          "allocationFamiliale": 2500,
-          "regimeFiscalFederal": 2800,
-          "impotRevenuFederal": 2950,
-          "allocationCanadienneEnfants": 5750,
-          "creditTPS": 1200,
-          "totalCotisations": 4100,
-          "assuranceEmploi": 772,
-          "rqap": 284,
-          "rrq": 2673,
-          "fss": 371,
+          "revenuBrut": 15000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 1309.8,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
           "ramq": 0
         },
-        "priority": "high",
-        "category": "singleParent"
+        "priority": "low",
+        "category": "single"
       },
       "ourResults": {
         "cotisations": {
-          "rrq": "2656",
-          "assurance_emploi": "594",
-          "rqap": "222.3",
-          "fss": "150",
-          "ramq": "153.63",
-          "total": "3775.93"
+          "rrq": "736",
+          "assurance_emploi": "198",
+          "rqap": "74.1",
+          "fss": "0",
+          "ramq": "0",
+          "total": "1008.1"
         },
         "taxes": {
-          "quebec": "3286.04",
-          "canada": "3873.41",
-          "total": "7159.45"
+          "quebec": "0",
+          "canada": "0",
+          "total": "0"
         },
         "quebec": {
           "net_income": {
-            "individual": "38241.66",
-            "family": "38241.66"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "solidarity": {
             "tvq_component": "510",
-            "housing_component": "862",
+            "housing_component": "711",
             "northern_village_component": "0",
-            "gross_total": "1372",
-            "family_net_income": "37654.3",
+            "gross_total": "1221",
+            "family_net_income": "13991.9",
             "reduction_amount": "0",
-            "net_credit": "1372",
+            "net_credit": "1221",
             "components_count": 2,
             "is_eligible": true
           },
           "work_premium": {
-            "work_income": "45000",
-            "family_net_income": "37654.3",
-            "eligible_work_income": "42600",
-            "growth_rate": "0.25",
-            "basic_premium": "2980",
-            "reduction_threshold": "40168",
+            "work_income": "15000",
+            "family_net_income": "13991.9",
+            "eligible_work_income": "12600",
+            "growth_rate": "0.116",
+            "basic_premium": "1152",
+            "reduction_threshold": "22795",
             "reduction_amount": "0",
-            "net_premium": "2980",
+            "net_premium": "1152",
             "is_eligible": true,
             "calculation_phase": "maximum",
-            "household_type_category": "single_parent"
+            "household_type_category": "single"
           },
           "family_allowance": {
-            "basic_allowance": "2923",
-            "single_parent_supplement": "1024",
+            "basic_allowance": "0",
+            "single_parent_supplement": "0",
             "school_supplies_supplement": "0",
             "disabled_child_supplement": "0",
-            "gross_total": "3947",
+            "gross_total": "0",
             "reduction_amount": "0",
-            "net_allowance": "3947",
-            "family_net_income": "37654.3",
-            "eligible_children": 1,
-            "reduction_threshold": "42136"
+            "net_allowance": "0",
+            "family_net_income": "0",
+            "eligible_children": 0,
+            "reduction_threshold": "0"
           },
           "school_supplies_supplement": {
-            "total_amount": "121",
-            "amount_per_child": "121",
-            "eligible_children": 1,
+            "total_amount": "0",
+            "amount_per_child": "0",
+            "eligible_children": 0,
             "min_age": "4",
             "max_age": "16",
             "max_age_with_disability": "17"
@@ -1831,10 +907,10 @@
             "base_benefit": "9144",
             "constraint_allocation": "0",
             "single_adjustment": "0",
-            "total_work_income": "45000",
+            "total_work_income": "15000",
             "work_income_exemption": "2400",
             "work_income_supplement": "0",
-            "income_reduction": "42600",
+            "income_reduction": "12600",
             "gross_benefit": "9684",
             "net_benefit": "0",
             "eligible": "1",
@@ -1842,7 +918,7 @@
             "calculation_details": {
               "base_benefit_category": "Personne seule",
               "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 3750.00$, Exemption: 200.00$, Réduction: 3550.00$",
+              "work_income_calculation": "Revenus totaux: 1250.00$, Exemption: 200.00$, Réduction: 1050.00$",
               "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
               "monthly_net_benefit": 0
             }
@@ -1850,7 +926,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "45000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1862,7 +938,7 @@
             "housing_effort_rate": "0",
             "monthly_allowance": "0",
             "annual_allowance": "0",
-            "ineligibility_reason": "age_too_young_single",
+            "ineligibility_reason": "housing_effort_too_low",
             "calculation_details": {
               "income_threshold": 0,
               "housing_cost_minimum": 0,
@@ -1873,45 +949,45 @@
         },
         "canada": {
           "net_income": {
-            "individual": "37654.3",
-            "family": "37654.3"
+            "individual": "13991.9",
+            "family": "13991.9"
           },
           "child_benefit": {
-            "base_benefit": "7787",
+            "base_benefit": "0",
             "disability_benefit": "0",
-            "reduction_amount": "80.661",
-            "net_benefit": "7706.339",
-            "eligible_children_under_6": 1,
+            "reduction_amount": "0",
+            "net_benefit": "0",
+            "eligible_children_under_6": 0,
             "eligible_children_6_to_17": 0,
             "eligible_children_disabled": 0,
-            "family_net_income": "37654.3",
-            "reduction_phase": "first",
-            "effective_reduction_rate": "0.07"
+            "family_net_income": "13991.9",
+            "reduction_phase": "none",
+            "effective_reduction_rate": "0"
           },
           "gst_credit": {
-            "amount": "825",
-            "base_credit": "680",
-            "single_supplement": "179",
+            "amount": "419",
+            "base_credit": "340",
+            "single_supplement": "79",
             "children_credit": "0",
-            "family_income": "45000",
-            "income_above_threshold": "676",
-            "reduction_amount": "34",
-            "annual_amount": "825",
-            "quarterly_payment": "206",
+            "family_income": "15000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "419",
+            "quarterly_payment": "105",
             "has_spouse": "0",
-            "is_single_parent": "1",
-            "children_count": "1"
+            "is_single_parent": "0",
+            "children_count": "0"
           },
           "workers_benefit": {
-            "amount": "464",
-            "basic_amount": "464",
+            "amount": "1590",
+            "basic_amount": "1590",
             "disability_supplement": "0",
-            "work_income": "45000",
-            "total_income": "45000",
-            "is_family": "1",
+            "work_income": "15000",
+            "total_income": "15000",
+            "is_family": "0",
             "minimum_work_income_met": "1",
-            "phase_in_amount": "2739",
-            "phase_out_reduction": "2275"
+            "phase_in_amount": "1590",
+            "phase_out_reduction": "0"
           },
           "old_age_security": {
             "primary": {
@@ -1928,7 +1004,7 @@
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "45000",
+            "work_income": "15000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -1936,85 +1012,69 @@
             "minimum_work_income_met": "0"
           }
         },
-        "revenu_disponible": "51479.959"
+        "revenu_disponible": "18373.9"
       },
       "expectedResults": {
-        "revenuBrut": 45000,
-        "revenu_disponible": 42500,
-        "regimeFiscalQuebec": 5200,
-        "impotRevenuQuebec": 2100,
-        "creditSolidarite": 1800,
-        "primeTravail": 1200,
-        "allocationFamiliale": 2500,
-        "regimeFiscalFederal": 2800,
-        "impotRevenuFederal": 2950,
-        "allocationCanadienneEnfants": 5750,
-        "creditTPS": 1200,
-        "totalCotisations": 4100,
-        "assuranceEmploi": 772,
-        "rqap": 284,
-        "rrq": 2673,
-        "fss": 371,
+        "revenuBrut": 15000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 1309.8,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
         "ramq": 0
       },
       "differences": [
         {
           "field": "assuranceEmploi",
-          "expected": 772,
-          "actual": 594,
-          "absoluteDifference": 178,
-          "percentageDifference": 23.05699481865285,
+          "expected": 861,
+          "actual": 198,
+          "absoluteDifference": 663,
+          "percentageDifference": 77.00348432055749,
           "severity": "critical"
         },
         {
           "field": "rqap",
-          "expected": 284,
-          "actual": 222.3,
-          "absoluteDifference": 61.69999999999999,
-          "percentageDifference": 21.725352112676052,
+          "expected": 484,
+          "actual": 74.1,
+          "absoluteDifference": 409.9,
+          "percentageDifference": 84.69008264462809,
           "severity": "critical"
         },
         {
           "field": "rrq",
-          "expected": 2673,
-          "actual": 2656,
-          "absoluteDifference": 17,
-          "percentageDifference": 0.6359895248784138,
-          "severity": "minor"
-        },
-        {
-          "field": "fss",
-          "expected": 371,
-          "actual": 150,
-          "absoluteDifference": 221,
-          "percentageDifference": 59.56873315363881,
-          "severity": "critical"
-        },
-        {
-          "field": "ramq",
-          "expected": 0,
-          "actual": 153.63,
-          "absoluteDifference": 153.63,
-          "percentageDifference": 100,
+          "expected": 4735,
+          "actual": 736,
+          "absoluteDifference": 3999,
+          "percentageDifference": 84.45617740232314,
           "severity": "critical"
         },
         {
           "field": "totalCotisations",
-          "expected": 4100,
-          "actual": 3775.93,
-          "absoluteDifference": 324.07000000000016,
-          "percentageDifference": 7.904146341463418,
-          "severity": "major"
+          "expected": 1309.8,
+          "actual": 1008.1,
+          "absoluteDifference": 301.69999999999993,
+          "percentageDifference": 23.03405100015269,
+          "severity": "critical"
         }
       ],
-      "totalAbsoluteDifference": 955.4000000000001,
-      "totalPercentageDifference": 35.481869325218256,
+      "totalAbsoluteDifference": 5373.599999999999,
+      "totalPercentageDifference": 67.29594884191536,
       "status": "fail"
     },
     {
       "testCase": {
-        "id": "single_25k",
-        "description": "Personne seule, 25 ans, 25 000$ travail",
+        "id": "grid_5",
+        "description": "Personne seule - 25000$",
         "input": {
           "taxYear": 2024,
           "householdType": "single",
@@ -2027,19 +1087,21 @@
         },
         "expectedResults": {
           "revenuBrut": 25000,
-          "revenu_disponible": 22850,
-          "regimeFiscalQuebec": 1200,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
           "impotRevenuQuebec": 0,
           "creditSolidarite": 1200,
           "primeTravail": 0,
-          "regimeFiscalFederal": 850,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
           "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
           "creditTPS": 850,
-          "totalCotisations": 2300,
-          "assuranceEmploi": 540,
-          "rqap": 158,
-          "rrq": 1485,
-          "fss": 117,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
           "ramq": 0
         },
         "priority": "high",
@@ -2050,9 +1112,9 @@
           "rrq": "1376",
           "assurance_emploi": "330",
           "rqap": "123.5",
-          "fss": "73.7",
+          "fss": "0",
           "ramq": "218.8",
-          "total": "2122"
+          "total": "2048.3"
         },
         "taxes": {
           "quebec": "451.43",
@@ -2217,56 +1279,50 @@
             "minimum_work_income_met": "0"
           }
         },
-        "revenu_disponible": "25788.74"
+        "revenu_disponible": "25862.44"
       },
       "expectedResults": {
         "revenuBrut": 25000,
-        "revenu_disponible": 22850,
-        "regimeFiscalQuebec": 1200,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
         "impotRevenuQuebec": 0,
         "creditSolidarite": 1200,
         "primeTravail": 0,
-        "regimeFiscalFederal": 850,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
         "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
         "creditTPS": 850,
-        "totalCotisations": 2300,
-        "assuranceEmploi": 540,
-        "rqap": 158,
-        "rrq": 1485,
-        "fss": 117,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
         "ramq": 0
       },
       "differences": [
         {
           "field": "assuranceEmploi",
-          "expected": 540,
+          "expected": 861,
           "actual": 330,
-          "absoluteDifference": 210,
-          "percentageDifference": 38.88888888888889,
+          "absoluteDifference": 531,
+          "percentageDifference": 61.672473867595826,
           "severity": "critical"
         },
         {
           "field": "rqap",
-          "expected": 158,
+          "expected": 484,
           "actual": 123.5,
-          "absoluteDifference": 34.5,
-          "percentageDifference": 21.835443037974684,
+          "absoluteDifference": 360.5,
+          "percentageDifference": 74.48347107438018,
           "severity": "critical"
         },
         {
           "field": "rrq",
-          "expected": 1485,
+          "expected": 4735,
           "actual": 1376,
-          "absoluteDifference": 109,
-          "percentageDifference": 7.34006734006734,
-          "severity": "major"
-        },
-        {
-          "field": "fss",
-          "expected": 117,
-          "actual": 73.7,
-          "absoluteDifference": 43.3,
-          "percentageDifference": 37.008547008547005,
+          "absoluteDifference": 3359,
+          "percentageDifference": 70.93980992608236,
           "severity": "critical"
         },
         {
@@ -2279,397 +1335,94 @@
         },
         {
           "field": "totalCotisations",
-          "expected": 2300,
-          "actual": 2122,
-          "absoluteDifference": 178,
-          "percentageDifference": 7.739130434782608,
+          "expected": 2183,
+          "actual": 2048.3,
+          "absoluteDifference": 134.69999999999982,
+          "percentageDifference": 6.1704076958314165,
           "severity": "major"
         }
       ],
-      "totalAbsoluteDifference": 793.6,
-      "totalPercentageDifference": 35.46867945171009,
+      "totalAbsoluteDifference": 4604,
+      "totalPercentageDifference": 62.65323251277796,
       "status": "fail"
     },
     {
       "testCase": {
-        "id": "retired_couple_30k_20k",
-        "description": "Couple retraité, 68/65 ans, 30 000$/20 000$ retraite",
+        "id": "grid_6",
+        "description": "Personne seule - 25000$",
         "input": {
           "taxYear": 2024,
-          "householdType": "retired_couple",
+          "householdType": "single",
           "primaryPerson": {
-            "age": 68,
-            "grossWorkIncome": 0,
-            "grossRetirementIncome": 30000
-          },
-          "spouse": {
-            "age": 65,
-            "grossWorkIncome": 0,
-            "grossRetirementIncome": 20000
-          },
-          "numChildren": 0
-        },
-        "expectedResults": {
-          "revenuBrut": 50000,
-          "revenu_disponible": 47600,
-          "regimeFiscalQuebec": 2800,
-          "impotRevenuQuebec": 1400,
-          "creditSolidarite": 2400,
-          "primeTravail": 0,
-          "regimeFiscalFederal": 1400,
-          "impotRevenuFederal": 700,
-          "creditTPS": 1700,
-          "totalCotisations": 0,
-          "assuranceEmploi": 0,
-          "rqap": 0,
-          "rrq": 0,
-          "fss": 0,
-          "ramq": 0
-        },
-        "priority": "medium",
-        "category": "retired"
-      },
-      "ourResults": {
-        "cotisations": {
-          "rrq": "0",
-          "assurance_emploi": "0",
-          "rqap": "0",
-          "fss": "147.4",
-          "ramq": "0",
-          "total": "147.4"
-        },
-        "taxes": {
-          "quebec": "774.48",
-          "canada": "525.75",
-          "total": "1300.23"
-        },
-        "quebec": {
-          "net_income": {
-            "individual": "29225.52",
-            "family": "49225.52"
-          },
-          "solidarity": {
-            "tvq_component": "692",
-            "housing_component": "863",
-            "northern_village_component": "0",
-            "gross_total": "1555",
-            "family_net_income": "29225.52",
-            "reduction_amount": "0",
-            "net_credit": "1555",
-            "components_count": 2,
-            "is_eligible": true
-          },
-          "work_premium": {
-            "work_income": "0",
-            "family_net_income": "0",
-            "eligible_work_income": "0",
-            "growth_rate": "0",
-            "basic_premium": "0",
-            "reduction_threshold": "0",
-            "reduction_amount": "0",
-            "net_premium": "0",
-            "is_eligible": false,
-            "calculation_phase": "ineligible",
-            "household_type_category": "couple_without_children"
-          },
-          "family_allowance": {
-            "basic_allowance": "0",
-            "single_parent_supplement": "0",
-            "school_supplies_supplement": "0",
-            "disabled_child_supplement": "0",
-            "gross_total": "0",
-            "reduction_amount": "0",
-            "net_allowance": "0",
-            "family_net_income": "0",
-            "eligible_children": 0,
-            "reduction_threshold": "0"
-          },
-          "school_supplies_supplement": {
-            "total_amount": "0",
-            "amount_per_child": "0",
-            "eligible_children": 0,
-            "min_age": "4",
-            "max_age": "16",
-            "max_age_with_disability": "17"
-          },
-          "social_assistance": {
-            "base_benefit": "14148",
-            "constraint_allocation": "0",
-            "single_adjustment": "0",
-            "total_work_income": "0",
-            "work_income_exemption": "0",
-            "work_income_supplement": "0",
-            "income_reduction": "0",
-            "gross_benefit": "14688",
-            "net_benefit": "14688",
-            "eligible": "1",
-            "program": "aide_sociale",
-            "calculation_details": {
-              "base_benefit_category": "Couple",
-              "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 0.00$, Exemption: 0.00$, Réduction: 0.00$",
-              "liquid_assets_check": "Avoirs: 0$ / Limite: 1340$",
-              "monthly_net_benefit": 1224
-            }
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "0",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          },
-          "housing_allowance": {
-            "eligible": "0",
-            "housing_effort_rate": "0",
-            "monthly_allowance": "0",
-            "annual_allowance": "0",
-            "ineligibility_reason": "housing_effort_too_low",
-            "calculation_details": {
-              "income_threshold": 0,
-              "housing_cost_minimum": 0,
-              "effort_rate_tier": "below_30%",
-              "progressive_reduction": 0
-            }
-          }
-        },
-        "canada": {
-          "net_income": {
-            "individual": "29474.25",
-            "family": "49474.25"
-          },
-          "child_benefit": {
-            "base_benefit": "0",
-            "disability_benefit": "0",
-            "reduction_amount": "0",
-            "net_benefit": "0",
-            "eligible_children_under_6": 0,
-            "eligible_children_6_to_17": 0,
-            "eligible_children_disabled": 0,
-            "family_net_income": "29474.25",
-            "reduction_phase": "none",
-            "effective_reduction_rate": "0"
-          },
-          "gst_credit": {
-            "amount": "396",
-            "base_credit": "680",
-            "single_supplement": "0",
-            "children_credit": "0",
-            "family_income": "50000",
-            "income_above_threshold": "5676",
-            "reduction_amount": "284",
-            "annual_amount": "396",
-            "quarterly_payment": "99",
-            "has_spouse": "1",
-            "is_single_parent": "0",
-            "children_count": "0"
-          },
-          "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
-            "disability_supplement": "0",
-            "work_income": "0",
-            "total_income": "50000",
-            "is_family": "1",
-            "minimum_work_income_met": "0"
-          },
-          "old_age_security": {
-            "primary": {
-              "amount": "8618",
-              "oas_amount": "8618",
-              "oas_gross_monthly_amount": "718",
-              "oas_net_monthly_amount": "718",
-              "oas_annual_amount": "8618",
-              "gis_amount": "0",
-              "gis_monthly_amount": "0",
-              "gis_eligible": "0",
-              "gis_max_monthly_amount": "634",
-              "gis_income": "50000",
-              "gis_income_cutoff": "27552",
-              "gis_reduction_applied": "2083",
-              "gis_is_couple": "1",
-              "gis_spouse_receives_oas": "1",
-              "combined_amount": "8618",
-              "gross_monthly_amount": "718",
-              "net_monthly_amount": "718",
-              "annual_amount": "8618",
-              "recovery_tax": "0",
-              "individual_income": "30000",
-              "is_75_plus": "0",
-              "recovery_threshold": "90997",
-              "residence_factor": "1",
-              "eligible": "1",
-              "age_requirement_met": "1",
-              "q1_amount": "713.34",
-              "q2_amount": "713.34",
-              "q3_amount": "718.33",
-              "q4_amount": "727.67",
-              "average_quarterly_amount": "718"
-            },
-            "spouse": {
-              "amount": "8618",
-              "oas_amount": "8618",
-              "oas_gross_monthly_amount": "718",
-              "oas_net_monthly_amount": "718",
-              "oas_annual_amount": "8618",
-              "gis_amount": "0",
-              "gis_monthly_amount": "0",
-              "gis_eligible": "0",
-              "gis_max_monthly_amount": "634",
-              "gis_income": "40000",
-              "gis_income_cutoff": "27552",
-              "gis_reduction_applied": "1667",
-              "gis_is_couple": "1",
-              "gis_spouse_receives_oas": "1",
-              "combined_amount": "8618",
-              "gross_monthly_amount": "718",
-              "net_monthly_amount": "718",
-              "annual_amount": "8618",
-              "recovery_tax": "0",
-              "individual_income": "20000",
-              "is_75_plus": "0",
-              "recovery_threshold": "90997",
-              "residence_factor": "1",
-              "eligible": "1",
-              "age_requirement_met": "1",
-              "q1_amount": "713.34",
-              "q2_amount": "713.34",
-              "q3_amount": "718.33",
-              "q4_amount": "727.67",
-              "average_quarterly_amount": "718"
-            },
-            "total_amount": "17236"
-          },
-          "medical_expense_supplement": {
-            "amount": "0",
-            "eligible": "0",
-            "work_income": "0",
-            "family_net_income": "0",
-            "medical_expenses": "0",
-            "creditable_medical_expenses": "0",
-            "phase_out_reduction": "0",
-            "minimum_work_income_met": "0"
-          }
-        },
-        "revenu_disponible": "82427.37"
-      },
-      "expectedResults": {
-        "revenuBrut": 50000,
-        "revenu_disponible": 47600,
-        "regimeFiscalQuebec": 2800,
-        "impotRevenuQuebec": 1400,
-        "creditSolidarite": 2400,
-        "primeTravail": 0,
-        "regimeFiscalFederal": 1400,
-        "impotRevenuFederal": 700,
-        "creditTPS": 1700,
-        "totalCotisations": 0,
-        "assuranceEmploi": 0,
-        "rqap": 0,
-        "rrq": 0,
-        "fss": 0,
-        "ramq": 0
-      },
-      "differences": [
-        {
-          "field": "fss",
-          "expected": 0,
-          "actual": 147.4,
-          "absoluteDifference": 147.4,
-          "percentageDifference": 100,
-          "severity": "critical"
-        },
-        {
-          "field": "totalCotisations",
-          "expected": 0,
-          "actual": 147.4,
-          "absoluteDifference": 147.4,
-          "percentageDifference": 100,
-          "severity": "critical"
-        }
-      ],
-      "totalAbsoluteDifference": 294.8,
-      "totalPercentageDifference": 100,
-      "status": "fail"
-    },
-    {
-      "testCase": {
-        "id": "retired_single_25k",
-        "description": "Retraité seul, 67 ans, 25 000$ retraite",
-        "input": {
-          "taxYear": 2024,
-          "householdType": "retired_single",
-          "primaryPerson": {
-            "age": 67,
-            "grossWorkIncome": 0,
-            "grossRetirementIncome": 25000
+            "age": 35,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
           },
           "numChildren": 0
         },
         "expectedResults": {
           "revenuBrut": 25000,
-          "revenu_disponible": 23800,
-          "regimeFiscalQuebec": 1500,
-          "impotRevenuQuebec": 300,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
           "creditSolidarite": 1200,
           "primeTravail": 0,
-          "regimeFiscalFederal": 700,
-          "impotRevenuFederal": 150,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
           "creditTPS": 850,
-          "totalCotisations": 0,
-          "assuranceEmploi": 0,
-          "rqap": 0,
-          "rrq": 0,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
           "fss": 0,
           "ramq": 0
         },
-        "priority": "medium",
-        "category": "retired"
+        "priority": "high",
+        "category": "single"
       },
       "ourResults": {
         "cotisations": {
-          "rrq": "0",
-          "assurance_emploi": "0",
-          "rqap": "0",
-          "fss": "73.7",
-          "ramq": "0",
-          "total": "73.7"
+          "rrq": "1376",
+          "assurance_emploi": "330",
+          "rqap": "123.5",
+          "fss": "0",
+          "ramq": "218.8",
+          "total": "2048.3"
         },
         "taxes": {
-          "quebec": "0",
-          "canada": "0",
-          "total": "0"
+          "quebec": "451.43",
+          "canada": "1119.83",
+          "total": "1571.26"
         },
         "quebec": {
           "net_income": {
-            "individual": "25000",
-            "family": "25000"
+            "individual": "22719.07",
+            "family": "22719.07"
           },
           "solidarity": {
             "tvq_component": "510",
             "housing_component": "711",
             "northern_village_component": "0",
             "gross_total": "1221",
-            "family_net_income": "25000",
+            "family_net_income": "22050.68",
             "reduction_amount": "0",
             "net_credit": "1221",
             "components_count": 2,
             "is_eligible": true
           },
           "work_premium": {
-            "work_income": "0",
-            "family_net_income": "0",
-            "eligible_work_income": "0",
-            "growth_rate": "0",
-            "basic_premium": "0",
-            "reduction_threshold": "0",
+            "work_income": "25000",
+            "family_net_income": "22050.68",
+            "eligible_work_income": "22600",
+            "growth_rate": "0.116",
+            "basic_premium": "1152",
+            "reduction_threshold": "22795",
             "reduction_amount": "0",
-            "net_premium": "0",
-            "is_eligible": false,
-            "calculation_phase": "ineligible",
+            "net_premium": "1152",
+            "is_eligible": true,
+            "calculation_phase": "maximum",
             "household_type_category": "single"
           },
           "family_allowance": {
@@ -2696,26 +1449,576 @@
             "base_benefit": "9144",
             "constraint_allocation": "0",
             "single_adjustment": "0",
-            "total_work_income": "0",
-            "work_income_exemption": "0",
+            "total_work_income": "25000",
+            "work_income_exemption": "2400",
             "work_income_supplement": "0",
-            "income_reduction": "0",
+            "income_reduction": "22600",
             "gross_benefit": "9684",
-            "net_benefit": "9684",
+            "net_benefit": "0",
             "eligible": "1",
             "program": "aide_sociale",
             "calculation_details": {
               "base_benefit_category": "Personne seule",
               "constraint_details": "Aucune contrainte",
-              "work_income_calculation": "Revenus totaux: 0.00$, Exemption: 0.00$, Réduction: 0.00$",
+              "work_income_calculation": "Revenus totaux: 2083.33$, Exemption: 200.00$, Réduction: 1883.33$",
               "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
-              "monthly_net_benefit": 807
+              "monthly_net_benefit": 0
             }
           },
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "0",
+            "work_income": "25000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          },
+          "housing_allowance": {
+            "eligible": "0",
+            "housing_effort_rate": "0",
+            "monthly_allowance": "0",
+            "annual_allowance": "0",
+            "ineligibility_reason": "age_too_young_single",
+            "calculation_details": {
+              "income_threshold": 0,
+              "housing_cost_minimum": 0,
+              "effort_rate_tier": "below_30%",
+              "progressive_reduction": 0
+            }
+          }
+        },
+        "canada": {
+          "net_income": {
+            "individual": "22050.68",
+            "family": "22050.68"
+          },
+          "child_benefit": {
+            "base_benefit": "0",
+            "disability_benefit": "0",
+            "reduction_amount": "0",
+            "net_benefit": "0",
+            "eligible_children_under_6": 0,
+            "eligible_children_6_to_17": 0,
+            "eligible_children_disabled": 0,
+            "family_net_income": "22050.68",
+            "reduction_phase": "none",
+            "effective_reduction_rate": "0"
+          },
+          "gst_credit": {
+            "amount": "519",
+            "base_credit": "340",
+            "single_supplement": "179",
+            "children_credit": "0",
+            "family_income": "25000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "519",
+            "quarterly_payment": "130",
+            "has_spouse": "0",
+            "is_single_parent": "0",
+            "children_count": "0"
+          },
+          "workers_benefit": {
+            "amount": "1590",
+            "basic_amount": "1590",
+            "disability_supplement": "0",
+            "work_income": "25000",
+            "total_income": "25000",
+            "is_family": "0",
+            "minimum_work_income_met": "1",
+            "phase_in_amount": "1590",
+            "phase_out_reduction": "0"
+          },
+          "old_age_security": {
+            "primary": {
+              "amount": "0",
+              "eligible": "0",
+              "age_requirement_met": "0",
+              "gis_amount": "0",
+              "gis_eligible": "0",
+              "combined_amount": "0"
+            },
+            "spouse": null,
+            "total_amount": "0"
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "25000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          }
+        },
+        "revenu_disponible": "25862.44"
+      },
+      "expectedResults": {
+        "revenuBrut": 25000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [
+        {
+          "field": "assuranceEmploi",
+          "expected": 861,
+          "actual": 330,
+          "absoluteDifference": 531,
+          "percentageDifference": 61.672473867595826,
+          "severity": "critical"
+        },
+        {
+          "field": "rqap",
+          "expected": 484,
+          "actual": 123.5,
+          "absoluteDifference": 360.5,
+          "percentageDifference": 74.48347107438018,
+          "severity": "critical"
+        },
+        {
+          "field": "rrq",
+          "expected": 4735,
+          "actual": 1376,
+          "absoluteDifference": 3359,
+          "percentageDifference": 70.93980992608236,
+          "severity": "critical"
+        },
+        {
+          "field": "ramq",
+          "expected": 0,
+          "actual": 218.8,
+          "absoluteDifference": 218.8,
+          "percentageDifference": 100,
+          "severity": "critical"
+        },
+        {
+          "field": "totalCotisations",
+          "expected": 2183,
+          "actual": 2048.3,
+          "absoluteDifference": 134.69999999999982,
+          "percentageDifference": 6.1704076958314165,
+          "severity": "major"
+        }
+      ],
+      "totalAbsoluteDifference": 4604,
+      "totalPercentageDifference": 62.65323251277796,
+      "status": "fail"
+    },
+    {
+      "testCase": {
+        "id": "grid_7",
+        "description": "Personne seule - 25000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 45,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 25000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": {
+        "cotisations": {
+          "rrq": "1376",
+          "assurance_emploi": "330",
+          "rqap": "123.5",
+          "fss": "0",
+          "ramq": "218.8",
+          "total": "2048.3"
+        },
+        "taxes": {
+          "quebec": "451.43",
+          "canada": "1119.83",
+          "total": "1571.26"
+        },
+        "quebec": {
+          "net_income": {
+            "individual": "22719.07",
+            "family": "22719.07"
+          },
+          "solidarity": {
+            "tvq_component": "510",
+            "housing_component": "711",
+            "northern_village_component": "0",
+            "gross_total": "1221",
+            "family_net_income": "22050.68",
+            "reduction_amount": "0",
+            "net_credit": "1221",
+            "components_count": 2,
+            "is_eligible": true
+          },
+          "work_premium": {
+            "work_income": "25000",
+            "family_net_income": "22050.68",
+            "eligible_work_income": "22600",
+            "growth_rate": "0.116",
+            "basic_premium": "1152",
+            "reduction_threshold": "22795",
+            "reduction_amount": "0",
+            "net_premium": "1152",
+            "is_eligible": true,
+            "calculation_phase": "maximum",
+            "household_type_category": "single"
+          },
+          "family_allowance": {
+            "basic_allowance": "0",
+            "single_parent_supplement": "0",
+            "school_supplies_supplement": "0",
+            "disabled_child_supplement": "0",
+            "gross_total": "0",
+            "reduction_amount": "0",
+            "net_allowance": "0",
+            "family_net_income": "0",
+            "eligible_children": 0,
+            "reduction_threshold": "0"
+          },
+          "school_supplies_supplement": {
+            "total_amount": "0",
+            "amount_per_child": "0",
+            "eligible_children": 0,
+            "min_age": "4",
+            "max_age": "16",
+            "max_age_with_disability": "17"
+          },
+          "social_assistance": {
+            "base_benefit": "9144",
+            "constraint_allocation": "0",
+            "single_adjustment": "0",
+            "total_work_income": "25000",
+            "work_income_exemption": "2400",
+            "work_income_supplement": "0",
+            "income_reduction": "22600",
+            "gross_benefit": "9684",
+            "net_benefit": "0",
+            "eligible": "1",
+            "program": "aide_sociale",
+            "calculation_details": {
+              "base_benefit_category": "Personne seule",
+              "constraint_details": "Aucune contrainte",
+              "work_income_calculation": "Revenus totaux: 2083.33$, Exemption: 200.00$, Réduction: 1883.33$",
+              "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
+              "monthly_net_benefit": 0
+            }
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "25000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          },
+          "housing_allowance": {
+            "eligible": "0",
+            "housing_effort_rate": "0",
+            "monthly_allowance": "0",
+            "annual_allowance": "0",
+            "ineligibility_reason": "age_too_young_single",
+            "calculation_details": {
+              "income_threshold": 0,
+              "housing_cost_minimum": 0,
+              "effort_rate_tier": "below_30%",
+              "progressive_reduction": 0
+            }
+          }
+        },
+        "canada": {
+          "net_income": {
+            "individual": "22050.68",
+            "family": "22050.68"
+          },
+          "child_benefit": {
+            "base_benefit": "0",
+            "disability_benefit": "0",
+            "reduction_amount": "0",
+            "net_benefit": "0",
+            "eligible_children_under_6": 0,
+            "eligible_children_6_to_17": 0,
+            "eligible_children_disabled": 0,
+            "family_net_income": "22050.68",
+            "reduction_phase": "none",
+            "effective_reduction_rate": "0"
+          },
+          "gst_credit": {
+            "amount": "519",
+            "base_credit": "340",
+            "single_supplement": "179",
+            "children_credit": "0",
+            "family_income": "25000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "519",
+            "quarterly_payment": "130",
+            "has_spouse": "0",
+            "is_single_parent": "0",
+            "children_count": "0"
+          },
+          "workers_benefit": {
+            "amount": "1590",
+            "basic_amount": "1590",
+            "disability_supplement": "0",
+            "work_income": "25000",
+            "total_income": "25000",
+            "is_family": "0",
+            "minimum_work_income_met": "1",
+            "phase_in_amount": "1590",
+            "phase_out_reduction": "0"
+          },
+          "old_age_security": {
+            "primary": {
+              "amount": "0",
+              "eligible": "0",
+              "age_requirement_met": "0",
+              "gis_amount": "0",
+              "gis_eligible": "0",
+              "combined_amount": "0"
+            },
+            "spouse": null,
+            "total_amount": "0"
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "25000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          }
+        },
+        "revenu_disponible": "25862.44"
+      },
+      "expectedResults": {
+        "revenuBrut": 25000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [
+        {
+          "field": "assuranceEmploi",
+          "expected": 861,
+          "actual": 330,
+          "absoluteDifference": 531,
+          "percentageDifference": 61.672473867595826,
+          "severity": "critical"
+        },
+        {
+          "field": "rqap",
+          "expected": 484,
+          "actual": 123.5,
+          "absoluteDifference": 360.5,
+          "percentageDifference": 74.48347107438018,
+          "severity": "critical"
+        },
+        {
+          "field": "rrq",
+          "expected": 4735,
+          "actual": 1376,
+          "absoluteDifference": 3359,
+          "percentageDifference": 70.93980992608236,
+          "severity": "critical"
+        },
+        {
+          "field": "ramq",
+          "expected": 0,
+          "actual": 218.8,
+          "absoluteDifference": 218.8,
+          "percentageDifference": 100,
+          "severity": "critical"
+        },
+        {
+          "field": "totalCotisations",
+          "expected": 2183,
+          "actual": 2048.3,
+          "absoluteDifference": 134.69999999999982,
+          "percentageDifference": 6.1704076958314165,
+          "severity": "major"
+        }
+      ],
+      "totalAbsoluteDifference": 4604,
+      "totalPercentageDifference": 62.65323251277796,
+      "status": "fail"
+    },
+    {
+      "testCase": {
+        "id": "grid_8",
+        "description": "Personne seule - 25000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 55,
+            "grossWorkIncome": 25000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 25000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 2183,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": {
+        "cotisations": {
+          "rrq": "1376",
+          "assurance_emploi": "330",
+          "rqap": "123.5",
+          "fss": "0",
+          "ramq": "218.8",
+          "total": "2048.3"
+        },
+        "taxes": {
+          "quebec": "451.43",
+          "canada": "1119.83",
+          "total": "1571.26"
+        },
+        "quebec": {
+          "net_income": {
+            "individual": "22719.07",
+            "family": "22719.07"
+          },
+          "solidarity": {
+            "tvq_component": "510",
+            "housing_component": "711",
+            "northern_village_component": "0",
+            "gross_total": "1221",
+            "family_net_income": "22050.68",
+            "reduction_amount": "0",
+            "net_credit": "1221",
+            "components_count": 2,
+            "is_eligible": true
+          },
+          "work_premium": {
+            "work_income": "25000",
+            "family_net_income": "22050.68",
+            "eligible_work_income": "22600",
+            "growth_rate": "0.116",
+            "basic_premium": "1152",
+            "reduction_threshold": "22795",
+            "reduction_amount": "0",
+            "net_premium": "1152",
+            "is_eligible": true,
+            "calculation_phase": "maximum",
+            "household_type_category": "single"
+          },
+          "family_allowance": {
+            "basic_allowance": "0",
+            "single_parent_supplement": "0",
+            "school_supplies_supplement": "0",
+            "disabled_child_supplement": "0",
+            "gross_total": "0",
+            "reduction_amount": "0",
+            "net_allowance": "0",
+            "family_net_income": "0",
+            "eligible_children": 0,
+            "reduction_threshold": "0"
+          },
+          "school_supplies_supplement": {
+            "total_amount": "0",
+            "amount_per_child": "0",
+            "eligible_children": 0,
+            "min_age": "4",
+            "max_age": "16",
+            "max_age_with_disability": "17"
+          },
+          "social_assistance": {
+            "base_benefit": "9144",
+            "constraint_allocation": "0",
+            "single_adjustment": "0",
+            "total_work_income": "25000",
+            "work_income_exemption": "2400",
+            "work_income_supplement": "0",
+            "income_reduction": "22600",
+            "gross_benefit": "9684",
+            "net_benefit": "0",
+            "eligible": "1",
+            "program": "aide_sociale",
+            "calculation_details": {
+              "base_benefit_category": "Personne seule",
+              "constraint_details": "Aucune contrainte",
+              "work_income_calculation": "Revenus totaux: 2083.33$, Exemption: 200.00$, Réduction: 1883.33$",
+              "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
+              "monthly_net_benefit": 0
+            }
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "25000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -2738,8 +2041,8 @@
         },
         "canada": {
           "net_income": {
-            "individual": "25000",
-            "family": "25000"
+            "individual": "22050.68",
+            "family": "22050.68"
           },
           "child_benefit": {
             "base_benefit": "0",
@@ -2749,7 +2052,7 @@
             "eligible_children_under_6": 0,
             "eligible_children_6_to_17": 0,
             "eligible_children_disabled": 0,
-            "family_net_income": "25000",
+            "family_net_income": "22050.68",
             "reduction_phase": "none",
             "effective_reduction_rate": "0"
           },
@@ -2768,54 +2071,32 @@
             "children_count": "0"
           },
           "workers_benefit": {
-            "amount": "0",
-            "basic_amount": "0",
+            "amount": "1590",
+            "basic_amount": "1590",
             "disability_supplement": "0",
-            "work_income": "0",
+            "work_income": "25000",
             "total_income": "25000",
             "is_family": "0",
-            "minimum_work_income_met": "0"
+            "minimum_work_income_met": "1",
+            "phase_in_amount": "1590",
+            "phase_out_reduction": "0"
           },
           "old_age_security": {
             "primary": {
-              "amount": "8618",
-              "oas_amount": "8618",
-              "oas_gross_monthly_amount": "718",
-              "oas_net_monthly_amount": "718",
-              "oas_annual_amount": "8618",
+              "amount": "0",
+              "eligible": "0",
+              "age_requirement_met": "0",
               "gis_amount": "0",
-              "gis_monthly_amount": "0",
               "gis_eligible": "0",
-              "gis_max_monthly_amount": "1053",
-              "gis_income": "25000",
-              "gis_income_cutoff": "20832",
-              "gis_reduction_applied": "1042",
-              "gis_is_couple": "0",
-              "gis_spouse_receives_oas": "0",
-              "combined_amount": "8618",
-              "gross_monthly_amount": "718",
-              "net_monthly_amount": "718",
-              "annual_amount": "8618",
-              "recovery_tax": "0",
-              "individual_income": "25000",
-              "is_75_plus": "0",
-              "recovery_threshold": "90997",
-              "residence_factor": "1",
-              "eligible": "1",
-              "age_requirement_met": "1",
-              "q1_amount": "713.34",
-              "q2_amount": "713.34",
-              "q3_amount": "718.33",
-              "q4_amount": "727.67",
-              "average_quarterly_amount": "718"
+              "combined_amount": "0"
             },
             "spouse": null,
-            "total_amount": "8618"
+            "total_amount": "0"
           },
           "medical_expense_supplement": {
             "amount": "0",
             "eligible": "0",
-            "work_income": "0",
+            "work_income": "25000",
             "family_net_income": "0",
             "medical_expenses": "0",
             "creditable_medical_expenses": "0",
@@ -2823,320 +2104,622 @@
             "minimum_work_income_met": "0"
           }
         },
-        "revenu_disponible": "44968.3"
+        "revenu_disponible": "25862.44"
       },
       "expectedResults": {
         "revenuBrut": 25000,
-        "revenu_disponible": 23800,
-        "regimeFiscalQuebec": 1500,
-        "impotRevenuQuebec": 300,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
         "creditSolidarite": 1200,
         "primeTravail": 0,
-        "regimeFiscalFederal": 700,
-        "impotRevenuFederal": 150,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
         "creditTPS": 850,
-        "totalCotisations": 0,
-        "assuranceEmploi": 0,
-        "rqap": 0,
-        "rrq": 0,
+        "totalCotisations": 2183,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
         "fss": 0,
         "ramq": 0
       },
       "differences": [
         {
-          "field": "fss",
+          "field": "assuranceEmploi",
+          "expected": 861,
+          "actual": 330,
+          "absoluteDifference": 531,
+          "percentageDifference": 61.672473867595826,
+          "severity": "critical"
+        },
+        {
+          "field": "rqap",
+          "expected": 484,
+          "actual": 123.5,
+          "absoluteDifference": 360.5,
+          "percentageDifference": 74.48347107438018,
+          "severity": "critical"
+        },
+        {
+          "field": "rrq",
+          "expected": 4735,
+          "actual": 1376,
+          "absoluteDifference": 3359,
+          "percentageDifference": 70.93980992608236,
+          "severity": "critical"
+        },
+        {
+          "field": "ramq",
           "expected": 0,
-          "actual": 73.7,
-          "absoluteDifference": 73.7,
+          "actual": 218.8,
+          "absoluteDifference": 218.8,
           "percentageDifference": 100,
           "severity": "critical"
         },
         {
           "field": "totalCotisations",
-          "expected": 0,
-          "actual": 73.7,
-          "absoluteDifference": 73.7,
-          "percentageDifference": 100,
-          "severity": "critical"
+          "expected": 2183,
+          "actual": 2048.3,
+          "absoluteDifference": 134.69999999999982,
+          "percentageDifference": 6.1704076958314165,
+          "severity": "major"
         }
       ],
-      "totalAbsoluteDifference": 147.4,
-      "totalPercentageDifference": 100,
+      "totalAbsoluteDifference": 4604,
+      "totalPercentageDifference": 62.65323251277796,
+      "status": "fail"
+    },
+    {
+      "testCase": {
+        "id": "grid_9",
+        "description": "Personne seule - 35000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 25,
+            "grossWorkIncome": 35000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 35000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 3056.2,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": {
+        "cotisations": {
+          "rrq": "2016",
+          "assurance_emploi": "462",
+          "rqap": "172.9",
+          "fss": "0",
+          "ramq": "737.5",
+          "total": "3388.4"
+        },
+        "taxes": {
+          "quebec": "1736.43",
+          "canada": "2496.62",
+          "total": "4233.05"
+        },
+        "quebec": {
+          "net_income": {
+            "individual": "30612.67",
+            "family": "30612.67"
+          },
+          "solidarity": {
+            "tvq_component": "510",
+            "housing_component": "711",
+            "northern_village_component": "0",
+            "gross_total": "1221",
+            "family_net_income": "29852.49",
+            "reduction_amount": "0",
+            "net_credit": "1221",
+            "components_count": 2,
+            "is_eligible": true
+          },
+          "work_premium": {
+            "work_income": "35000",
+            "family_net_income": "29852.49",
+            "eligible_work_income": "32600",
+            "growth_rate": "0.116",
+            "basic_premium": "1152",
+            "reduction_threshold": "22795",
+            "reduction_amount": "705.749",
+            "net_premium": "446.251",
+            "is_eligible": true,
+            "calculation_phase": "maximum",
+            "household_type_category": "single"
+          },
+          "family_allowance": {
+            "basic_allowance": "0",
+            "single_parent_supplement": "0",
+            "school_supplies_supplement": "0",
+            "disabled_child_supplement": "0",
+            "gross_total": "0",
+            "reduction_amount": "0",
+            "net_allowance": "0",
+            "family_net_income": "0",
+            "eligible_children": 0,
+            "reduction_threshold": "0"
+          },
+          "school_supplies_supplement": {
+            "total_amount": "0",
+            "amount_per_child": "0",
+            "eligible_children": 0,
+            "min_age": "4",
+            "max_age": "16",
+            "max_age_with_disability": "17"
+          },
+          "social_assistance": {
+            "base_benefit": "9144",
+            "constraint_allocation": "0",
+            "single_adjustment": "0",
+            "total_work_income": "35000",
+            "work_income_exemption": "2400",
+            "work_income_supplement": "0",
+            "income_reduction": "32600",
+            "gross_benefit": "9684",
+            "net_benefit": "0",
+            "eligible": "1",
+            "program": "aide_sociale",
+            "calculation_details": {
+              "base_benefit_category": "Personne seule",
+              "constraint_details": "Aucune contrainte",
+              "work_income_calculation": "Revenus totaux: 2916.67$, Exemption: 200.00$, Réduction: 2716.67$",
+              "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
+              "monthly_net_benefit": 0
+            }
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "35000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          },
+          "housing_allowance": {
+            "eligible": "0",
+            "housing_effort_rate": "0",
+            "monthly_allowance": "0",
+            "annual_allowance": "0",
+            "ineligibility_reason": "age_too_young_single",
+            "calculation_details": {
+              "income_threshold": 0,
+              "housing_cost_minimum": 0,
+              "effort_rate_tier": "below_30%",
+              "progressive_reduction": 0
+            }
+          }
+        },
+        "canada": {
+          "net_income": {
+            "individual": "29852.49",
+            "family": "29852.49"
+          },
+          "child_benefit": {
+            "base_benefit": "0",
+            "disability_benefit": "0",
+            "reduction_amount": "0",
+            "net_benefit": "0",
+            "eligible_children_under_6": 0,
+            "eligible_children_6_to_17": 0,
+            "eligible_children_disabled": 0,
+            "family_net_income": "29852.49",
+            "reduction_phase": "none",
+            "effective_reduction_rate": "0"
+          },
+          "gst_credit": {
+            "amount": "519",
+            "base_credit": "340",
+            "single_supplement": "179",
+            "children_credit": "0",
+            "family_income": "35000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "519",
+            "quarterly_payment": "130",
+            "has_spouse": "0",
+            "is_single_parent": "0",
+            "children_count": "0"
+          },
+          "workers_benefit": {
+            "amount": "262",
+            "basic_amount": "262",
+            "disability_supplement": "0",
+            "work_income": "35000",
+            "total_income": "35000",
+            "is_family": "0",
+            "minimum_work_income_met": "1",
+            "phase_in_amount": "1590",
+            "phase_out_reduction": "1328"
+          },
+          "old_age_security": {
+            "primary": {
+              "amount": "0",
+              "eligible": "0",
+              "age_requirement_met": "0",
+              "gis_amount": "0",
+              "gis_eligible": "0",
+              "combined_amount": "0"
+            },
+            "spouse": null,
+            "total_amount": "0"
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "35000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          }
+        },
+        "revenu_disponible": "29826.801"
+      },
+      "expectedResults": {
+        "revenuBrut": 35000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 3056.2,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [
+        {
+          "field": "assuranceEmploi",
+          "expected": 861,
+          "actual": 462,
+          "absoluteDifference": 399,
+          "percentageDifference": 46.34146341463415,
+          "severity": "critical"
+        },
+        {
+          "field": "rqap",
+          "expected": 484,
+          "actual": 172.9,
+          "absoluteDifference": 311.1,
+          "percentageDifference": 64.27685950413223,
+          "severity": "critical"
+        },
+        {
+          "field": "rrq",
+          "expected": 4735,
+          "actual": 2016,
+          "absoluteDifference": 2719,
+          "percentageDifference": 57.4234424498416,
+          "severity": "critical"
+        },
+        {
+          "field": "ramq",
+          "expected": 0,
+          "actual": 737.5,
+          "absoluteDifference": 737.5,
+          "percentageDifference": 100,
+          "severity": "critical"
+        },
+        {
+          "field": "totalCotisations",
+          "expected": 3056.2,
+          "actual": 3388.4,
+          "absoluteDifference": 332.2000000000003,
+          "percentageDifference": 10.86970747987698,
+          "severity": "major"
+        }
+      ],
+      "totalAbsoluteDifference": 4498.800000000001,
+      "totalPercentageDifference": 55.78229456969699,
+      "status": "fail"
+    },
+    {
+      "testCase": {
+        "id": "grid_10",
+        "description": "Personne seule - 35000$",
+        "input": {
+          "taxYear": 2024,
+          "householdType": "single",
+          "primaryPerson": {
+            "age": 35,
+            "grossWorkIncome": 35000,
+            "grossRetirementIncome": 0
+          },
+          "numChildren": 0
+        },
+        "expectedResults": {
+          "revenuBrut": 35000,
+          "revenu_disponible": 147026,
+          "regimeFiscalQuebec": 0,
+          "impotRevenuQuebec": 0,
+          "creditSolidarite": 1200,
+          "primeTravail": 0,
+          "allocationFamiliale": 0,
+          "regimeFiscalFederal": 0,
+          "impotRevenuFederal": 0,
+          "allocationCanadienneEnfants": 0,
+          "creditTPS": 850,
+          "totalCotisations": 3056.2,
+          "assuranceEmploi": 861,
+          "rqap": 484,
+          "rrq": 4735,
+          "fss": 0,
+          "ramq": 0
+        },
+        "priority": "high",
+        "category": "single"
+      },
+      "ourResults": {
+        "cotisations": {
+          "rrq": "2016",
+          "assurance_emploi": "462",
+          "rqap": "172.9",
+          "fss": "0",
+          "ramq": "737.5",
+          "total": "3388.4"
+        },
+        "taxes": {
+          "quebec": "1736.43",
+          "canada": "2496.62",
+          "total": "4233.05"
+        },
+        "quebec": {
+          "net_income": {
+            "individual": "30612.67",
+            "family": "30612.67"
+          },
+          "solidarity": {
+            "tvq_component": "510",
+            "housing_component": "711",
+            "northern_village_component": "0",
+            "gross_total": "1221",
+            "family_net_income": "29852.49",
+            "reduction_amount": "0",
+            "net_credit": "1221",
+            "components_count": 2,
+            "is_eligible": true
+          },
+          "work_premium": {
+            "work_income": "35000",
+            "family_net_income": "29852.49",
+            "eligible_work_income": "32600",
+            "growth_rate": "0.116",
+            "basic_premium": "1152",
+            "reduction_threshold": "22795",
+            "reduction_amount": "705.749",
+            "net_premium": "446.251",
+            "is_eligible": true,
+            "calculation_phase": "maximum",
+            "household_type_category": "single"
+          },
+          "family_allowance": {
+            "basic_allowance": "0",
+            "single_parent_supplement": "0",
+            "school_supplies_supplement": "0",
+            "disabled_child_supplement": "0",
+            "gross_total": "0",
+            "reduction_amount": "0",
+            "net_allowance": "0",
+            "family_net_income": "0",
+            "eligible_children": 0,
+            "reduction_threshold": "0"
+          },
+          "school_supplies_supplement": {
+            "total_amount": "0",
+            "amount_per_child": "0",
+            "eligible_children": 0,
+            "min_age": "4",
+            "max_age": "16",
+            "max_age_with_disability": "17"
+          },
+          "social_assistance": {
+            "base_benefit": "9144",
+            "constraint_allocation": "0",
+            "single_adjustment": "0",
+            "total_work_income": "35000",
+            "work_income_exemption": "2400",
+            "work_income_supplement": "0",
+            "income_reduction": "32600",
+            "gross_benefit": "9684",
+            "net_benefit": "0",
+            "eligible": "1",
+            "program": "aide_sociale",
+            "calculation_details": {
+              "base_benefit_category": "Personne seule",
+              "constraint_details": "Aucune contrainte",
+              "work_income_calculation": "Revenus totaux: 2916.67$, Exemption: 200.00$, Réduction: 2716.67$",
+              "liquid_assets_check": "Avoirs: 0$ / Limite: 887$",
+              "monthly_net_benefit": 0
+            }
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "35000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          },
+          "housing_allowance": {
+            "eligible": "0",
+            "housing_effort_rate": "0",
+            "monthly_allowance": "0",
+            "annual_allowance": "0",
+            "ineligibility_reason": "age_too_young_single",
+            "calculation_details": {
+              "income_threshold": 0,
+              "housing_cost_minimum": 0,
+              "effort_rate_tier": "below_30%",
+              "progressive_reduction": 0
+            }
+          }
+        },
+        "canada": {
+          "net_income": {
+            "individual": "29852.49",
+            "family": "29852.49"
+          },
+          "child_benefit": {
+            "base_benefit": "0",
+            "disability_benefit": "0",
+            "reduction_amount": "0",
+            "net_benefit": "0",
+            "eligible_children_under_6": 0,
+            "eligible_children_6_to_17": 0,
+            "eligible_children_disabled": 0,
+            "family_net_income": "29852.49",
+            "reduction_phase": "none",
+            "effective_reduction_rate": "0"
+          },
+          "gst_credit": {
+            "amount": "519",
+            "base_credit": "340",
+            "single_supplement": "179",
+            "children_credit": "0",
+            "family_income": "35000",
+            "income_above_threshold": "0",
+            "reduction_amount": "0",
+            "annual_amount": "519",
+            "quarterly_payment": "130",
+            "has_spouse": "0",
+            "is_single_parent": "0",
+            "children_count": "0"
+          },
+          "workers_benefit": {
+            "amount": "262",
+            "basic_amount": "262",
+            "disability_supplement": "0",
+            "work_income": "35000",
+            "total_income": "35000",
+            "is_family": "0",
+            "minimum_work_income_met": "1",
+            "phase_in_amount": "1590",
+            "phase_out_reduction": "1328"
+          },
+          "old_age_security": {
+            "primary": {
+              "amount": "0",
+              "eligible": "0",
+              "age_requirement_met": "0",
+              "gis_amount": "0",
+              "gis_eligible": "0",
+              "combined_amount": "0"
+            },
+            "spouse": null,
+            "total_amount": "0"
+          },
+          "medical_expense_supplement": {
+            "amount": "0",
+            "eligible": "0",
+            "work_income": "35000",
+            "family_net_income": "0",
+            "medical_expenses": "0",
+            "creditable_medical_expenses": "0",
+            "phase_out_reduction": "0",
+            "minimum_work_income_met": "0"
+          }
+        },
+        "revenu_disponible": "29826.801"
+      },
+      "expectedResults": {
+        "revenuBrut": 35000,
+        "revenu_disponible": 147026,
+        "regimeFiscalQuebec": 0,
+        "impotRevenuQuebec": 0,
+        "creditSolidarite": 1200,
+        "primeTravail": 0,
+        "allocationFamiliale": 0,
+        "regimeFiscalFederal": 0,
+        "impotRevenuFederal": 0,
+        "allocationCanadienneEnfants": 0,
+        "creditTPS": 850,
+        "totalCotisations": 3056.2,
+        "assuranceEmploi": 861,
+        "rqap": 484,
+        "rrq": 4735,
+        "fss": 0,
+        "ramq": 0
+      },
+      "differences": [
+        {
+          "field": "assuranceEmploi",
+          "expected": 861,
+          "actual": 462,
+          "absoluteDifference": 399,
+          "percentageDifference": 46.34146341463415,
+          "severity": "critical"
+        },
+        {
+          "field": "rqap",
+          "expected": 484,
+          "actual": 172.9,
+          "absoluteDifference": 311.1,
+          "percentageDifference": 64.27685950413223,
+          "severity": "critical"
+        },
+        {
+          "field": "rrq",
+          "expected": 4735,
+          "actual": 2016,
+          "absoluteDifference": 2719,
+          "percentageDifference": 57.4234424498416,
+          "severity": "critical"
+        },
+        {
+          "field": "ramq",
+          "expected": 0,
+          "actual": 737.5,
+          "absoluteDifference": 737.5,
+          "percentageDifference": 100,
+          "severity": "critical"
+        },
+        {
+          "field": "totalCotisations",
+          "expected": 3056.2,
+          "actual": 3388.4,
+          "absoluteDifference": 332.2000000000003,
+          "percentageDifference": 10.86970747987698,
+          "severity": "major"
+        }
+      ],
+      "totalAbsoluteDifference": 4498.800000000001,
+      "totalPercentageDifference": 55.78229456969699,
       "status": "fail"
     }
-  ],
-  "criticalDifferences": [
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 737.5,
-      "absoluteDifference": 737.5,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 737.5,
-      "absoluteDifference": 737.5,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 737.5,
-      "absoluteDifference": 737.5,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 737.5,
-      "absoluteDifference": 737.5,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 737.5,
-      "absoluteDifference": 737.5,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 737.5,
-      "absoluteDifference": 737.5,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 826,
-      "actual": 300,
-      "absoluteDifference": 526,
-      "percentageDifference": 63.68038740920097,
-      "severity": "critical"
-    },
-    {
-      "field": "rrq",
-      "expected": 4455,
-      "actual": 3936,
-      "absoluteDifference": 519,
-      "percentageDifference": 11.64983164983165,
-      "severity": "critical"
-    },
-    {
-      "field": "rrq",
-      "expected": 4455,
-      "actual": 3936,
-      "absoluteDifference": 519,
-      "percentageDifference": 11.64983164983165,
-      "severity": "critical"
-    },
-    {
-      "field": "assuranceEmploi",
-      "expected": 1716,
-      "actual": 1254,
-      "absoluteDifference": 462,
-      "percentageDifference": 26.923076923076923,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 1213,
-      "actual": 776.77,
-      "absoluteDifference": 436.23,
-      "percentageDifference": 35.96290189612531,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 690,
-      "actual": 300,
-      "absoluteDifference": 390,
-      "percentageDifference": 56.52173913043478,
-      "severity": "critical"
-    },
-    {
-      "field": "assuranceEmploi",
-      "expected": 1630,
-      "actual": 1254,
-      "absoluteDifference": 376,
-      "percentageDifference": 23.06748466257669,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 456,
-      "actual": 150,
-      "absoluteDifference": 306,
-      "percentageDifference": 67.10526315789474,
-      "severity": "critical"
-    },
-    {
-      "field": "assuranceEmploi",
-      "expected": 756,
-      "actual": 462,
-      "absoluteDifference": 294,
-      "percentageDifference": 38.88888888888889,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 371,
-      "actual": 150,
-      "absoluteDifference": 221,
-      "percentageDifference": 59.56873315363881,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 218.8,
-      "absoluteDifference": 218.8,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "assuranceEmploi",
-      "expected": 540,
-      "actual": 330,
-      "absoluteDifference": 210,
-      "percentageDifference": 38.88888888888889,
-      "severity": "critical"
-    },
-    {
-      "field": "assuranceEmploi",
-      "expected": 858,
-      "actual": 660,
-      "absoluteDifference": 198,
-      "percentageDifference": 23.076923076923077,
-      "severity": "critical"
-    },
-    {
-      "field": "assuranceEmploi",
-      "expected": 772,
-      "actual": 594,
-      "absoluteDifference": 178,
-      "percentageDifference": 23.05699481865285,
-      "severity": "critical"
-    },
-    {
-      "field": "ramq",
-      "expected": 0,
-      "actual": 153.63,
-      "absoluteDifference": 153.63,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 0,
-      "actual": 147.4,
-      "absoluteDifference": 147.4,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "totalCotisations",
-      "expected": 0,
-      "actual": 147.4,
-      "absoluteDifference": 147.4,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 601,
-      "actual": 469.3,
-      "absoluteDifference": 131.7,
-      "percentageDifference": 21.913477537437604,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 601,
-      "actual": 469.3,
-      "absoluteDifference": 131.7,
-      "percentageDifference": 21.913477537437604,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 474,
-      "actual": 370.5,
-      "absoluteDifference": 103.5,
-      "percentageDifference": 21.835443037974684,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 0,
-      "actual": 73.7,
-      "absoluteDifference": 73.7,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "totalCotisations",
-      "expected": 0,
-      "actual": 73.7,
-      "absoluteDifference": 73.7,
-      "percentageDifference": 100,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 316,
-      "actual": 247,
-      "absoluteDifference": 69,
-      "percentageDifference": 21.835443037974684,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 284,
-      "actual": 222.3,
-      "absoluteDifference": 61.69999999999999,
-      "percentageDifference": 21.725352112676052,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 221,
-      "actual": 172.9,
-      "absoluteDifference": 48.099999999999994,
-      "percentageDifference": 21.76470588235294,
-      "severity": "critical"
-    },
-    {
-      "field": "fss",
-      "expected": 117,
-      "actual": 73.7,
-      "absoluteDifference": 43.3,
-      "percentageDifference": 37.008547008547005,
-      "severity": "critical"
-    },
-    {
-      "field": "rqap",
-      "expected": 158,
-      "actual": 123.5,
-      "absoluteDifference": 34.5,
-      "percentageDifference": 21.835443037974684,
-      "severity": "critical"
-    }
-  ],
-  "recommendations": [
-    "🔧 Réviser le calcul d'assurance-emploi - formule possiblement incorrecte",
-    "🔧 Ajuster le calcul FSS - seuils ou taux possiblement erronés",
-    "⚠️  Taux d'échec élevé (>30%) - révision majeure nécessaire",
-    "📊 Précision moyenne <90% - vérifier les paramètres fiscaux 2024",
-    "🎯 Prioriser les corrections sur les cas marqués \"high priority\"",
-    "📋 Implémenter les calculateurs d'impôts manquants pour validation complète"
   ]
 }

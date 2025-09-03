@@ -78,7 +78,27 @@ npm run validate:high-volume -- \
   --resume ./checkpoint-123.json  # Reprendre depuis checkpoint
 ```
 
-### 3. Validation Continue
+### 3. Validation Progressive (NOUVEAU - Recommandé)
+
+```bash
+# Validation progressive complète 10→100→1000 cas avec analyse de tendances
+npm run validate:progressive
+
+# Pour une année spécifique
+npm run validate:progressive:2024
+npm run validate:progressive:2025
+
+# Avec options personnalisées
+npm run validate:progressive -- \
+  --year 2024 \
+  --output ./my-reports \
+  --verbose
+
+# Aide détaillée
+npm run validate:progressive -- --help
+```
+
+### 4. Validation Continue
 
 ```bash
 # Monitoring automatique (toutes les heures)
@@ -96,7 +116,7 @@ npm run validate:continuous -- \
 npm run validate:status
 ```
 
-### 4. Analyse de Rapports
+### 5. Analyse de Rapports
 
 ```bash
 # Analyser un rapport existant
@@ -253,7 +273,14 @@ npm run validate:high-volume -- -b 20
 - ✅ Système de monitoring continu
 - ✅ Rapports avancés avec prioritisation
 
-### Prochaines Versions
+### Version 2.0 (NOUVEAU) - Validation Progressive
+- ✅ **ProgressiveValidationRunner**: Validation structurée 10→100→1000+ cas
+- ✅ **Analyse de tendances**: Détection d'amélioration/régression automatique
+- ✅ **Recommandations intelligentes**: Suggestions basées sur patterns d'erreurs
+- ✅ **Rapports HTML avancés**: Interface visuelle avec métriques colorées
+- ✅ **CLI intégré**: Interface complète avec options personnalisées
+
+### Prochaines Versions  
 - 🔄 Intégration CI/CD automatique
 - 🔄 API REST pour intégration externe  
 - 🔄 Dashboard web en temps réel

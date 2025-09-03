@@ -27,7 +27,14 @@
     "validate:status": "npx tsx src/lib/validation/ValidationCLI.ts status",
     "validate:analyze": "npx tsx src/lib/validation/ValidationCLI.ts analyze",
     "validate:quebec-tax": "npx tsx src/lib/validation/TestQuebecTaxValidation.ts",
-    "test:quebec-tax": "npx tsx src/lib/validation/QuickQuebecTaxTest.ts"
+    "test:quebec-tax": "npx tsx src/lib/validation/QuickQuebecTaxTest.ts",
+    "validate:progressive": "npx tsx src/lib/validation/cli/RunProgressiveValidation.ts",
+    "validate:progressive:2023": "npx tsx src/lib/validation/cli/RunProgressiveValidation.ts --year 2023",
+    "validate:progressive:2024": "npx tsx src/lib/validation/cli/RunProgressiveValidation.ts --year 2024",
+    "validate:progressive:2025": "npx tsx src/lib/validation/cli/RunProgressiveValidation.ts --year 2025",
+    "validate:progressive:demo": "npx tsx src/lib/validation/cli/RunMockProgressiveValidation.ts",
+    "demo:validation": "npx tsx src/lib/validation/cli/RunSimpleDemo.ts",
+    "validate:quick": "npx tsx src/lib/validation/QuickValidation10.ts"
   },
   "dependencies": {
     "@types/d3": "^7.4.3",

@@ -1,0 +1,22 @@
+{
+  "summary": {
+    "totalTests": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "averageAccuracy": null
+  },
+  "worstCases": [],
+  "criticalDifferences": [],
+  "recommendations": [
+    "🎯 Prioriser les corrections sur les cas marqués \"high priority\"",
+    "📋 Implémenter les calculateurs d'impôts manquants pour validation complète"
+  ],
+  "highVolumeStats": {
+    "totalProcessingTime": 500,
+    "averageTimePerCase": null,
+    "parallelBrowsersUsed": 1,
+    "batchSize": 1,
+    "generationStrategy": "systematic"
+  }
+}
