@@ -44,7 +44,7 @@ export class RevenuDisponibleCalculator {
   async initialize(): Promise<void> {
     try {
       // Create the calculators we currently have implemented
-      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'school_supplies_supplement', 'senior_support', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance', 'childcare_tax_credit', 'housing_allowance']
+      const calculatorTypes = ['qpp', 'employment_insurance', 'qpip', 'fss', 'quebec_tax', 'federal_tax', 'ramq', 'solidarity', 'work_premium', 'family_allowance', 'school_supplies_supplement', 'canada_child_benefit', 'gst_credit', 'canada_workers', 'old_age_security', 'medical_expense_supplement_federal', 'medical_expense_supplement_quebec', 'social_assistance', 'childcare_tax_credit', 'housing_allowance']
       
       for (const type of calculatorTypes) {
         try {
@@ -249,16 +249,16 @@ export class RevenuDisponibleCalculator {
       totalTransfers = totalTransfers.plus(schoolSuppliesResult.total_amount)
     }
 
-    // Senior Support Tax Credit (Crédit d'impôt pour le soutien aux aînés)
-    if (this.calculators.senior_support) {
-      const seniorSupportResult = (this.calculators.senior_support as any).calculateDetailed(household)
+    // Senior Support Tax Credit (Crédit d'impôt pour le soutien aux aînés) - TEMPORAIREMENT DÉSACTIVÉ
+    // if (this.calculators.senior_support) {
+    //   const seniorSupportResult = (this.calculators.senior_support as any).calculateDetailed(household)
+    //   
+    //   // Store detailed result
+    //   results.quebec.senior_support = seniorSupportResult
       
-      // Store detailed result
-      results.quebec.senior_support = seniorSupportResult
-      
-      // Add to total transfers (this is a refundable tax credit)
-      totalTransfers = totalTransfers.plus(seniorSupportResult.total_credit)
-    }
+    //   // Add to total transfers (this is a refundable tax credit)
+    //   totalTransfers = totalTransfers.plus(seniorSupportResult.total_credit)
+    // }
 
     // Childcare Tax Credit (Crédit d'impôt pour frais de garde d'enfants)
     if (this.calculators.childcare_tax_credit && household.children.length > 0) {

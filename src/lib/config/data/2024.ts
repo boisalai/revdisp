@@ -163,6 +163,22 @@ export const config2024: TaxYearConfig = {
     monthly_adjustment: 60.92
   },
   /**
+   * Régime de rentes du Québec (RRQ) 2024
+   * 
+   * Parameters for Quebec Pension Plan contributions
+   * 
+   * Sources:
+   * - Chaire en fiscalité et en finances publiques (CFFP)
+   * - Régie des rentes du Québec
+   */
+  qpp: {
+    basic_exemption: 3500,
+    max_pensionable_earnings: 65000,
+    base_rate: 0.054,
+    additional_rate_first: 0.010,
+    self_employed_multiplier: 2.0
+  },
+  /**
    * Allocation famille du Québec 2024
    * 
    * Montants et seuils pour la période de versement juillet 2024 à juin 2025

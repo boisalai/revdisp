@@ -19,6 +19,20 @@ export class RamqCalculator extends BaseCalculator {
   }
 
   calculate(household: Household, qcTaxResult: QcTaxResult): Record<string, Decimal> {
+    // CORRECTION MAJEURE: Les retraités de 65+ ans sont exemptés de RAMQ
+    // selon la validation officielle du MFQ
+    const isRetiredHousehold = [HouseholdType.RETIRED_SINGLE, HouseholdType.RETIRED_COUPLE].includes(household.householdType)
+    
+    if (isRetiredHousehold) {
+      // Vérifier si au moins une personne a 65+ ans (critère d'exemption)
+      const primaryAge = household.primaryPerson.age
+      const spouseAge = household.spouse?.age || 0
+      
+      if (primaryAge >= 65 || spouseAge >= 65) {
+        return { contribution: new Decimal(0) }
+      }
+    }
+
     // Utiliser le revenu familial net calculé par l'impôt du Québec
     const totalIncome = qcTaxResult.net_income.family
 
@@ -38,7 +52,8 @@ export class RamqCalculator extends BaseCalculator {
     let contribution: Decimal
     if (isCouple) {
       contribution = this.calculateCoupleContribution(incomeForCalculation)
-      contribution = contribution.times(2) // Multiplier par 2 pour un couple
+      // CORRECTION: Ne pas multiplier par 2 pour un couple
+      // La contribution calculée est déjà pour le couple complet
     } else {
       contribution = this.calculateSingleContribution(incomeForCalculation)
     }
