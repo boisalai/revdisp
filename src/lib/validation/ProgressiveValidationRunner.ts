@@ -249,7 +249,8 @@ export class ProgressiveValidationRunner {
     const targetedHouseholds = this.generateTargetedHouseholds(allWorstPrograms, 15)
     
     console.log(`🎯 Génération de ${targetedHouseholds.length} cas ciblés pour programmes problématiques`)
-    console.log(`📋 Programmes ciblés: ${[...new Set(allWorstPrograms.map(p => p.program))].join(', ')}`)
+    const uniquePrograms = Array.from(new Set(allWorstPrograms.map(p => p.program)))
+    console.log(`📋 Programmes ciblés: ${uniquePrograms.join(', ')}`)
     
     // Valider ces cas ciblés
     const officialReport = await this.officialValidationEngine.validateAgainstOfficialCalculator(targetedHouseholds)
@@ -284,7 +285,7 @@ export class ProgressiveValidationRunner {
    */
   private generateRepresentativeHouseholds(count: number): Household[] {
     const households: Household[] = []
-    const generator = new MassTestGenerator(this.config.taxYear)
+    const generator = new MassTestGenerator({ taxYear: this.config.taxYear })
     
     // Distribution représentative du Québec
     const distribution = [
@@ -298,7 +299,7 @@ export class ProgressiveValidationRunner {
     distribution.forEach(dist => {
       const typeCount = Math.round(count * dist.ratio)
       for (let i = 0; i < typeCount; i++) {
-        const household = generator.generateRealistic(dist.type)
+        const household = generator.generateHousehold(dist.type)
         households.push(household)
       }
     })
@@ -314,7 +315,7 @@ export class ProgressiveValidationRunner {
     count: number
   ): Household[] {
     const households: Household[] = []
-    const generator = new MassTestGenerator(this.config.taxYear)
+    const generator = new MassTestGenerator({ taxYear: this.config.taxYear })
     
     // Générer des cas qui sollicitent les programmes problématiques
     const programTypes: { [program: string]: HouseholdType[] } = {
@@ -329,7 +330,7 @@ export class ProgressiveValidationRunner {
       const types = programTypes[wp.program] || [HouseholdType.SINGLE]
       types.forEach(type => {
         if (households.length < count) {
-          const household = generator.generateRealistic(type)
+          const household = generator.generateHousehold(type)
           households.push(household)
         }
       })
@@ -337,7 +338,7 @@ export class ProgressiveValidationRunner {
     
     // Compléter avec des cas variés si nécessaire
     while (households.length < count) {
-      const household = generator.generateRealistic(HouseholdType.SINGLE)
+      const household = generator.generateHousehold(HouseholdType.SINGLE)
       households.push(household)
     }
     
