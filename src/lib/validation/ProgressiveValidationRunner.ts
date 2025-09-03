@@ -7,7 +7,6 @@
  */
 
 import { HighVolumeValidator, HighVolumeConfig } from './HighVolumeValidator'
-import { MassTestGenerator } from './MassTestGenerator'
 import { ValidationEngine } from './ValidationEngine'
 import { OfficialValidationEngine, OfficialValidationReport } from './OfficialValidationEngine'
 import { HouseholdType, Household } from '../models'
@@ -285,7 +284,6 @@ export class ProgressiveValidationRunner {
    */
   private generateRepresentativeHouseholds(count: number): Household[] {
     const households: Household[] = []
-    const generator = new MassTestGenerator({ taxYear: this.config.taxYear })
     
     // Distribution représentative du Québec
     const distribution = [
@@ -299,12 +297,106 @@ export class ProgressiveValidationRunner {
     distribution.forEach(dist => {
       const typeCount = Math.round(count * dist.ratio)
       for (let i = 0; i < typeCount; i++) {
-        const household = generator.generateHousehold(dist.type)
+        const household = this.createSimpleHousehold(dist.type)
         households.push(household)
       }
     })
     
     return households.slice(0, count)
+  }
+  
+  /**
+   * Crée un ménage simple pour les tests
+   */
+  private createSimpleHousehold(type: HouseholdType): Household {
+    const baseIncomes = [15000, 25000, 35000, 45000, 55000, 75000]
+    const income = baseIncomes[Math.floor(Math.random() * baseIncomes.length)]
+    
+    switch (type) {
+      case HouseholdType.SINGLE:
+        return new Household({
+          householdType: type,
+          primaryPerson: {
+            age: 25 + Math.floor(Math.random() * 35),
+            grossWorkIncome: income,
+            grossRetirementIncome: 0,
+            isRetired: false
+          },
+          numChildren: 0
+        })
+        
+      case HouseholdType.COUPLE:
+        return new Household({
+          householdType: type,
+          primaryPerson: {
+            age: 25 + Math.floor(Math.random() * 35),
+            grossWorkIncome: income,
+            grossRetirementIncome: 0,
+            isRetired: false
+          },
+          spouse: {
+            age: 25 + Math.floor(Math.random() * 35),
+            grossWorkIncome: income * 0.8,
+            grossRetirementIncome: 0,
+            isRetired: false
+          },
+          numChildren: Math.floor(Math.random() * 3)
+        })
+        
+      case HouseholdType.SINGLE_PARENT:
+        return new Household({
+          householdType: type,
+          primaryPerson: {
+            age: 25 + Math.floor(Math.random() * 35),
+            grossWorkIncome: income,
+            grossRetirementIncome: 0,
+            isRetired: false
+          },
+          numChildren: 1 + Math.floor(Math.random() * 2)
+        })
+        
+      case HouseholdType.RETIRED_SINGLE:
+        return new Household({
+          householdType: type,
+          primaryPerson: {
+            age: 65 + Math.floor(Math.random() * 20),
+            grossWorkIncome: 0,
+            grossRetirementIncome: income,
+            isRetired: true
+          },
+          numChildren: 0
+        })
+        
+      case HouseholdType.RETIRED_COUPLE:
+        return new Household({
+          householdType: type,
+          primaryPerson: {
+            age: 65 + Math.floor(Math.random() * 20),
+            grossWorkIncome: 0,
+            grossRetirementIncome: income,
+            isRetired: true
+          },
+          spouse: {
+            age: 65 + Math.floor(Math.random() * 20),
+            grossWorkIncome: 0,
+            grossRetirementIncome: income * 0.7,
+            isRetired: true
+          },
+          numChildren: 0
+        })
+        
+      default:
+        return new Household({
+          householdType: HouseholdType.SINGLE,
+          primaryPerson: {
+            age: 30,
+            grossWorkIncome: 35000,
+            grossRetirementIncome: 0,
+            isRetired: false
+          },
+          numChildren: 0
+        })
+    }
   }
 
   /**
@@ -315,7 +407,6 @@ export class ProgressiveValidationRunner {
     count: number
   ): Household[] {
     const households: Household[] = []
-    const generator = new MassTestGenerator({ taxYear: this.config.taxYear })
     
     // Générer des cas qui sollicitent les programmes problématiques
     const programTypes: { [program: string]: HouseholdType[] } = {
@@ -330,7 +421,7 @@ export class ProgressiveValidationRunner {
       const types = programTypes[wp.program] || [HouseholdType.SINGLE]
       types.forEach(type => {
         if (households.length < count) {
-          const household = generator.generateHousehold(type)
+          const household = this.createSimpleHousehold(type)
           households.push(household)
         }
       })
@@ -338,7 +429,7 @@ export class ProgressiveValidationRunner {
     
     // Compléter avec des cas variés si nécessaire
     while (households.length < count) {
-      const household = generator.generateHousehold(HouseholdType.SINGLE)
+      const household = this.createSimpleHousehold(HouseholdType.SINGLE)
       households.push(household)
     }
     
