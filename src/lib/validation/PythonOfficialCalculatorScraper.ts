@@ -34,7 +34,7 @@ export class PythonOfficialCalculatorScraper {
   constructor(options: { timeout?: number } = {}) {
     this.timeout = options.timeout ?? 60000
     // Le script Python est dans le dossier python-scraper à la racine
-    this.pythonScriptPath = path.join(process.cwd(), '..', 'python-scraper', 'calculator_scraper.py')
+    this.pythonScriptPath = path.join(process.cwd(), 'python-scraper', 'calculator_scraper.py')
   }
   
   /**
@@ -127,7 +127,8 @@ export class PythonOfficialCalculatorScraper {
   private runPythonScript(jsonData: string): Promise<string> {
     return new Promise((resolve, reject) => {
       // Utiliser uv run pour exécuter le script Python
-      const process = spawn('uv', ['run', 'python', this.pythonScriptPath, jsonData], {
+      const uvPath = '/Users/alain/.local/bin/uv' // Chemin complet vers uv
+      const process = spawn(uvPath, ['run', 'python', this.pythonScriptPath, jsonData], {
         cwd: path.dirname(this.pythonScriptPath),
         timeout: this.timeout
       })

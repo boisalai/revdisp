@@ -1,0 +1,18 @@
+{
+  "summary": {
+    "totalTests": 15,
+    "excellent": 0,
+    "good": 0,
+    "needsImprovement": 0,
+    "critical": 0,
+    "errors": 15,
+    "overallAccuracy": 0
+  },
+  "programAnalysis": [],
+  "worstCases": [],
+  "recommendations": [
+    "🔴 Révision majeure requise - précision insuffisante",
+    "🚨 Résoudre 15 erreurs de scraping - vérifier la connectivité"
+  ],
+  "timestamp": "2025-09-06T00:21:30.982Z"
+}

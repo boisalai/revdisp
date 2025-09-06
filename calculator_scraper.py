@@ -151,30 +151,9 @@ class QuebecCalculatorScraper:
         # 5. Nombre d'enfants
         num_children = household_data.get('numChildren', 0)
         if num_children > 0:
-            try:
-                children_select = Select(self.driver.find_element(By.ID, "NbEnfants"))
-                
-                # Essayer d'abord select_by_value
-                try:
-                    children_select.select_by_value(str(num_children))
-                    print(f"   ✅ #NbEnfants: {num_children} (select_by_value)")
-                except:
-                    # Si échec, essayer select_by_visible_text
-                    try:
-                        children_select.select_by_visible_text(str(num_children))
-                        print(f"   ✅ #NbEnfants: {num_children} (select_by_visible_text)")
-                    except:
-                        # Si échec, essayer select_by_index (1=1 enfant, 2=2 enfants, etc.)
-                        if num_children <= 10:  # Limiter à 10 enfants max
-                            children_select.select_by_index(num_children)
-                            print(f"   ✅ #NbEnfants: {num_children} (select_by_index)")
-                        else:
-                            print(f"   ⚠️  Impossible de sélectionner {num_children} enfants")
-                
-                time.sleep(0.5)
-            except Exception as e:
-                print(f"   ❌ Erreur sélection enfants: {e}")
-                raise
+            children_select = Select(self.driver.find_element(By.ID, "NbEnfants"))
+            children_select.select_by_value(str(num_children))
+            time.sleep(0.5)
         
         print("✅ Formulaire rempli")
     

@@ -3,7 +3,7 @@
  * Optimisé pour parallélisation et gestion de grands volumes
  */
 
-import { OfficialCalculatorScraper, OfficialCalculatorResult, ScrapingOptions } from './OfficialCalculatorScraper'
+import { PythonOfficialCalculatorScraper, PythonOfficialCalculatorResult } from './PythonOfficialCalculatorScraper'
 import { MassTestGenerator, GeneratorConfig, GenerationStrategy } from './MassTestGenerator'
 import { ValidationEngine, ValidationResult, ValidationReport } from './ValidationEngine'
 import { ValidationTestCase } from './ValidationTestCases'
@@ -17,7 +17,11 @@ export interface HighVolumeConfig {
   /** Stratégie de génération */
   generationStrategy: GenerationStrategy
   /** Options de scraping */
-  scraping: ScrapingOptions & {
+  scraping: {
+    /** Timeout pour chaque cas (ms) */
+    timeout: number
+    /** Mode headless */
+    headless: boolean
     /** Nombre de navigateurs parallèles */
     parallelBrowsers: number
     /** Délai entre les batches (ms) */
@@ -60,7 +64,7 @@ export interface ValidationCheckpoint {
 
 export class HighVolumeValidator {
   private config: HighVolumeConfig
-  private scrapers: OfficialCalculatorScraper[] = []
+  private scrapers: PythonOfficialCalculatorScraper[] = []
   private generator: MassTestGenerator
   private engine: ValidationEngine
   private progress: ValidationProgress
@@ -132,11 +136,9 @@ export class HighVolumeValidator {
     // Initialiser les scrapers parallèles
     console.log(`🌐 Initialisation de ${this.config.scraping.parallelBrowsers} navigateurs...`)
     for (let i = 0; i < this.config.scraping.parallelBrowsers; i++) {
-      const scraper = new OfficialCalculatorScraper({
-        ...this.config.scraping,
-        headless: true // Toujours en mode headless pour performance
+      const scraper = new PythonOfficialCalculatorScraper({
+        timeout: this.config.scraping.timeout
       })
-      await scraper.initialize()
       this.scrapers.push(scraper)
     }
 
@@ -236,7 +238,7 @@ export class HighVolumeValidator {
    * Traite les cas assignés à un worker spécifique
    */
   private async processWorkerCases(
-    scraper: OfficialCalculatorScraper, 
+    scraper: PythonOfficialCalculatorScraper, 
     cases: ValidationTestCase[],
     workerId: number
   ): Promise<ValidationResult[]> {
@@ -263,7 +265,7 @@ export class HighVolumeValidator {
         })
 
         // Scraper le calculateur officiel
-        const officialResult = await scraper.scrapeOfficialCalculator(household, testCase.input.taxYear)
+        const officialResult = await scraper.scrapeOfficialCalculator(household)
         
         // Mettre à jour les résultats attendus avec les données réelles
         const updatedTestCase = this.updateTestCaseWithOfficialResults(testCase, officialResult)
@@ -299,13 +301,13 @@ export class HighVolumeValidator {
    */
   private updateTestCaseWithOfficialResults(
     testCase: ValidationTestCase, 
-    officialResult: OfficialCalculatorResult
+    officialResult: PythonOfficialCalculatorResult
   ): ValidationTestCase {
     const updatedExpectedResults = { ...testCase.expectedResults }
     
     // Mettre à jour avec les valeurs réelles du calculateur officiel
-    if (officialResult.assurance_emploi_total !== undefined) {
-      updatedExpectedResults.assuranceEmploi = officialResult.assurance_emploi_total
+    if (officialResult.ae_total !== undefined) {
+      updatedExpectedResults.assuranceEmploi = officialResult.ae_total
     }
     if (officialResult.rrq_total !== undefined) {
       updatedExpectedResults.rrq = officialResult.rrq_total
@@ -457,8 +459,7 @@ export class HighVolumeValidator {
   private async cleanup(): Promise<void> {
     console.log('🧹 Nettoyage des ressources...')
     
-    // Fermer tous les scrapers
-    await Promise.all(this.scrapers.map(scraper => scraper.cleanup()))
+    // Les scrapers Python n'ont pas de méthode cleanup - ils sont stateless
     this.scrapers = []
     
     console.log('✅ Nettoyage terminé')

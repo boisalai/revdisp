@@ -1,0 +1,47 @@
+{
+  "phases": {
+    "phase1_10cases": {
+      "casesCount": 10,
+      "accuracy": 0,
+      "worstPrograms": [],
+      "criticalIssues": [
+        "Précision globale critique (<70%) - révision majeure requise",
+        "10 erreurs de scraping - vérifier connectivité"
+      ],
+      "processingTime": 18127
+    },
+    "phase2_100cases": {
+      "casesCount": 25,
+      "accuracy": 0,
+      "worstPrograms": [],
+      "criticalIssues": [
+        "Précision globale critique (<70%) - révision majeure requise",
+        "25 erreurs de scraping - vérifier connectivité"
+      ],
+      "processingTime": 48243
+    },
+    "phase3_1000cases": {
+      "casesCount": 15,
+      "accuracy": 0,
+      "worstPrograms": [],
+      "criticalIssues": [
+        "Précision globale critique (<70%) - révision majeure requise",
+        "15 erreurs de scraping - vérifier connectivité"
+      ],
+      "processingTime": 28142
+    }
+  },
+  "overallAnalysis": {
+    "criticalPrograms": [],
+    "recommendedFixes": [
+      "📚 Organiser une revue complète avec les références officielles du MFQ",
+      "🧪 Implémenter des tests unitaires pour chaque programme problématique"
+    ],
+    "accuracyTrend": [
+      0,
+      0,
+      0
+    ],
+    "totalCasesProcessed": 50
+  }
+}

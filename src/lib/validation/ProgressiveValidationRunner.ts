@@ -523,8 +523,7 @@ export class ProgressiveValidationRunner {
         batchDelay: casesCount > 100 ? 2000 : 1000, // Plus de délai pour gros volumes
         batchSize: Math.min(20, Math.ceil(casesCount / 10)),
         headless: true,
-        timeout: 30000,
-        retries: 2
+        timeout: 30000
       },
       reporting: {
         outputDir: phaseDir,

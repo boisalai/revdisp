@@ -82,9 +82,7 @@ program
           batchDelay: 2000,
           resumeFromCheckpoint: options.resume,
           headless: true,
-          timeout: 30000,
-          retries: 3,
-          delayBetweenActions: 1000
+          timeout: 30000
         },
         reporting: {
           outputDir: options.output,
@@ -142,9 +140,7 @@ program
             batchSize: 25,
             batchDelay: 1000,
             headless: true,
-            timeout: 30000,
-            retries: 3,
-            delayBetweenActions: 1000
+            timeout: 30000
           },
           reporting: {
             outputDir: options.output,
