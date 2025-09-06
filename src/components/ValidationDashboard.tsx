@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ValidationEngine, ValidationReport } from '../lib/validation/ValidationEngine'
+// Temporarily disabled - ValidationEngine uses Node.js APIs not available in browser
+// import { OfficialValidationEngine as ValidationEngine, ValidationReport } from '../lib/validation/OfficialValidationEngine'
+
+type ValidationReport = any
 
 export default function ValidationDashboard() {
   const [report, setReport] = useState<ValidationReport | null>(null)
@@ -13,11 +16,13 @@ export default function ValidationDashboard() {
     setError(null)
     
     try {
-      const engine = new ValidationEngine(2024)
-      await engine.initialize()
+      // Temporarily disabled - use CLI script instead
+      setError('Validation dashboard temporarily disabled. Use CLI script: npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=10 --year=2024')
+      // const engine = new ValidationEngine(2024)
+      // await engine.initialize()
       
-      const validationReport = await engine.runFullValidation()
-      setReport(validationReport)
+      // const validationReport = await engine.runFullValidation()
+      // setReport(validationReport)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
     } finally {
@@ -116,7 +121,7 @@ export default function ValidationDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {report.worstCases.slice(0, 10).map((result, index) => (
+                    {report?.worstCases?.slice(0, 10).map((result: any, index: number) => (
                       <tr key={index} className="border-b border-govuk-mid-grey">
                         <td className="py-2 px-3 text-sm">{result.testCase.description}</td>
                         <td className="py-2 px-3 text-sm">
@@ -165,7 +170,7 @@ export default function ValidationDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {report.criticalDifferences.slice(0, 15).map((diff, index) => (
+                    {report?.criticalDifferences?.slice(0, 15).map((diff: any, index: number) => (
                       <tr key={index} className="border-b border-govuk-mid-grey">
                         <td className="py-2 px-3 text-sm font-medium">{diff.field}</td>
                         <td className="py-2 px-3 text-sm text-right font-mono">{diff.expected.toFixed(0)}$</td>
@@ -190,7 +195,7 @@ export default function ValidationDashboard() {
           <div className="bg-white border border-govuk-mid-grey p-4">
             <h2 className="govuk-heading-l mb-4">💡 Recommandations</h2>
             <ul className="space-y-2">
-              {report.recommendations.map((rec, index) => (
+              {report?.recommendations?.map((rec: string, index: number) => (
                 <li key={index} className="text-sm flex items-start space-x-2">
                   <span className="text-govuk-blue">•</span>
                   <span>{rec}</span>
