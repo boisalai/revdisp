@@ -51,13 +51,29 @@ npm run lint
 
 ### Système de Validation
 
-#### 🐍 Validation Officielle Python/Selenium (NOUVEAU - RECOMMANDÉ)
-Validation contre le calculateur officiel avec scraper Python fonctionnel:
+#### 🎯 Validation Unifiée (RECOMMANDÉ)
+**Script principal unique** qui remplace tous les autres scripts de validation:
 
 ```bash
-# Validation progressive officielle (10→25→15 cas)
-npx tsx src/lib/validation/cli/test-official-validation.ts 2024
+# Validation avec 10 ménages aléatoires pour 2024
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=10 --year=2024
 
+# Validation étendue avec 100 ménages pour 2025
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=100 --year=2025
+
+# Test rapide avec 5 ménages
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=5 --year=2024
+```
+
+**✅ Fonctionnalités du Script Unifié:**
+- **Génération aléatoire** de ménages types (single/couple, âges 18-64, revenus 0-80k$)
+- **Comparaison automatique** avec calculateur officiel du MFQ
+- **Identification du pire cas** avec écarts les plus importants
+- **Tableau détaillé** programme par programme
+- **Recommandations de corrections** basées sur l'analyse des écarts
+
+#### 🐍 Tests Scraper Python Direct
+```bash
 # Test simple du scraper Python 
 cd python-scraper && uv run multi_test.py
 
@@ -65,28 +81,30 @@ cd python-scraper && uv run multi_test.py
 cd python-scraper && uv run debug_visual.py
 ```
 
-**✅ Scraper Python résout le problème Puppeteer:**
-- **Avant**: Résultats erronés (147026$ au lieu de 20387$)
-- **Après**: Résultats corrects avec variabilité confirmée
-- **Méthode robuste**: JavaScript fallback + gestion cookies
+#### 🔍 Architecture de Validation (4 fichiers essentiels)
 
-#### Validation Progressive TypeScript (Ancienne méthode)
-```bash
-# Validation progressive standard  
-npm run validate:progressive -- --count 25
+**`src/lib/validation/`** contient uniquement:
 
-# Validation pour année fiscale spécifique
-npm run validate:progressive:2025
-```
+1. **`cli/simple-unified-validation.ts`** 
+   - 🎯 **Script principal unifié** 
+   - Remplace 23+ anciens scripts de validation
+   - Génération ménages aléatoires + comparaison MFQ
+   - Tableaux détaillés + recommandations
 
-#### Validation Rapide par Programme
-```bash
-# Tester un programme spécifique (ex: RAMQ)
-npm run validate:ramq
+2. **`PythonOfficialCalculatorScraper.ts`**
+   - 🐍 **Wrapper TypeScript → Python**
+   - Interface entre TypeScript et scraper Selenium
+   - Gestion processus Python + parsing résultats
 
-# Validation tableau de bord web
-# http://localhost:3001/validation
-```
+3. **`OfficialValidationEngine.ts`**
+   - 🔧 **Moteur de validation complet**
+   - Orchestration validations multi-programmes
+   - Calcul métriques de précision
+
+4. **`OfficialCalculatorScraper.ts`**
+   - 📜 **Scraper original JavaScript**
+   - Version Puppeteer conservée pour référence
+   - Remplacé par version Python plus robuste
 
 ## Spécifications Techniques
 
@@ -113,19 +131,19 @@ La validation progressive est la méthode recommandée pour vérifier l'exactitu
 3. **Validation Contre Source Officielle**: Comparaison directe avec le calculateur du Ministère des Finances
 4. **Corrections Basées sur des Sources**: Toute correction doit être justifiée par documentation officielle
 
-#### Workflow de Validation
+#### Workflow de Validation Moderne
 ```bash
 # Étape 1: Validation de base (10-25 ménages)
-npm run validate:progressive -- --count 25
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=25 --year=2024
 # → Identifier les écarts par programme
-# → Corriger selon sources officielles
-# → Répéter jusqu'à exactitude
+# → Analyser le pire cas dans le tableau détaillé
+# → Suivre les recommandations de corrections
 
-# Étape 2: Validation étendue (100+ ménages)
-npm run validate:progressive -- --count 100
-# → Tester cas particuliers
-# → Détecter régressions
-# → Valider stabilité
+# Étape 2: Validation étendue (100+ ménages)  
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=100 --year=2024
+# → Tester cas particuliers avec variabilité
+# → Détecter régressions sur gros volume
+# → Valider stabilité et cohérence
 ```
 
 #### Standards de Correction
@@ -254,28 +272,26 @@ const taxes = calculationResult.impotQuebec        // ❌
 # Démarrage rapide
 npm run dev                                    # Port 3001
 
-# Validation scraper Python (RECOMMANDÉ)
-npx tsx src/lib/validation/cli/test-official-validation.ts 2024
+# Validation unifiée (RECOMMANDÉ)
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=10 --year=2024
 
 # Test scraper Python direct  
 cd python-scraper && uv run multi_test.py
 
 # Check complet avant commit
 npm run check
-
-# RAMQ debug (problème connu couples)
-npm run validate:ramq
 ```
 
 ### Fichiers Clés à Connaître
 ```
 src/lib/validation/
-├── PythonOfficialCalculatorScraper.ts    # Wrapper TypeScript→Python
-├── OfficialValidationEngine.ts           # Moteur validation complet  
-└── ProgressiveValidationRunner.ts        # Validation progressive
+├── cli/simple-unified-validation.ts      # 🎯 Script principal unifié
+├── PythonOfficialCalculatorScraper.ts    # 🐍 Wrapper TypeScript→Python
+├── OfficialValidationEngine.ts           # 🔧 Moteur validation complet
+└── OfficialCalculatorScraper.ts          # 📜 Scraper original (référence)
 
 python-scraper/
-├── calculator_scraper.py                 # Scraper principal 
+├── calculator_scraper.py                 # Scraper principal Selenium
 ├── multi_test.py                         # Tests variabilité
 └── debug_visual.py                       # Debug mode visible
 
