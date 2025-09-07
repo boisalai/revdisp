@@ -335,22 +335,112 @@ class SimpleUnifiedValidator {
     console.log(`====================`)
     const householdDesc = worstCase.household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
     const displayIncome = worstCase.household.primaryPerson.grossWorkIncome.toNumber() + worstCase.household.primaryPerson.grossRetirementIncome.toNumber()
-    console.log(`👥 Ménage: ${householdDesc}, ${worstCase.household.primaryPerson.age} ans, ${displayIncome}$`)
+    const spouse = worstCase.household.spouse
+    const spouseDesc = spouse ? `, conjoint ${spouse.age} ans` : ''
+    
+    console.log(`👥 Ménage: ${householdDesc}, ${worstCase.household.primaryPerson.age} ans${spouseDesc}, ${displayIncome}$ de revenu`)
     console.log(`🎯 Précision: ${worstCase.accuracy}%`)
     console.log()
 
-    console.log('| Programme | Notre Calculateur | Ministère des Finances | Écart |')
-    console.log('|-----------|------------------|----------------------|-------|')
+    // Group programs by category for structured display
+    const programGroups = this.groupProgramsByCategory(worstCase.comparisons)
     
-    worstCase.comparisons.forEach((comp: ProgramComparison) => {
-      const programName = this.formatProgramName(comp.program).padEnd(20)
-      const ourValue = this.formatCurrency(comp.ourResult).padStart(16)
-      const officialValue = this.formatCurrency(comp.officialResult).padStart(20)
-      const gap = this.formatCurrency(comp.gap, true).padStart(5)
-      
-      console.log(`| ${programName} | ${ourValue} | ${officialValue} | ${gap} |`)
-    })
+    console.log('## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX')
     console.log()
+    
+    // Display main result
+    const revenuDisponible = worstCase.comparisons.find((c: any) => c.program === 'revenu_disponible')
+    if (revenuDisponible) {
+      console.log('| Programme | Notre Calculateur | MFQ Officiel | Écart |')
+      console.log('|-----------|------------------|--------------|-------|')
+      console.log(`| **REVENU DISPONIBLE** | **${this.formatCurrency(revenuDisponible.ourResult)}** | **${this.formatCurrency(revenuDisponible.officialResult)}** | **${this.formatCurrency(revenuDisponible.gap, true)}** |`)
+      console.log()
+    }
+
+    // Display Quebec fiscal regime
+    if (programGroups.quebec.length > 0) {
+      console.log('### 🏛️ RÉGIME FISCAL DU QUÉBEC')
+      console.log('| Programme | Notre Calculateur | MFQ Officiel | Écart |')
+      console.log('|-----------|------------------|--------------|-------|')
+      
+      programGroups.quebec.forEach((comp: ProgramComparison) => {
+        const name = this.getStructuredProgramName(comp.program)
+        const emphasis = comp.program === 'qc_impot_total' || comp.program === 'qc_solidarite' ? '**' : ''
+        console.log(`| ${emphasis}${name}${emphasis} | ${emphasis}${this.formatCurrency(comp.ourResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.officialResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.gap, true)}${emphasis} |`)
+      })
+      console.log()
+    }
+
+    // Display Federal fiscal regime  
+    if (programGroups.federal.length > 0) {
+      console.log('### 🍁 RÉGIME FISCAL FÉDÉRAL')
+      console.log('| Programme | Notre Calculateur | MFQ Officiel | Écart |')
+      console.log('|-----------|------------------|--------------|-------|')
+      
+      programGroups.federal.forEach((comp: ProgramComparison) => {
+        const name = this.getStructuredProgramName(comp.program)
+        const emphasis = comp.program === 'ca_impot_total' || comp.program === 'ca_tps' ? '**' : ''
+        console.log(`| ${emphasis}${name}${emphasis} | ${emphasis}${this.formatCurrency(comp.ourResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.officialResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.gap, true)}${emphasis} |`)
+      })
+      console.log()
+    }
+
+    // Display Contributions
+    if (programGroups.contributions.length > 0) {
+      console.log('### 💼 COTISATIONS')
+      console.log('| Programme | Notre Calculateur | MFQ Officiel | Écart |')
+      console.log('|-----------|------------------|--------------|-------|')
+      
+      programGroups.contributions.forEach((comp: ProgramComparison) => {
+        const name = this.getStructuredProgramName(comp.program)
+        const emphasis = Math.abs(comp.gap) > 500 ? '**' : ''
+        console.log(`| ${emphasis}${name}${emphasis} | ${emphasis}${this.formatCurrency(comp.ourResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.officialResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.gap, true)}${emphasis} |`)
+      })
+      console.log()
+    }
+  }
+
+  /**
+   * Group programs by category for structured display
+   */
+  private groupProgramsByCategory(comparisons: ProgramComparison[]): any {
+    const quebec: ProgramComparison[] = []
+    const federal: ProgramComparison[] = []
+    const contributions: ProgramComparison[] = []
+    
+    comparisons.forEach(comp => {
+      if (comp.program === 'revenu_disponible') return // Handled separately
+      
+      if (comp.program.startsWith('qc_') || comp.program.includes('solidarite')) {
+        quebec.push(comp)
+      } else if (comp.program.startsWith('ca_') || comp.program.includes('tps')) {
+        federal.push(comp)
+      } else if (['ae_total', 'rrq_total', 'rqap_total', 'ramq', 'fss'].includes(comp.program)) {
+        contributions.push(comp)
+      }
+    })
+    
+    return { quebec, federal, contributions }
+  }
+
+  /**
+   * Get structured program names for display
+   */
+  private getStructuredProgramName(program: string): string {
+    const names: Record<string, string> = {
+      'qc_impot_total': 'Régime fiscal QC (net)',
+      'qc_solidarite': 'Crédit pour la solidarité',
+      'ca_impot_total': 'Régime fiscal fédéral (net)', 
+      'ca_tps': 'Crédit pour la TPS',
+      'ca_pfrt': 'Allocation canadienne pour les travailleurs',
+      'ae_total': 'Assurance-emploi',
+      'rrq_total': 'Régime de rentes du Québec',
+      'rqap_total': 'Régime québécois d\'assurance parentale',
+      'ramq': 'Régime d\'assurance médicaments du Québec',
+      'fss': 'Fonds des services de santé',
+      'qc_prime_travail': 'Prime au travail'
+    }
+    return names[program] || program
   }
 
   /**

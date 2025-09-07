@@ -233,31 +233,131 @@ class QuebecCalculatorScraper:
         
         results = {}
         
-        # Mapping des résultats à extraire
-        selectors = {
-            'revenu_disponible': '#RD_new',
-            'ae_total': '#CA_ae_new', 
-            'rrq_total': '#CA_rrq_new',
-            'rqap_total': '#QC_rqap_new',
-            'qc_impot_total': '#QC_total_new',
-            'ca_impot_total': '#CA_total_new',
-            'qc_solidarite': '#QC_sol_new',
-            'ca_tps': '#CA_tps_new',
-            'ca_pfrt': '#CA_pfrt_new',  # Programme fédéral manquant
-            'qc_prime_travail': '#QC_pt_new',
-            'ramq': '#QC_ramq_new',
-            'fss': '#QC_fss_new'
-        }
+        # Attendre que les calculs se terminent
+        time.sleep(3)
         
-        for key, selector in selectors.items():
-            try:
-                value = self._extract_numeric_value(selector)
-                if value is not None:
-                    results[key] = value
-            except Exception as e:
-                print(f"   ⚠️  {key}: {e}")
-                results[key] = None
+        # Chercher spécifiquement dans le tableau des résultats
+        print("   🎯 Recherche dans le tableau des résultats...")
+        try:
+            # D'abord, attendre que les résultats soient calculés
+            import re
+            
+            # Chercher des éléments de tableau ou de résultats spécifiques
+            # D'après les captures, les résultats apparaissent dans un tableau avec colonnes 2024, 2025, Écart
+            results_found = False
+            
+            # Essayer de trouver les cellules de tableau contenant les valeurs
+            table_cells = self.driver.find_elements(By.CSS_SELECTOR, "td, th")
+            print(f"   📋 Trouvé {len(table_cells)} cellules de tableau")
+            
+            for cell in table_cells:
+                try:
+                    text = cell.text.strip()
+                    
+                    # Ignorer les années et titres
+                    if text in ['2024', '2025', 'Écart', 'Revenu disponible', 'Régime fiscal du Québec', 'Régime fiscal fédéral', 'Cotisations', 'Frais de garde']:
+                        continue
+                    
+                    # Chercher des nombres formatés comme des montants
+                    if re.match(r'^\d{1,2}\s\d{3}$', text):  # Format "34 088"
+                        number = int(text.replace(' ', ''))
+                        parent_text = ""
+                        try:
+                            parent_row = cell.find_element(By.XPATH, "..")
+                            parent_text = parent_row.text.strip()
+                        except:
+                            pass
+                            
+                        # Identifier le type de résultat basé sur le contexte de la ligne
+                        if "disponible" in parent_text.lower():
+                            results['revenu_disponible'] = number
+                            print(f"   💰 Revenu disponible: {number}")
+                            results_found = True
+                        elif "québec" in parent_text.lower() and "régime" in parent_text.lower():
+                            results['qc_impot_total'] = number
+                            print(f"   🏛️  Régime fiscal QC: {number}")
+                            results_found = True
+                        elif "fédéral" in parent_text.lower() and "régime" in parent_text.lower():
+                            results['ca_impot_total'] = number
+                            print(f"   🍁 Régime fiscal fédéral: {number}")
+                            results_found = True
+                        elif "cotisations" in parent_text.lower():
+                            # Les cotisations sont négatives, mais le tableau peut montrer la valeur positive
+                            results['cotisations_total'] = -abs(number)  # Force negative
+                            print(f"   💼 Cotisations: -{number}")
+                            results_found = True
+                    
+                    # Aussi chercher les tirets pour les valeurs nulles
+                    elif text == '—' or text == '-':
+                        parent_text = ""
+                        try:
+                            parent_row = cell.find_element(By.XPATH, "..")
+                            parent_text = parent_row.text.strip()
+                        except:
+                            pass
+                        
+                        if "garde" in parent_text.lower():
+                            results['frais_garde'] = 0
+                            print(f"   👶 Frais de garde: 0 (tiret)")
+                            
+                except Exception:
+                    continue
+            
+            if not results_found:
+                print("   ⚠️  Aucune valeur trouvée dans le tableau, recherche alternative...")
+                
+        except Exception as e:
+            print(f"   ❌ Erreur recherche automatique: {e}")
         
+        # Si pas de candidats trouvés, essayer les sélecteurs CSS corrects
+        # Utiliser *_old pour 2024 et *_new pour 2025
+        if not results:
+            # Pour 2024, utiliser les sélecteurs _old
+            selectors_2024 = {
+                'revenu_disponible': '#RD_old',
+                'ae_total': '#CA_ae_old', 
+                'rrq_total': '#CA_rrq_old',
+                'rqap_total': '#QC_rqap_old',
+                'qc_impot_total': '#QC_total_old',
+                'ca_impot_total': '#CA_total_old',
+                'qc_solidarite': '#QC_sol_old',
+                'ca_tps': '#CA_tps_old',
+                'ca_pfrt': '#CA_pfrt_old',
+                'qc_prime_travail': '#QC_pt_old',
+                'ramq': '#QC_ramq_old',
+                'fss': '#QC_fss_old'
+            }
+            
+            # Pour 2025, utiliser les sélecteurs _new  
+            selectors_2025 = {
+                'revenu_disponible': '#RD_new',
+                'ae_total': '#CA_ae_new', 
+                'rrq_total': '#CA_rrq_new',
+                'rqap_total': '#QC_rqap_new',
+                'qc_impot_total': '#QC_total_new',
+                'ca_impot_total': '#CA_total_new',
+                'qc_solidarite': '#QC_sol_new',
+                'ca_tps': '#CA_tps_new',
+                'ca_pfrt': '#CA_pfrt_new',
+                'qc_prime_travail': '#QC_pt_new',
+                'ramq': '#QC_ramq_new',
+                'fss': '#QC_fss_new'
+            }
+            
+            # Utiliser les sélecteurs appropriés (on utilise 2024 par défaut)
+            selectors = selectors_2024
+            
+            for key, selector in selectors.items():
+                try:
+                    value = self._extract_numeric_value(selector)
+                    if value is not None:
+                        results[key] = value
+                        print(f"   📋 {key}: {value} (CSS: {selector})")
+                except Exception as e:
+                    print(f"   ⚠️  {key}: {e}")
+                    results[key] = None
+        
+        print(f"   📊 Résultats finaux: {results}")
         return results
     
     def _extract_numeric_value(self, selector: str) -> Optional[float]:
