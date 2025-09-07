@@ -12,26 +12,16 @@
  * TEMPORARILY DISABLED - API and scraper compatibility issues
  */
 
-// Temporarily disabled imports to fix build
-// import { PythonOfficialCalculatorScraper } from '../PythonOfficialCalculatorScraper'
+import { PythonOfficialCalculatorScraper } from '../PythonOfficialCalculatorScraper'
+import { HouseholdType, Person, PersonData } from '../../models'
+import Decimal from 'decimal.js'
 
 interface ValidationConfig {
   count: number
   year: number
 }
 
-interface TestHousehold {
-  situation: 'single' | 'couple'
-  adults: Array<{
-    age: number
-    income: number
-    retirementIncome: number
-  }>
-  children: Array<{
-    age: number
-  }>
-  region: 'quebec'
-}
+// Remove TestHousehold interface - using Household from models instead
 
 interface ProgramComparison {
   program: string
@@ -42,92 +32,141 @@ interface ProgramComparison {
 }
 
 class SimpleUnifiedValidator {
-  // private scraper: PythonOfficialCalculatorScraper
+  private scraper: PythonOfficialCalculatorScraper
 
   constructor() {
-    // this.scraper = new PythonOfficialCalculatorScraper()
+    this.scraper = new PythonOfficialCalculatorScraper()
   }
 
   /**
    * Generate random test household
    */
-  private generateTestHousehold(): TestHousehold {
-    const situations = ['single', 'couple'] as const
-    const situation = situations[Math.floor(Math.random() * situations.length)]
+  private generateTestHousehold(): any {
+    const situations = [HouseholdType.SINGLE, HouseholdType.COUPLE] as const
+    const householdType = situations[Math.floor(Math.random() * situations.length)]
     
     // Generate primary adult
     const primaryAge = 18 + Math.floor(Math.random() * 47) // 18-64
     const primaryIncome = Math.floor(Math.random() * 80000) // 0-80k
+    const isRetired = primaryAge >= 65
     
-    const household: TestHousehold = {
-      situation,
-      adults: [{
-        age: primaryAge,
-        income: primaryIncome,
-        retirementIncome: primaryAge >= 65 ? Math.floor(Math.random() * 20000) : 0
-      }],
-      children: [],
-      region: 'quebec'
+    const primaryPersonData: PersonData = {
+      age: primaryAge,
+      grossWorkIncome: isRetired ? 0 : primaryIncome,
+      grossRetirementIncome: isRetired ? primaryIncome : 0,
+      isRetired
+    }
+
+    const primaryPerson = new Person(primaryPersonData)
+
+    const household: any = {
+      householdType,
+      primaryPerson,
+      spouse: null,
+      numChildren: 0
     }
 
     // Add spouse if couple
-    if (situation === 'couple') {
+    if (householdType === HouseholdType.COUPLE) {
       const spouseAge = 18 + Math.floor(Math.random() * 47)
       const spouseIncome = Math.floor(Math.random() * 80000)
+      const spouseIsRetired = spouseAge >= 65
       
-      household.adults.push({
+      const spouseData: PersonData = {
         age: spouseAge,
-        income: spouseIncome,
-        retirementIncome: spouseAge >= 65 ? Math.floor(Math.random() * 20000) : 0
-      })
+        grossWorkIncome: spouseIsRetired ? 0 : spouseIncome,
+        grossRetirementIncome: spouseIsRetired ? spouseIncome : 0,
+        isRetired: spouseIsRetired
+      }
+      
+      household.spouse = new Person(spouseData)
     }
 
     // Add children (0-3)
-    const numChildren = Math.floor(Math.random() * 4)
-    for (let i = 0; i < numChildren; i++) {
-      household.children.push({
-        age: Math.floor(Math.random() * 18)
-      })
-    }
+    household.numChildren = Math.floor(Math.random() * 4)
 
     return household
   }
 
   /**
-   * Get our calculator results via API
+   * Get our calculator results directly
    */
-  private async getOurResults(household: TestHousehold, year: number): Promise<any> {
+  private async getOurResults(household: any, year: number): Promise<any> {
     try {
-      const response = await fetch('http://localhost:3001/api/calculate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          household,
-          year
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`)
+      const { RevenuDisponibleCalculator } = await import('../../MainCalculator')
+      const { Household, HouseholdType } = await import('../../models')
+      
+      // Create calculator instance
+      const calculator = new RevenuDisponibleCalculator(year)
+      
+      // Determine household type
+      let householdType = HouseholdType.SINGLE
+      if (household.type === 'couple') {
+        householdType = HouseholdType.COUPLE
       }
-
-      const results = await response.json()
+      
+      // Convert to proper Household model format
+      const householdData: any = {
+        householdType,
+        primaryPerson: {
+          age: household.age1 || household.age,
+          grossWorkIncome: household.income1 || household.income || 0
+        },
+        children: household.children || []
+      }
+      
+      // Add spouse if it's a couple
+      if (household.type === 'couple') {
+        householdData.spouse = {
+          age: household.age2 || household.age,
+          grossWorkIncome: household.income2 || household.income || 0
+        }
+      }
+      
+      // Create proper Household object
+      const householdModel = new Household(householdData)
+      
+      // Calculate results
+      const results = await calculator.calculate(householdModel)
+      
+      // Convert Decimal results to numbers
+      const calculationResults = {
+        revenu_disponible: results.revenu_disponible?.toNumber() || 0,
+        rrq_total: results.cotisations.rrq?.toNumber() || 0,
+        ae_total: results.cotisations.assurance_emploi?.toNumber() || 0,
+        rqap_total: results.cotisations.rqap?.toNumber() || 0,
+        fss_total: results.cotisations.fss?.toNumber() || 0,
+        ramq_total: results.cotisations.ramq?.toNumber() || 0,
+        impot_quebec: results.taxes.quebec?.toNumber() || 0,
+        impot_federal: results.taxes.canada?.toNumber() || 0,
+        // Add other programs from quebec and canada objects
+        ...Object.fromEntries(
+          Object.entries(results.quebec).map(([key, value]) => [
+            key,
+            typeof value === 'object' && value?.toNumber ? value.toNumber() : value
+          ])
+        ),
+        ...Object.fromEntries(
+          Object.entries(results.canada).map(([key, value]) => [
+            key,
+            typeof value === 'object' && value?.toNumber ? value.toNumber() : value
+          ])
+        )
+      }
       
       return {
-        revenu_disponible: Number(results.revenu_disponible || 0),
-        ae_total: Number(results.ae_total || 0) * -1, // Convert to negative for deductions
-        rrq_total: Number(results.rrq_total || 0) * -1,
-        rqap_total: Number(results.rqap_total || 0) * -1,
-        fss_total: Number(results.fss_total || 0) * -1,
-        ramq_total: Number(results.ramq_total || 0) * -1,
-        qc_impot_total: Number(results.qc_impot_total || 0),
-        ca_impot_total: Number(results.ca_impot_total || 0),
-        qc_solidarite: Number(results.qc_solidarite || 0),
-        qc_prime_travail: Number(results.qc_prime_travail || 0),
-        ca_tps: Number(results.ca_tps || 0),
-        ca_pfrt: Number(results.ca_pfrt || 0)
+        revenu_disponible: calculationResults.revenu_disponible,
+        ae_total: calculationResults.ae_total * -1, // Convert to negative for deductions
+        rrq_total: calculationResults.rrq_total * -1,
+        rqap_total: calculationResults.rqap_total * -1,
+        fss_total: calculationResults.fss_total * -1,
+        ramq_total: calculationResults.ramq_total * -1,
+        qc_impot_total: calculationResults.impot_quebec,
+        ca_impot_total: calculationResults.impot_federal,
+        qc_solidarite: results.quebec?.solidarity?.net_credit || 0,
+        qc_prime_travail: results.quebec?.work_premium?.net_premium || 0,
+        ca_tps: results.canada?.gst_credit?.amount || 0,
+        ca_pfrt: results.canada?.child_benefit?.net_benefit || 0
       }
     } catch (error) {
       console.error('❌ Erreur API locale:', error)
@@ -144,23 +183,28 @@ class SimpleUnifiedValidator {
   /**
    * Get official MFQ results
    */
-  private async getOfficialResults(household: TestHousehold, year: number): Promise<any> {
+  private async getOfficialResults(household: any, year: number): Promise<any> {
     try {
-      // Temporarily disabled - return empty results
-      console.log('⚠️ Official scraper temporarily disabled')
+      console.log('🐍 Lancement scraper officiel Python...')
+      const result = await this.scraper.scrapeOfficialCalculator(household)
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Scraper failed')
+      }
+
       return {
-        revenu_disponible: 0,
-        ae_total: 0,
-        rrq_total: 0,
-        rqap_total: 0,
-        fss_total: 0,
-        ramq_total: 0,
-        qc_impot_total: 0,
-        ca_impot_total: 0,
-        qc_solidarite: 0,
-        qc_prime_travail: 0,
-        ca_tps: 0,
-        ca_pfrt: 0
+        revenu_disponible: result.revenu_disponible || 0,
+        ae_total: (result.ae_total || 0) * -1, // Convert to negative for deductions
+        rrq_total: (result.rrq_total || 0) * -1,
+        rqap_total: (result.rqap_total || 0) * -1,
+        fss_total: (result.fss || 0) * -1,
+        ramq_total: (result.ramq || 0) * -1,
+        qc_impot_total: result.qc_impot_total || 0,
+        ca_impot_total: result.ca_impot_total || 0,
+        qc_solidarite: result.qc_solidarite || 0,
+        qc_prime_travail: result.qc_prime_travail || 0,
+        ca_tps: result.ca_tps || 0,
+        ca_pfrt: result.ca_pfrt || 0
       }
     } catch (error) {
       console.error('❌ Erreur scraper officiel:', error)
@@ -206,7 +250,7 @@ class SimpleUnifiedValidator {
     console.log()
 
     const results: Array<{
-      household: TestHousehold
+      household: any
       comparisons: ProgramComparison[]
       totalGap: number
       accuracy: number
@@ -215,8 +259,9 @@ class SimpleUnifiedValidator {
     for (let i = 0; i < config.count; i++) {
       try {
         const household = this.generateTestHousehold()
-        const displayIncome = household.adults[0].income
-        console.log(`🔍 Test ${i+1}/${config.count}: ${household.situation}, ${household.adults[0].age} ans, ${displayIncome}$`)
+        const displayIncome = household.primaryPerson.grossWorkIncome.toNumber() + household.primaryPerson.grossRetirementIncome.toNumber()
+        const householdDesc = household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
+        console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}, ${household.primaryPerson.age} ans, ${displayIncome}$`)
         
         // Get results from both calculators
         const ourResults = await this.getOurResults(household, config.year)
@@ -288,7 +333,9 @@ class SimpleUnifiedValidator {
   private displayWorstCaseTable(worstCase: any): void {
     console.log(`🔴 PIRE CAS IDENTIFIÉ`)
     console.log(`====================`)
-    console.log(`👥 Ménage: ${worstCase.household.situation}, ${worstCase.household.adults[0].age} ans, ${worstCase.household.adults[0].income}$`)
+    const householdDesc = worstCase.household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
+    const displayIncome = worstCase.household.primaryPerson.grossWorkIncome.toNumber() + worstCase.household.primaryPerson.grossRetirementIncome.toNumber()
+    console.log(`👥 Ménage: ${householdDesc}, ${worstCase.household.primaryPerson.age} ans, ${displayIncome}$`)
     console.log(`🎯 Précision: ${worstCase.accuracy}%`)
     console.log()
 
@@ -398,13 +445,44 @@ class SimpleUnifiedValidator {
 }
 
 /**
+ * Parse command line arguments
+ */
+function parseArgs(): ValidationConfig {
+  const args = process.argv.slice(2)
+  
+  let count = 10 // default
+  let year = 2024 // default
+  
+  args.forEach(arg => {
+    if (arg.startsWith('--count=')) {
+      count = parseInt(arg.split('=')[1]) || 10
+    } else if (arg.startsWith('--year=')) {
+      year = parseInt(arg.split('=')[1]) || 2024
+    }
+  })
+  
+  return { count, year }
+}
+
+/**
  * Main execution
  */
 async function main() {
-  console.log('🚫 Script temporairement désactivé')
-  console.log('📋 Utilisation recommandée:')
-  console.log('   cd python-scraper && uv run multi_test.py')
-  console.log('   ou utiliser le dashboard web: http://localhost:3001/validation')
+  try {
+    const config = parseArgs()
+    
+    console.log(`🚀 VALIDATION SCRIPT RÉACTIVÉ`)
+    console.log(`============================`)
+    console.log(`📊 Configuration: ${config.count} ménages, année ${config.year}`)
+    console.log()
+    
+    const validator = new SimpleUnifiedValidator()
+    await validator.runValidation(config)
+    
+  } catch (error) {
+    console.error('❌ Erreur lors de la validation:', error)
+    process.exit(1)
+  }
 }
 
 if (require.main === module) {

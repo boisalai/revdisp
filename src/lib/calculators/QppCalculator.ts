@@ -29,9 +29,9 @@ export class QppCalculator extends BaseCalculator {
     }
 
     // Calcul des cotisations selon le type de revenu
-    const employmentContrib = this.calculateContribution(person.grossWorkIncome)
+    const employmentContrib = this.calculateContribution(this.toDecimal(person.grossWorkIncome))
     const selfEmployedContrib = this.calculateContribution(
-      person.selfEmployedIncome,
+      this.toDecimal(person.selfEmployedIncome),
       true
     )
 
