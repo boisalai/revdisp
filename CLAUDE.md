@@ -4,7 +4,7 @@
 
 Calculateur **complètement implémenté** qui reproduit fidèlement le calculateur officiel du Ministère des Finances du Québec avec une interface moderne de qualité gouvernementale.
 
-**Stack**: Next.js 14, TypeScript, GOV.UK Design System, système de validation automatisé
+**Stack**: Next.js 14, TypeScript, Ubuntu Font, GOV.UK Design System, système de validation automatisé
 
 ## État de Validation des Programmes
 
@@ -115,9 +115,10 @@ cd python-scraper && uv run debug_visual.py
 - **Logique d'âge**: 18-64 (travail) vs 65+ (retraite)
 
 ### Standards Interface
-- **Design GOV.UK**: Interface gouvernementale professionnelle
+- **Design GOV.UK**: Interface gouvernementale professionnelle avec police Ubuntu
 - **Accessibilité**: WCAG 2.1 AA, navigation clavier complète
 - **Responsive**: Mobile-first, breakpoints appropriés
+- **Typographie**: Police Ubuntu pour lisibilité optimale
 
 ## Stratégie de Validation
 
@@ -168,7 +169,7 @@ npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=100 --year=2
 **Intégration TypeScript** (`src/lib/validation/`):
 - `PythonOfficialCalculatorScraper.ts` - Wrapper TypeScript → Python  
 - `OfficialValidationEngine.ts` - Moteur de validation complet
-- `ProgressiveValidationRunner.ts` - Validation progressive intégrée
+- `OfficialCalculatorScraper.ts` - Scraper Puppeteer (référence legacy)
 
 ### Fonctionnalités Clés
 - ✅ **Gestion cookies robuste** (XPath + sélecteurs CSS fallback)
@@ -265,6 +266,22 @@ const taxes = calculationResult.impotQuebec        // ❌
 
 **Zones concernées**: Résultats calculateur, clés configuration, propriétés API, système validation
 
+## 🧹 Historique des Changements Récents
+
+### Septembre 2024 - Nettoyage Structure & UI
+**✅ Nettoyage projet complet (Sept 2024)**:
+- 🗑️ **Supprimé 90+ fichiers obsolètes** (~200MB libérés)
+- 📋 **Documentation legacy supprimée**: PROJECT_STRUCTURE.md, VALIDATION-SYSTEM.md, PLAN-AIDE-SOCIALE.md
+- 📊 **Rapports temporaires nettoyés**: validation-reports/, reports/, demo-reports/
+- 🧪 **Scripts legacy supprimés**: tests/, validate-ei*.js, fichiers Python dupliqués
+- 🎨 **Police changée**: Onest → Ubuntu pour interface moderne
+- 🏗️ **Structure simplifiée** selon architecture unifiée
+
+**✅ Système de validation consolidé**:
+- 🎯 **Script unifié unique**: `simple-unified-validation.ts` remplace 20+ anciens scripts
+- 🐍 **Scraper Python opérationnel**: Remplace Puppeteer défaillant
+- 🔧 **Architecture épurée**: 4 fichiers essentiels seulement
+
 ## 📋 Quick Reference pour Prochaines Sessions
 
 ### Commandes Essentielles
@@ -272,33 +289,40 @@ const taxes = calculationResult.impotQuebec        // ❌
 # Démarrage rapide
 npm run dev                                    # Port 3001
 
-# Validation unifiée (RECOMMANDÉ)
+# Validation unifiée (RECOMMANDÉ) - Script principal
 npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=10 --year=2024
 
 # Test scraper Python direct  
 cd python-scraper && uv run multi_test.py
 
-# Check complet avant commit
+# Check complet avant commit (OBLIGATOIRE)
 npm run check
 ```
 
 ### Fichiers Clés à Connaître
 ```
-src/lib/validation/
+src/lib/validation/                        # ✅ Architecture épurée
 ├── cli/simple-unified-validation.ts      # 🎯 Script principal unifié
 ├── PythonOfficialCalculatorScraper.ts    # 🐍 Wrapper TypeScript→Python
 ├── OfficialValidationEngine.ts           # 🔧 Moteur validation complet
 └── OfficialCalculatorScraper.ts          # 📜 Scraper original (référence)
 
-python-scraper/
+python-scraper/                           # ✅ Scraper Python fonctionnel
 ├── calculator_scraper.py                 # Scraper principal Selenium
 ├── multi_test.py                         # Tests variabilité
-└── debug_visual.py                       # Debug mode visible
+├── debug_visual.py                       # Debug mode visible
+├── simple_test.py                        # Test basique
+└── test_scraper.py                       # Tests avancés
 
-src/lib/calculators/
+src/lib/calculators/                       # ✅ 22 calculateurs implémentés
 ├── RamqCalculator.ts                     # ⚠️ Bug couples à corriger
 ├── FssCalculator.ts                      # ✅ Validé 100%
-└── [autres calculateurs]                 # 🔄 En attente validation
+├── SocialAssistanceCalculator.ts         # ✅ Aide sociale complète
+└── [19 autres calculateurs]              # 🔄 En attente validation
+
+src/components/                            # ✅ Interface Ubuntu moderne
+├── CompactCalculator.tsx                 # Interface principale
+└── DetailedResults.tsx                   # Affichage résultats
 ```
 
 ### État des Travaux
@@ -306,3 +330,4 @@ src/lib/calculators/
 - 🐍 **Scraper Python fonctionnel** (résout problème Puppeteer) 
 - 🔄 **17 programmes à valider** avec nouveau scraper
 - 🚨 **1 bug connu**: RAMQ couples (737.50$ vs 1475$ attendu)
+- 🎨 **Interface moderne**: Police Ubuntu, design GOV.UK, structure épurée

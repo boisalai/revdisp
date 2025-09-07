@@ -86,8 +86,8 @@ Revolutionary scraper system **solves validation bottleneck**:
 # Test Python scraper directly
 cd python-scraper && uv run multi_test.py
 
-# Full progressive validation (10→25→15 cases)
-npx tsx src/lib/validation/cli/test-official-validation.ts 2024
+# Unified validation system (RECOMMENDED)
+npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=10 --year=2024
 
 # Visual debug mode (browser visible)
 cd python-scraper && uv run debug_visual.py
@@ -143,10 +143,25 @@ All calculations use **official government parameters**:
 
 ## 🔧 Key Architecture
 
+### ✅ **Simplified Structure (September 2024)**
+Project restructured for clarity and maintainability:
+
 **Configuration** (`src/lib/config/data/2023-2025.ts`) - Official tax parameters by year  
 **Calculators** (`src/lib/calculators/`) - 22 program calculation modules  
-**Validation** (`src/lib/validation/`) - Python scraper + TypeScript validation engine  
-**Interface** (`src/components/`) - GOV.UK design system components
+**Validation** (`src/lib/validation/`) - Consolidated validation system:
+- `cli/simple-unified-validation.ts` - **Main validation script** (replaces 20+ legacy scripts)
+- `PythonOfficialCalculatorScraper.ts` - TypeScript ↔ Python integration
+- `OfficialValidationEngine.ts` - Validation engine
+- `OfficialCalculatorScraper.ts` - Legacy Puppeteer (reference)
+
+**Interface** (`src/components/`) - GOV.UK design system with Ubuntu typography  
+**Python Scraper** (`python-scraper/`) - Selenium-based validation scraper
+
+### 🧹 **Recent Cleanup (September 2024)**
+- ✅ **90+ obsolete files removed** (~200MB freed)
+- ✅ **Validation system consolidated** - Single unified script
+- ✅ **Ubuntu typography implemented** - Modern, readable interface
+- ✅ **Architecture simplified** - Clear, maintainable structure
 
 📋 **See [CLAUDE.md](CLAUDE.md) for complete development documentation**
 
