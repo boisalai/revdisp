@@ -146,7 +146,7 @@ export class CanadaChildBenefitCalculator extends BaseCalculator {
   private countChildrenUnder6(household: Household): number {
     // Pour simplifier, on considère que 40% des enfants ont moins de 6 ans
     // Dans une vraie implémentation, on aurait l'âge exact de chaque enfant
-    const totalChildren = household.numChildren || 0
+    const totalChildren = (household.children?.length ?? 0) || 0
     if (totalChildren === 0) return 0
     if (totalChildren === 1) return 1 // Si 1 enfant, on assume qu'il a moins de 6 ans
     if (totalChildren === 2) return 1 // Si 2 enfants, on assume qu'1 a moins de 6 ans
@@ -157,7 +157,7 @@ export class CanadaChildBenefitCalculator extends BaseCalculator {
    * Compte les enfants de 6 à 17 ans
    */
   private countChildren6To17(household: Household): number {
-    const totalChildren = household.numChildren || 0
+    const totalChildren = (household.children?.length ?? 0) || 0
     const under6 = this.countChildrenUnder6(household)
     return totalChildren - under6
   }

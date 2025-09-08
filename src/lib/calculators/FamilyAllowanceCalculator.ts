@@ -82,7 +82,7 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
   ): FamilyAllowanceResult {
     
     // Vérification de l'éligibilité de base
-    if (household.numChildren === 0) {
+    if ((household.children?.length ?? 0) === 0) {
       return this.createZeroResult(new Decimal(0))
     }
 
@@ -95,7 +95,7 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
     const minAmount = this.toDecimal(config.min_amount)
     
     // 1. Allocation de base par enfant
-    const basicAllowance = maxAmount.times(household.numChildren)
+    const basicAllowance = maxAmount.times((household.children?.length ?? 0))
     
     // 2. Supplément pour famille monoparentale
     const singleParentSupplement = this.calculateSingleParentSupplement(household)
@@ -117,7 +117,7 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
     const reductionAmount = this.calculateReduction(grossTotal, familyNetIncome, reductionThreshold, household)
     
     // 7. Allocation nette (minimum garanti par enfant)
-    const minimumTotal = minAmount.times(household.numChildren)
+    const minimumTotal = minAmount.times((household.children?.length ?? 0))
     const netAllowance = Decimal.max(minimumTotal, grossTotal.minus(reductionAmount))
 
     return {
@@ -129,7 +129,7 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
       reduction_amount: this.quantize(reductionAmount),
       net_allowance: this.quantize(netAllowance),
       family_net_income: this.quantize(familyNetIncome),
-      eligible_children: household.numChildren,
+      eligible_children: (household.children?.length ?? 0),
       reduction_threshold: this.quantize(reductionThreshold)
     }
   }
@@ -217,7 +217,7 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
     // La réduction ne peut pas dépasser le montant brut moins le minimum garanti
     const basicConfig = this.getConfigValue('basic_allowance')
     const minAmount = this.toDecimal(basicConfig.min_amount)
-    const minimumTotal = minAmount.times(household.numChildren)
+    const minimumTotal = minAmount.times((household.children?.length ?? 0))
     
     const maxReduction = grossTotal.minus(minimumTotal)
     
@@ -247,7 +247,7 @@ export class FamilyAllowanceCalculator extends BaseCalculator {
    * Vérifie si un ménage est éligible à l'allocation famille
    */
   public isEligible(household: Household): boolean {
-    return household.numChildren > 0
+    return (household.children?.length ?? 0) > 0
   }
 
   /**

@@ -37,7 +37,7 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
     
     // Determine household composition
     const hasSpouse = household.spouse !== null;
-    const childrenCount = household.numChildren || 0;
+    const childrenCount = (household.children?.length ?? 0) || 0;
     const isFamily = hasSpouse || childrenCount > 0;
 
     // Check minimum work income requirement

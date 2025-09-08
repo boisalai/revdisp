@@ -34,8 +34,8 @@ export class GstCreditCalculator extends BaseCalculator {
     
     // Determine household composition
     const hasSpouse = household.spouse !== null;
-    const isSingleParent = !hasSpouse && household.numChildren > 0;
-    const childrenCount = household.numChildren || 0;
+    const isSingleParent = !hasSpouse && (household.children?.length ?? 0) > 0;
+    const childrenCount = (household.children?.length ?? 0) || 0;
 
     // Calculate base credit
     let baseCredit = new Decimal(params.base_amount);

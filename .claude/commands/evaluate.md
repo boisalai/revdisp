@@ -38,21 +38,5 @@ Pour chaque programme problématique :
 - Suggère des tests de régression pour valider les corrections
 - Documente les changements nécessaires dans les fichiers de configuration
 
-### 5. Application des corrections
-- Implémente les corrections identifiées
-- Met à jour les paramètres dans `src/lib/config/data/$2.ts`
-- Modifie les calculateurs dans `src/lib/calculators/` si nécessaire
-- Relance la validation pour confirmer l'amélioration
-
-## Sources officielles prioritaires
-- www.finances.gouv.qc.ca (paramètres fiscaux québécois)
-- www.canada.ca (paramètres fédéraux)
-- www.revenuquebec.ca (règles d'application)
-- www.retraitequebec.gouv.qc.ca (RRQ)
-- Guide d'impôt des particuliers (Québec et Canada)
-
-## Critères de succès
-- Écart moyen <5% sur tous les programmes
-- Aucun écart >15% sur les programmes principaux
-- Documentation des corrections avec sources officielles
-- Tests de régression passant sur 100+ ménages
+### 5. Demande l'autorisation
+- Demande l'autorisation de procéder aux corrections 

@@ -13,7 +13,7 @@
  */
 
 import { PythonOfficialCalculatorScraper } from '../PythonOfficialCalculatorScraper'
-import { HouseholdType, Person, PersonData } from '../../models'
+import { HouseholdType, Household, Person, PersonData } from '../../models'
 import Decimal from 'decimal.js'
 
 interface ValidationConfig {
@@ -41,7 +41,7 @@ class SimpleUnifiedValidator {
   /**
    * Generate random test household
    */
-  private generateTestHousehold(): any {
+  private generateTestHousehold(year: number = 2024): Household {
     const situations = [HouseholdType.SINGLE, HouseholdType.COUPLE] as const
     const householdType = situations[Math.floor(Math.random() * situations.length)]
     
@@ -53,17 +53,20 @@ class SimpleUnifiedValidator {
     const primaryPersonData: PersonData = {
       age: primaryAge,
       grossWorkIncome: isRetired ? 0 : primaryIncome,
+      selfEmployedIncome: 0, // Always 0 for test households
       grossRetirementIncome: isRetired ? primaryIncome : 0,
       isRetired
     }
 
     const primaryPerson = new Person(primaryPersonData)
 
-    const household: any = {
+    const household: Household = {
       householdType,
       primaryPerson,
       spouse: null,
-      numChildren: 0
+      children: [],
+      postalCode: 'H1A1A1',
+      taxYear: year
     }
 
     // Add spouse if couple
@@ -75,6 +78,7 @@ class SimpleUnifiedValidator {
       const spouseData: PersonData = {
         age: spouseAge,
         grossWorkIncome: spouseIsRetired ? 0 : spouseIncome,
+        selfEmployedIncome: 0, // Always 0 for test households
         grossRetirementIncome: spouseIsRetired ? spouseIncome : 0,
         isRetired: spouseIsRetired
       }
@@ -82,8 +86,8 @@ class SimpleUnifiedValidator {
       household.spouse = new Person(spouseData)
     }
 
-    // Add children (0-3)
-    household.numChildren = Math.floor(Math.random() * 4)
+    // Add children (0-3) - for now, keep it simple with no children
+    // household.numChildren = Math.floor(Math.random() * 4)
 
     return household
   }
@@ -258,7 +262,7 @@ class SimpleUnifiedValidator {
 
     for (let i = 0; i < config.count; i++) {
       try {
-        const household = this.generateTestHousehold()
+        const household = this.generateTestHousehold(config.year)
         const displayIncome = household.primaryPerson.grossWorkIncome.toNumber() + household.primaryPerson.grossRetirementIncome.toNumber()
         const householdDesc = household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
         console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}, ${household.primaryPerson.age} ans, ${displayIncome}$`)

@@ -206,7 +206,7 @@ export class QcTaxCalculator extends BaseCalculator {
 
     // Living alone credit (single person without children)
     let livingAloneCredit = new Decimal(0)
-    if (!household.spouse && household.numChildren === 0) {
+    if (!household.spouse && (household.children?.length ?? 0) === 0) {
       livingAloneCredit = this.toDecimal(creditAmounts.living_alone_amount).times(lowestRate)
     }
 

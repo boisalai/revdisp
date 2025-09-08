@@ -67,7 +67,7 @@ export class SchoolSuppliesSupplementCalculator extends BaseCalculator {
   ): SchoolSuppliesSupplementResult {
     
     // Vérification de l'éligibilité de base
-    if (household.numChildren === 0) {
+    if ((household.children?.length ?? 0) === 0) {
       return this.createZeroResult()
     }
 
@@ -113,7 +113,7 @@ export class SchoolSuppliesSupplementCalculator extends BaseCalculator {
   ): number {
     // Pour cette implémentation MVP, on assume que tous les enfants sont éligibles
     // Ceci est cohérent avec l'implémentation actuelle dans FamilyAllowanceCalculator
-    return household.numChildren
+    return (household.children?.length ?? 0)
   }
 
   /**
@@ -135,7 +135,7 @@ export class SchoolSuppliesSupplementCalculator extends BaseCalculator {
    * Vérifie si un ménage est éligible au supplément
    */
   public isEligible(household: Household): boolean {
-    return household.numChildren > 0
+    return (household.children?.length ?? 0) > 0
   }
 
   /**

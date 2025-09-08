@@ -37,7 +37,7 @@ export class RamqCalculator extends BaseCalculator {
     const totalIncome = qcTaxResult.net_income.family
 
     // Déterminer le seuil d'exemption
-    const exemption = this.getExemptionThreshold(household.householdType, household.numChildren)
+    const exemption = this.getExemptionThreshold(household.householdType, household.children?.length ?? 0)
 
     // Si le revenu est sous le seuil d'exemption, pas de cotisation
     if (totalIncome.lessThanOrEqualTo(exemption)) {

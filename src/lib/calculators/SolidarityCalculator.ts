@@ -173,7 +173,8 @@ export class SolidarityCalculator extends BaseCalculator {
     }
     
     // Add child amounts
-    const childAmount = new Decimal(config.child_amount).times(household.numChildren)
+    const numChildren = household.children?.length ?? 0
+    const childAmount = new Decimal(config.child_amount).times(numChildren)
     amount = amount.plus(childAmount)
     
     return amount

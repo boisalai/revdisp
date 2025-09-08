@@ -114,7 +114,7 @@ export class WorkPremiumCalculator extends BaseCalculator {
    */
   private getHouseholdCategory(household: Household): 'single' | 'single_parent' | 'couple_with_children' | 'couple_without_children' {
     const hasSpouse = household.spouse !== null
-    const hasChildren = household.numChildren > 0
+    const hasChildren = (household.children?.length ?? 0) > 0
     
     if (!hasSpouse && !hasChildren) {
       return 'single'
