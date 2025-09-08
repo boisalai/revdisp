@@ -58,15 +58,12 @@ class SimpleUnifiedValidator {
       isRetired
     }
 
-    const primaryPerson = new Person(primaryPersonData)
-
-    const household: Household = {
+    const householdData: any = {
       householdType,
-      primaryPerson,
+      primaryPerson: primaryPersonData,
       spouse: null,
       children: [],
-      postalCode: 'H1A1A1',
-      taxYear: year
+      province: 'QC'
     }
 
     // Add spouse if couple
@@ -83,13 +80,13 @@ class SimpleUnifiedValidator {
         isRetired: spouseIsRetired
       }
       
-      household.spouse = new Person(spouseData)
+      householdData.spouse = spouseData
     }
 
     // Add children (0-3) - for now, keep it simple with no children
     // household.numChildren = Math.floor(Math.random() * 4)
 
-    return household
+    return new Household(householdData)
   }
 
   /**
