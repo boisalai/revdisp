@@ -30,7 +30,8 @@
       "WebFetch(domain:www.habitation.gouv.qc.ca)",
       "WebFetch(domain:cdn-contenu.quebec.ca)",
       "Bash(node:*)",
-      "Bash(timeout 60 npm run validate:progressive -- --count 5)"
+      "Bash(timeout 60 npm run validate:progressive -- --count 5)",
+      "Bash(uv run:*)"
     ],
     "deny": [
       "Bash(rm -fr:*)"

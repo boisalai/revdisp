@@ -40,8 +40,12 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
     const childrenCount = (household.children?.length ?? 0) || 0;
     const isFamily = hasSpouse || childrenCount > 0;
 
-    // Check minimum work income requirement
-    if (workIncome.lessThan(params.income_thresholds.minimum_work_income)) {
+    // Check minimum work income requirement (different for single vs couple in Quebec)
+    const minWorkIncome = isFamily 
+      ? (params.income_thresholds.minimum_work_income_couple || params.income_thresholds.minimum_work_income)
+      : params.income_thresholds.minimum_work_income;
+      
+    if (workIncome.lessThan(minWorkIncome)) {
       return {
         amount: new Decimal(0),
         basic_amount: new Decimal(0),
@@ -89,22 +93,49 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
     isFamily: boolean,
     params: any
   ): Decimal {
-    const maxAmount = isFamily 
-      ? new Decimal(params.basic_amount.family_max)
-      : new Decimal(params.basic_amount.single_max);
+    const hasSpouse = isFamily;
+    const childrenCount = 0; // TODO: Get actual children count from household
+    const isSingleParent = !hasSpouse && childrenCount > 0;
+    const isFamilyWithChildren = hasSpouse && childrenCount > 0;
+    
+    // Determine family type and corresponding parameters
+    let maxAmount: Decimal;
+    let phaseInRate: Decimal;
+    let phaseOutThreshold: number;
+    let baseWorkingIncome: number;
+    
+    if (isSingleParent) {
+      maxAmount = new Decimal(params.basic_amount.single_parent_max);
+      phaseInRate = new Decimal(params.calculation_rates.phase_in_rate_single_parent);
+      phaseOutThreshold = params.income_thresholds.phase_out_start_single_parent;
+      baseWorkingIncome = params.income_thresholds.minimum_work_income;
+    } else if (isFamilyWithChildren) {
+      maxAmount = new Decimal(params.basic_amount.family_with_children_max);
+      phaseInRate = new Decimal(params.calculation_rates.phase_in_rate_family_children);
+      phaseOutThreshold = params.income_thresholds.phase_out_start_family_children;
+      baseWorkingIncome = params.income_thresholds.minimum_work_income_couple || params.income_thresholds.minimum_work_income;
+    } else if (hasSpouse) {
+      // Couple without children
+      maxAmount = new Decimal(params.basic_amount.family_max);
+      phaseInRate = new Decimal(params.calculation_rates.phase_in_rate);
+      phaseOutThreshold = params.income_thresholds.phase_out_start_family;
+      baseWorkingIncome = params.income_thresholds.minimum_work_income_couple || params.income_thresholds.minimum_work_income;
+    } else {
+      // Single person
+      maxAmount = new Decimal(params.basic_amount.single_max);
+      phaseInRate = new Decimal(params.calculation_rates.phase_in_rate);
+      phaseOutThreshold = params.income_thresholds.phase_out_start_single;
+      baseWorkingIncome = params.income_thresholds.minimum_work_income;
+    }
 
-    // Phase-in calculation: 27% of work income above minimum threshold
-    const phaseInIncome = Decimal.max(0, workIncome.minus(params.income_thresholds.phase_in_start));
-    const phaseInAmount = phaseInIncome.times(params.calculation_rates.phase_in_rate);
+    // Phase-in calculation: rate of work income above base working income
+    const phaseInIncome = Decimal.max(0, workIncome.minus(baseWorkingIncome));
+    const phaseInAmount = phaseInIncome.times(phaseInRate);
     
     // Calculate benefit before phase-out
     let benefit = Decimal.min(maxAmount, phaseInAmount);
 
     // Phase-out calculation based on total income
-    const phaseOutThreshold = isFamily 
-      ? params.income_thresholds.phase_out_start_family
-      : params.income_thresholds.phase_out_start_single;
-
     if (totalIncome.greaterThan(phaseOutThreshold)) {
       const incomeAboveThreshold = totalIncome.minus(phaseOutThreshold);
       const reduction = incomeAboveThreshold.times(params.calculation_rates.phase_out_rate);

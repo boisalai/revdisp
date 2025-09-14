@@ -20,6 +20,17 @@ export interface PythonOfficialCalculatorResult {
   qc_prime_travail?: number
   ramq?: number
   fss?: number
+  cotisations_total?: number
+  qc_allocation_famille?: number
+  qc_fournitures_scolaires?: number
+  qc_garde_enfants?: number
+  qc_allocation_logement?: number
+  qc_soutien_aines?: number
+  ca_allocation_enfants?: number
+  ca_pension_securite?: number
+  qc_aide_sociale?: number
+  qc_frais_medicaux?: number
+  ca_frais_medicaux?: number
   
   // Métadonnées
   timestamp: Date
@@ -34,7 +45,7 @@ export class PythonOfficialCalculatorScraper {
   constructor(options: { timeout?: number } = {}) {
     this.timeout = options.timeout ?? 60000
     // Le script Python est dans le dossier python-scraper à la racine
-    this.pythonScriptPath = path.join(process.cwd(), 'python-scraper', 'calculator_scraper.py')
+    this.pythonScriptPath = path.join(process.cwd(), 'python-scraper', 'mfq_scraper_simple.py')
   }
   
   /**

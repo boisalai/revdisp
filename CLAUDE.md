@@ -266,6 +266,30 @@ const taxes = calculationResult.impotQuebec        // ❌
 
 **Zones concernées**: Résultats calculateur, clés configuration, propriétés API, système validation
 
+## 🚨 DISTINCTION CRITIQUE : Impôts vs Régimes Fiscaux
+
+**⚠️ ERREUR FRÉQUENTE À ÉVITER** : Confusion entre impôts bruts et régimes fiscaux nets
+
+### Définitions Clés
+- **Impôt sur le revenu des particuliers** = Impôt BRUT calculé avant tous crédits
+- **Régime fiscal** = Impact NET (impôt brut - crédits/allocations du même niveau gouvernemental)
+
+### Exemple concret (personne seule, 35 ans, 45000$)
+**QUÉBEC**:
+- Impôt particuliers QC : -3 291 $ (brut)
+- Régime fiscal QC : -2 193 $ (net après crédit solidarité +1 098 $)
+
+**FÉDÉRAL**:
+- Impôt particuliers fédéral : -3 055 $ (brut)
+- Régime fiscal fédéral : -2 549 $ (net après crédit TPS +506 $)
+
+### Dans le calculateur officiel
+- Les sections "Régime fiscal du Québec" et "Régime fiscal fédéral" montrent les montants NETS
+- Les lignes "Impôt sur le revenu des particuliers" montrent les montants BRUTS
+- Les crédits/allocations sont les différences qui expliquent l'écart
+
+**🎯 RÈGLE** : Toujours vérifier si on parle d'impôt brut ou de régime fiscal net lors des analyses
+
 ## 🧹 Historique des Changements Récents
 
 ### Septembre 2024 - Nettoyage Structure & UI

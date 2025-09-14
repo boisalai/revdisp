@@ -112,7 +112,7 @@ export class SolidarityCalculator extends BaseCalculator {
       return Decimal.min(taxResults.quebec_net_income, taxResults.federal_net_income)
     }
     
-    // Fallback: estimate based on gross income minus basic deductions
+    // Fallback: estimate based on gross income minus realistic deductions
     let totalGrossIncome = household.primaryPerson.grossWorkIncome
       .plus(household.primaryPerson.grossRetirementIncome)
     
@@ -122,8 +122,19 @@ export class SolidarityCalculator extends BaseCalculator {
         .plus(household.spouse.grossRetirementIncome)
     }
     
-    // Conservative estimate: assume ~15% total deductions
-    return totalGrossIncome.times(0.85)
+    // More realistic deduction estimates based on income level
+    let deductionRate: number
+    if (totalGrossIncome.lessThan(30000)) {
+      deductionRate = 0.10  // 10% deductions for low income
+    } else if (totalGrossIncome.lessThan(60000)) {
+      deductionRate = 0.15  // 15% deductions for middle income
+    } else if (totalGrossIncome.lessThan(100000)) {
+      deductionRate = 0.25  // 25% deductions for higher income
+    } else {
+      deductionRate = 0.35  // 35% deductions for high income (includes higher tax brackets)
+    }
+    
+    return totalGrossIncome.times(1 - deductionRate)
   }
 
   /**

@@ -142,7 +142,10 @@ class SimpleUnifiedValidator {
         qc_solidarite: results.quebec?.solidarity?.net_credit || 0,
         qc_prime_travail: results.quebec?.work_premium?.net_premium || 0,
         ca_tps: results.canada?.gst_credit?.amount || 0,
-        ca_pfrt: results.canada?.child_benefit?.net_benefit || 0
+        ca_pfrt: results.canada?.canada_workers?.amount || 0,
+        ca_allocation_enfants: results.canada?.child_benefit?.net_benefit || 0,
+        qc_allocation_logement: results.quebec?.housing_allocation?.net_allocation || 0,
+        qc_aide_sociale: results.quebec?.social_assistance?.net_assistance || 0
       }
     } catch (error) {
       console.error('❌ Erreur API locale:', error)
@@ -180,7 +183,10 @@ class SimpleUnifiedValidator {
         qc_solidarite: result.qc_solidarite || 0,
         qc_prime_travail: result.qc_prime_travail || 0,
         ca_tps: result.ca_tps || 0,
-        ca_pfrt: result.ca_pfrt || 0
+        ca_pfrt: result.ca_pfrt || 0,
+        ca_allocation_enfants: result.ca_allocation_enfants || 0,
+        qc_allocation_logement: result.qc_allocation_logement || 0,
+        qc_aide_sociale: result.qc_aide_sociale || 0
       }
     } catch (error) {
       console.error('❌ Erreur scraper officiel:', error)
@@ -238,9 +244,21 @@ class SimpleUnifiedValidator {
     for (let i = 0; i < config.count; i++) {
       try {
         const household = this.generateTestHousehold(config.year)
-        const displayIncome = household.primaryPerson.grossWorkIncome.toNumber() + household.primaryPerson.grossRetirementIncome.toNumber()
+        
+        // Calculate detailed household info
+        const primaryIncome = household.primaryPerson.grossWorkIncome.toNumber() + household.primaryPerson.grossRetirementIncome.toNumber()
         const householdDesc = household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
-        console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}, ${household.primaryPerson.age} ans, ${displayIncome}$`)
+        
+        if (householdDesc === 'couple' && household.spouse) {
+          const spouseIncome = household.spouse.grossWorkIncome.toNumber() + household.spouse.grossRetirementIncome.toNumber()
+          const totalIncome = primaryIncome + spouseIncome
+          console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}`)
+          console.log(`   👤 Adulte 1: ${household.primaryPerson.age} ans, ${primaryIncome}$`)
+          console.log(`   👤 Adulte 2: ${household.spouse.age} ans, ${spouseIncome}$`)
+          console.log(`   💰 Revenu total: ${totalIncome}$`)
+        } else {
+          console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}, ${household.primaryPerson.age} ans, ${primaryIncome}$`)
+        }
         
         // Get results from both calculators
         const ourResults = await this.getOurResults(household, config.year)
@@ -302,34 +320,70 @@ class SimpleUnifiedValidator {
     console.log(`💰 Écart moyen: ${Math.round(avgGap)}$`)
     console.log()
 
-    this.displayWorstCaseTable(worstCase)
+    console.log(`🔴 PIRE CAS IDENTIFIÉ`)
+    console.log(`====================`)
+    this.displayCaseTable(worstCase)
+    
+    // Also display high-income couple case if there's one (even if not worst)
+    const highIncomeCouple = results
+      .filter(r => r.household.householdType !== HouseholdType.SINGLE)
+      .sort((a, b) => {
+        const incomeA = (a.household.primaryPerson.grossWorkIncome.toNumber() + 
+                        a.household.primaryPerson.grossRetirementIncome.toNumber() +
+                        (a.household.spouse ? a.household.spouse.grossWorkIncome.toNumber() + 
+                         a.household.spouse.grossRetirementIncome.toNumber() : 0))
+        const incomeB = (b.household.primaryPerson.grossWorkIncome.toNumber() + 
+                        b.household.primaryPerson.grossRetirementIncome.toNumber() +
+                        (b.household.spouse ? b.household.spouse.grossWorkIncome.toNumber() + 
+                         b.household.spouse.grossRetirementIncome.toNumber() : 0))
+        return incomeB - incomeA // Sort descending by income
+      })[0]
+    
+    if (highIncomeCouple && highIncomeCouple !== worstCase) {
+      console.log()
+      console.log(`🟢 COUPLE À PLUS HAUT REVENU`)
+      console.log(`===========================`)
+      this.displayCaseTable(highIncomeCouple)
+    }
+    
     this.generateRecommendations(results)
   }
 
   /**
-   * Display worst case table
+   * Display case table (reusable for worst case or couple case)
    */
-  private displayWorstCaseTable(worstCase: any): void {
-    console.log(`🔴 PIRE CAS IDENTIFIÉ`)
-    console.log(`====================`)
-    const householdDesc = worstCase.household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
-    const displayIncome = worstCase.household.primaryPerson.grossWorkIncome.toNumber() + worstCase.household.primaryPerson.grossRetirementIncome.toNumber()
-    const spouse = worstCase.household.spouse
-    const spouseDesc = spouse ? `, conjoint ${spouse.age} ans` : ''
+  private displayCaseTable(caseData: any): void {
+    const householdDesc = caseData.household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
+    const primaryIncome = caseData.household.primaryPerson.grossWorkIncome.toNumber() + caseData.household.primaryPerson.grossRetirementIncome.toNumber()
+    const spouse = caseData.household.spouse
     
-    console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}** | Âge: ${worstCase.household.primaryPerson.age} ans${spouseDesc} | Revenu: ${displayIncome}$`)
-    console.log(`🎯 Précision: ${worstCase.accuracy}%`)
-    console.log()
-
     // Group programs by category for structured display
-    const programGroups = this.groupProgramsByCategory(worstCase.comparisons)
+    const programGroups = this.groupProgramsByCategory(caseData.comparisons)
     
-    console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
-    console.log(`**Type de ménage: ${householdDesc.toUpperCase()}** | **Âge: ${worstCase.household.primaryPerson.age} ans** | **Revenu: ${displayIncome}$**`)
+    if (householdDesc === 'couple' && spouse) {
+      const spouseIncome = spouse.grossWorkIncome.toNumber() + spouse.grossRetirementIncome.toNumber()
+      const totalIncome = primaryIncome + spouseIncome
+      console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}**`)
+      console.log(`👤 **Adulte 1**: ${caseData.household.primaryPerson.age} ans, ${primaryIncome}$`)
+      console.log(`👤 **Adulte 2**: ${spouse.age} ans, ${spouseIncome}$`)
+      console.log(`💰 **Revenu total**: ${totalIncome}$`)
+      console.log(`🎯 Précision: ${caseData.accuracy}%`)
+      console.log()
+      
+      console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
+      console.log(`**Type: ${householdDesc.toUpperCase()}** | **Adulte 1: ${caseData.household.primaryPerson.age} ans, ${primaryIncome}$** | **Adulte 2: ${spouse.age} ans, ${spouseIncome}$** | **Total: ${totalIncome}$**`)
+    } else {
+      console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}** | Âge: ${caseData.household.primaryPerson.age} ans | Revenu: ${primaryIncome}$`)
+      console.log(`🎯 Précision: ${caseData.accuracy}%`)
+      console.log()
+      
+      console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
+      console.log(`**Type de ménage: ${householdDesc.toUpperCase()}** | **Âge: ${caseData.household.primaryPerson.age} ans** | **Revenu: ${primaryIncome}$**`)
+    }
     console.log()
     
     // Display main result
-    const revenuDisponible = worstCase.comparisons.find((c: any) => c.program === 'revenu_disponible')
+    const revenuDisponible = caseData.comparisons.find((c: any) => c.program === 'revenu_disponible')
     if (revenuDisponible) {
       console.log('| Programme | Notre Calculateur | MFQ Officiel | Écart |')
       console.log('|-----------|------------------|--------------|-------|')

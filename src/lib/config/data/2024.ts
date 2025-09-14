@@ -256,17 +256,22 @@ export const config2024: TaxYearConfig = {
    */
   canada_workers: {
     basic_amount: {
-      single_max: 1590,             // Montant maximal pour célibataires
-      family_max: 2739              // Montant maximal pour familles
+      single_max: 3705.38,          // Montant maximal pour célibataires (QUÉBEC 2024)
+      family_max: 5778.52,          // Montant maximal pour familles sans enfant (QUÉBEC 2024)
+      single_parent_max: 1986.80,   // Montant maximal parent seul (QUÉBEC 2024)
+      family_with_children_max: 3702.59 // Montant maximal couple avec enfants (QUÉBEC 2024)
     },
     disability_supplement: {
       max_amount: 737               // Supplément maximal pour personnes handicapées
     },
     income_thresholds: {
-      minimum_work_income: 3000,    // Revenu minimum de travail requis
-      phase_in_start: 0,            // Début de l'accumulation
-      phase_out_start_single: 26149, // Début de réduction pour célibataires
-      phase_out_start_family: 29833, // Début de réduction pour familles
+      minimum_work_income: 2400,    // Base working income célibataires (QUÉBEC)
+      minimum_work_income_couple: 3600, // Base working income couples (QUÉBEC)
+      phase_in_start: 2400,         // Début de l'accumulation (après base)
+      phase_out_start_single: 13380, // Début de réduction pour célibataires (QUÉBEC)
+      phase_out_start_family: 21257, // Début de réduction pour familles (QUÉBEC)
+            phase_out_start_single_parent: 13982, // Début de réduction parent seul (QUÉBEC)
+      phase_out_start_family_children: 21457, // Début de réduction couple avec enfants (QUÉBEC)
       phase_out_end_single: 65577,   // Fin d'admissibilité pour célibataires
       phase_out_end_family: 65595,   // Fin d'admissibilité pour familles
       disability_phase_out_start_single: 36748, // Début réduction supplément invalidité (célibataires)
@@ -275,11 +280,13 @@ export const config2024: TaxYearConfig = {
       disability_phase_out_end_family: 59038     // Fin supplément invalidité (familles - both disabled)
     },
     calculation_rates: {
-      phase_in_rate: 0.27,          // Taux d'accumulation de 27%
-      phase_out_rate: 0.15,         // Taux de réduction de 15%
+      phase_in_rate: 0.373,         // Taux d'accumulation de 37.3% (QUÉBEC)
+      phase_in_rate_single_parent: 0.20,  // Taux pour parent seul 20% (QUÉBEC)
+      phase_in_rate_family_children: 0.239, // Taux couple avec enfants 23.9% (QUÉBEC)
+      phase_out_rate: 0.20,         // Taux de réduction de 20% (QUÉBEC)
       disability_phase_out_rate: 0.075 // Taux de réduction du supplément invalidité 7.5%
     },
-    secondary_earner_exemption: 14000 // Exemption conjoint secondaire
+    secondary_earner_exemption: 15955 // Exemption conjoint secondaire (QUÉBEC 2024)
   },
 
   /**

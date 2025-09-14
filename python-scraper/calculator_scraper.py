@@ -325,7 +325,18 @@ class QuebecCalculatorScraper:
                 'ca_pfrt': '#CA_pfrt_old',
                 'qc_prime_travail': '#QC_pt_old',
                 'ramq': '#QC_ramq_old',
-                'fss': '#QC_fss_old'
+                'fss': '#QC_fss_old',
+                'qc_allocation_famille': '#QC_sae_old',
+                'qc_fournitures_scolaires': '#SFS_old',
+                'qc_garde_enfants': '#QC_garde_old',
+                'qc_allocation_logement': '#QC_al_old',
+                'qc_soutien_aines': '#QC_aines_old',
+                'ca_allocation_enfants': '#CA_ace_old',
+                'ca_pension_securite': '#CA_psv_old',
+                'qc_aide_sociale': '#QC_adr_old',
+                'qc_frais_medicaux': '#QC_medic_old',
+                'ca_frais_medicaux': '#CA_medic_old',
+                'cotisations_total': '#Cotisation_old'
             }
             
             # Pour 2025, utiliser les sélecteurs _new  
@@ -341,7 +352,18 @@ class QuebecCalculatorScraper:
                 'ca_pfrt': '#CA_pfrt_new',
                 'qc_prime_travail': '#QC_pt_new',
                 'ramq': '#QC_ramq_new',
-                'fss': '#QC_fss_new'
+                'fss': '#QC_fss_new',
+                'qc_allocation_famille': '#QC_sae_new',
+                'qc_fournitures_scolaires': '#SFS_new',
+                'qc_garde_enfants': '#QC_garde_new',
+                'qc_allocation_logement': '#QC_al_new',
+                'qc_soutien_aines': '#QC_aines_new',
+                'ca_allocation_enfants': '#CA_ace_new',
+                'ca_pension_securite': '#CA_psv_new',
+                'qc_aide_sociale': '#QC_adr_new',
+                'qc_frais_medicaux': '#QC_medic_new',
+                'ca_frais_medicaux': '#CA_medic_new',
+                'cotisations_total': '#Cotisation_new'
             }
             
             # Utiliser les sélecteurs appropriés (on utilise 2024 par défaut)
