@@ -95,40 +95,15 @@ class SimpleUnifiedValidator {
   private async getOurResults(household: any, year: number): Promise<any> {
     try {
       const { RevenuDisponibleCalculator } = await import('../../MainCalculator')
-      const { Household, HouseholdType } = await import('../../models')
       
       // Create calculator instance
       const calculator = new RevenuDisponibleCalculator(year)
       
-      // Determine household type
-      let householdType = HouseholdType.SINGLE
-      if (household.type === 'couple') {
-        householdType = HouseholdType.COUPLE
-      }
-      
-      // Convert to proper Household model format
-      const householdData: any = {
-        householdType,
-        primaryPerson: {
-          age: household.age1 || household.age,
-          grossWorkIncome: household.income1 || household.income || 0
-        },
-        children: household.children || []
-      }
-      
-      // Add spouse if it's a couple
-      if (household.type === 'couple') {
-        householdData.spouse = {
-          age: household.age2 || household.age,
-          grossWorkIncome: household.income2 || household.income || 0
-        }
-      }
-      
-      // Create proper Household object
-      const householdModel = new Household(householdData)
+      // household is already a Household object from generateTestHousehold
+      // Just use it directly
       
       // Calculate results
-      const results = await calculator.calculate(householdModel)
+      const results = await calculator.calculate(household)
       
       // Convert Decimal results to numbers
       const calculationResults = {
@@ -157,13 +132,13 @@ class SimpleUnifiedValidator {
       
       return {
         revenu_disponible: calculationResults.revenu_disponible,
-        ae_total: calculationResults.ae_total * -1, // Convert to negative for deductions
-        rrq_total: calculationResults.rrq_total * -1,
-        rqap_total: calculationResults.rqap_total * -1,
-        fss_total: calculationResults.fss_total * -1,
-        ramq_total: calculationResults.ramq_total * -1,
-        qc_impot_total: calculationResults.impot_quebec,
-        ca_impot_total: calculationResults.impot_federal,
+        ae_total: calculationResults.ae_total, // Already positive values from calculator
+        rrq_total: calculationResults.rrq_total,
+        rqap_total: calculationResults.rqap_total,
+        fss_total: calculationResults.fss_total,
+        ramq_total: calculationResults.ramq_total,
+        qc_impot_total: -(calculationResults.impot_quebec || 0),
+        ca_impot_total: -(calculationResults.impot_federal || 0),
         qc_solidarite: results.quebec?.solidarity?.net_credit || 0,
         qc_prime_travail: results.quebec?.work_premium?.net_premium || 0,
         ca_tps: results.canada?.gst_credit?.amount || 0,
@@ -195,11 +170,11 @@ class SimpleUnifiedValidator {
 
       return {
         revenu_disponible: result.revenu_disponible || 0,
-        ae_total: (result.ae_total || 0) * -1, // Convert to negative for deductions
-        rrq_total: (result.rrq_total || 0) * -1,
-        rqap_total: (result.rqap_total || 0) * -1,
-        fss_total: (result.fss || 0) * -1,
-        ramq_total: (result.ramq || 0) * -1,
+        ae_total: Math.abs(result.ae_total || 0), // Ensure positive for comparison
+        rrq_total: Math.abs(result.rrq_total || 0),
+        rqap_total: Math.abs(result.rqap_total || 0),
+        fss_total: Math.abs(result.fss || 0),
+        ramq_total: Math.abs(result.ramq || 0),
         qc_impot_total: result.qc_impot_total || 0,
         ca_impot_total: result.ca_impot_total || 0,
         qc_solidarite: result.qc_solidarite || 0,
@@ -221,7 +196,10 @@ class SimpleUnifiedValidator {
       'revenu_disponible',
       'ae_total', 'rrq_total', 'rqap_total', 'fss_total', 'ramq_total',
       'qc_impot_total', 'ca_impot_total', 'qc_solidarite', 'qc_prime_travail',
-      'ca_tps', 'ca_pfrt'
+      'ca_tps', 'ca_pfrt', 'cotisations_total',
+      'qc_allocation_famille', 'qc_fournitures_scolaires', 'qc_garde_enfants',
+      'qc_allocation_logement', 'qc_soutien_aines', 'ca_allocation_enfants',
+      'ca_pension_securite', 'qc_aide_sociale', 'qc_frais_medicaux', 'ca_frais_medicaux'
     ]
 
     return programs.map(program => {
@@ -339,14 +317,15 @@ class SimpleUnifiedValidator {
     const spouse = worstCase.household.spouse
     const spouseDesc = spouse ? `, conjoint ${spouse.age} ans` : ''
     
-    console.log(`👥 Ménage: ${householdDesc}, ${worstCase.household.primaryPerson.age} ans${spouseDesc}, ${displayIncome}$ de revenu`)
+    console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}** | Âge: ${worstCase.household.primaryPerson.age} ans${spouseDesc} | Revenu: ${displayIncome}$`)
     console.log(`🎯 Précision: ${worstCase.accuracy}%`)
     console.log()
 
     // Group programs by category for structured display
     const programGroups = this.groupProgramsByCategory(worstCase.comparisons)
     
-    console.log('## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX')
+    console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
+    console.log(`**Type de ménage: ${householdDesc.toUpperCase()}** | **Âge: ${worstCase.household.primaryPerson.age} ans** | **Revenu: ${displayIncome}$**`)
     console.log()
     
     // Display main result
@@ -439,7 +418,18 @@ class SimpleUnifiedValidator {
       'rqap_total': 'Régime québécois d\'assurance parentale',
       'ramq': 'Régime d\'assurance médicaments du Québec',
       'fss': 'Fonds des services de santé',
-      'qc_prime_travail': 'Prime au travail'
+      'qc_prime_travail': 'Prime au travail',
+      'cotisations_total': 'Cotisations totales',
+      'qc_allocation_famille': 'Allocation famille',
+      'qc_fournitures_scolaires': 'Fournitures scolaires',
+      'qc_garde_enfants': 'Crédit garde d\'enfants',
+      'qc_allocation_logement': 'Allocation-logement',
+      'qc_soutien_aines': 'Soutien aux aînés',
+      'ca_allocation_enfants': 'Allocation canadienne pour enfants',
+      'ca_pension_securite': 'Pension sécurité vieillesse',
+      'qc_aide_sociale': 'Aide sociale',
+      'qc_frais_medicaux': 'Frais médicaux QC',
+      'ca_frais_medicaux': 'Frais médicaux fédéral'
     }
     return names[program] || program
   }
