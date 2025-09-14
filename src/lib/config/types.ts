@@ -209,15 +209,20 @@ export interface CanadaWorkersConfig {
   basic_amount: {
     single_max: number
     family_max: number
+    single_parent_max: number
+    family_with_children_max: number
   }
   disability_supplement: {
     max_amount: number
   }
   income_thresholds: {
     minimum_work_income: number
+    minimum_work_income_couple: number
     phase_in_start: number
     phase_out_start_single: number
     phase_out_start_family: number
+    phase_out_start_single_parent: number
+    phase_out_start_family_children: number
     phase_out_end_single: number
     phase_out_end_family: number
     disability_phase_out_start_single: number
@@ -227,6 +232,8 @@ export interface CanadaWorkersConfig {
   }
   calculation_rates: {
     phase_in_rate: number
+    phase_in_rate_single_parent: number
+    phase_in_rate_family_children: number
     phase_out_rate: number
     disability_phase_out_rate: number
   }

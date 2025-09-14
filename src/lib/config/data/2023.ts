@@ -244,16 +244,21 @@ export const config2023: TaxYearConfig = {
   canada_workers: {
     basic_amount: {
       single_max: 1518,             // Montant maximal pour célibataires (estimation)
-      family_max: 2616              // Montant maximal pour familles (estimation)
+      family_max: 2616,             // Montant maximal pour familles (estimation)
+      single_parent_max: 1518,      // Montant maximal parent seul (estimation)
+      family_with_children_max: 2616 // Montant maximal couple avec enfants (estimation)
     },
     disability_supplement: {
       max_amount: 700               // Supplément maximal pour personnes handicapées (estimation)
     },
     income_thresholds: {
       minimum_work_income: 3000,    // Revenu minimum de travail requis
+      minimum_work_income_couple: 3000, // Revenu minimum de travail couples (estimation)
       phase_in_start: 0,            // Début de l'accumulation
       phase_out_start_single: 26149, // Début de réduction pour célibataires
       phase_out_start_family: 29833, // Début de réduction pour familles
+      phase_out_start_single_parent: 26149, // Début de réduction parent seul (estimation)
+      phase_out_start_family_children: 29833, // Début de réduction couple avec enfants (estimation)
       phase_out_end_single: 36749,   // Fin d'admissibilité pour célibataires
       phase_out_end_family: 48093,   // Fin d'admissibilité pour familles
       disability_phase_out_start_single: 36748, // Début réduction supplément invalidité (célibataires)
@@ -263,6 +268,8 @@ export const config2023: TaxYearConfig = {
     },
     calculation_rates: {
       phase_in_rate: 0.27,          // Taux d'accumulation de 27%
+      phase_in_rate_single_parent: 0.27, // Taux pour parent seul (estimation)
+      phase_in_rate_family_children: 0.27, // Taux couple avec enfants (estimation)
       phase_out_rate: 0.15,         // Taux de réduction de 15%
       disability_phase_out_rate: 0.075 // Taux de réduction du supplément invalidité 7.5%
     },
