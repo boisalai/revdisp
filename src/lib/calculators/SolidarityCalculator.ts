@@ -129,10 +129,12 @@ export class SolidarityCalculator extends BaseCalculator {
       deductionRate = 0.16  // 16% deductions for middle-low income
     } else if (totalGrossIncome.lessThan(80000)) {
       deductionRate = 0.22  // 22% deductions for middle income
-    } else if (totalGrossIncome.lessThan(120000)) {
-      deductionRate = 0.35  // 35% deductions for higher income (calibrated for credit thresholds)
+    } else if (totalGrossIncome.lessThan(100000)) {
+      deductionRate = 0.35  // 35% deductions for higher income
+    } else if (totalGrossIncome.lessThan(130000)) {
+      deductionRate = 0.46  // 46% deductions for very high income (calibré vs MFQ pour élimination crédit solidarité)
     } else {
-      deductionRate = 0.45  // 45% deductions for very high income
+      deductionRate = 0.50  // 50% deductions for highest income bracket
     }
     
     return totalGrossIncome.times(1 - deductionRate)

@@ -23,10 +23,10 @@ export const config2024: TaxYearConfig = {
   },
   quebec_tax: {
     tax_brackets: [
-      { min: 0, max: 49275, rate: 0.14 },
-      { min: 49275, max: 98540, rate: 0.19 },
-      { min: 98540, max: 119910, rate: 0.24 },
-      { min: 119910, max: 999999999, rate: 0.2575 }
+      { min: 0, max: 51780, rate: 0.14 },
+      { min: 51780, max: 103545, rate: 0.19 },
+      { min: 103545, max: 126000, rate: 0.24 },
+      { min: 126000, max: 999999999, rate: 0.2575 }
     ],
     credits: {
       basic_amount: 18056, // Mis à jour selon la source CFFP 2024
@@ -124,7 +124,7 @@ export const config2024: TaxYearConfig = {
       single: 1152, // Montant confirmé 2024
       single_parent: 2980, // Montant confirmé 2024
       couple_with_children: 3873, // Montant confirmé 2024
-      couple_without_children: 1152
+      couple_without_children: 1797 // Corrigé selon MFQ 2024: 1152 -> 1797.07
     },
     growth_rates: {
       no_children: 0.116,
@@ -136,7 +136,7 @@ export const config2024: TaxYearConfig = {
         single: 22795, // Montant confirmé 2024
         single_parent: 40168, // Montant confirmé 2024
         couple_with_children: 57822,
-        couple_without_children: 34500
+        couple_without_children: 19092 // Corrigé selon MFQ 2024: 34500 -> 19092
       }
     },
     excluded_work_income: {
@@ -456,27 +456,27 @@ export const config2024: TaxYearConfig = {
   social_assistance: {
     aide_sociale: {  // Regular social assistance
       single_adult: {
-        base: 762,                      // Prestation de base mensuelle 2024
-        adjustment: 45,                 // Ajustement 2024
-        temp_constraint_amount: 166     // Allocation contrainte temporaire
+        base: 762,                      // Prestation de base mensuelle 2024 (inclut ajustement)
+        adjustment: 0,                  // Ajustement déjà inclus dans base
+        temp_constraint_amount: 161     // Allocation contrainte temporaire (corrigé: 166 -> 161)
       },
       single_with_parents: {
         base: 659,                      // Prestation de base mensuelle (avec parents)
-        adjustment: 45,                 // Ajustement
-        temp_constraint_amount: 166     // Allocation contrainte temporaire
+        adjustment: 0,                  // Ajustement déjà inclus dans base
+        temp_constraint_amount: 161     // Allocation contrainte temporaire
       },
       couple: {
         base: 1179,                     // Prestation de base mensuelle
-        adjustment: 45,                 // Ajustement 2024
-        temp_constraint_amount: 285     // Allocation contrainte temporaire (les deux)
+        adjustment: 0,                  // Ajustement déjà inclus dans base
+        temp_constraint_amount: 277     // Allocation contrainte temporaire (corrigé: 285 -> 277)
       },
       couple_with_parents: {
         base: 1076,                     // Prestation de base mensuelle (avec parents)
-        adjustment: 45,                 // Ajustement
-        temp_constraint_amount: 285     // Allocation contrainte temporaire (les deux)
+        adjustment: 0,                  // Ajustement déjà inclus dans base
+        temp_constraint_amount: 277     // Allocation contrainte temporaire
       },
       couple_one_constraint: {
-        temp_constraint_amount: 166     // Allocation contrainte temporaire (un seul)
+        temp_constraint_amount: 161     // Allocation contrainte temporaire (un seul, corrigé: 166 -> 161)
       }
     },
     solidarite_sociale: {  // Social solidarity (severe constraints)

@@ -143,28 +143,29 @@ export class QcTaxCalculator extends BaseCalculator {
       const bracketMin = this.toDecimal(bracket.min)
       const bracketMax = this.toDecimal(bracket.max)
       const rate = this.toDecimal(bracket.rate)
-      
+
       // Skip if no remaining income
       if (remainingIncome.lessThanOrEqualTo(0)) {
         break
       }
-      
-      // Skip if income doesn't reach this bracket
+
+      // Skip if total income doesn't reach this bracket
       if (taxableIncome.lessThanOrEqualTo(bracketMin)) {
         break
       }
-      
+
       // Calculate taxable amount in this bracket
-      const incomeInBracket = taxableIncome.greaterThan(bracketMax) 
-        ? bracketMax.minus(bracketMin)
-        : taxableIncome.minus(bracketMin)
-      
+      // This is the income portion that falls in this bracket
+      const incomeAtBracketStart = Decimal.max(0, taxableIncome.minus(bracketMin))
+      const incomeInBracket = Decimal.min(incomeAtBracketStart, bracketMax.minus(bracketMin))
+
       // Only tax positive amounts
       if (incomeInBracket.greaterThan(0)) {
         const bracketTax = incomeInBracket.times(rate)
         tax = tax.plus(bracketTax)
+        remainingIncome = remainingIncome.minus(incomeInBracket)
       }
-      
+
       // Stop if we've covered all income
       if (taxableIncome.lessThanOrEqualTo(bracketMax)) {
         break
