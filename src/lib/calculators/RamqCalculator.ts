@@ -120,7 +120,8 @@ export class RamqCalculator extends BaseCalculator {
     const baseRateCouple = this.toDecimal(this.getConfigValue('base_rate_couple'))
     const additionalRateCouple = this.toDecimal(this.getConfigValue('additional_rate_couple'))
     const baseMaxCouple = this.toDecimal(this.getConfigValue('base_max_couple'))
-    const maxContribution = this.toDecimal(this.getConfigValue('max_contribution'))
+    // CORRECTION: Utiliser le maximum spécifique aux couples (1475$)
+    const maxContributionCouple = this.toDecimal(this.getConfigValue('max_contribution_couple'))
 
     if (income.lessThanOrEqualTo(firstThreshold)) {
       return Decimal.min(
@@ -134,7 +135,7 @@ export class RamqCalculator extends BaseCalculator {
 
     return Decimal.min(
       baseContribution.plus(additionalContribution),
-      maxContribution
+      maxContributionCouple
     )
   }
 }

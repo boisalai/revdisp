@@ -122,6 +122,7 @@ export interface WorkPremiumConfig {
 
 export interface RamqConfig {
   max_contribution: number
+  max_contribution_couple: number // Maximum pour un couple (2 × 737.50$)
   exemption_single: number
   exemption_couple: number
   exemption_single_one_child: number

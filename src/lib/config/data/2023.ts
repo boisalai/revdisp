@@ -137,6 +137,7 @@ export const config2023: TaxYearConfig = {
 
   ramq: {
     max_contribution: 720.50,
+    max_contribution_couple: 1441.00, // Maximum pour un couple (2 × 720.50$)
     exemption_single: 18910,
     exemption_couple: 30640,
     exemption_single_one_child: 30640,

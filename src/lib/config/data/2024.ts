@@ -146,13 +146,14 @@ export const config2024: TaxYearConfig = {
   },
 
   ramq: {
-    max_contribution: 737.50,
+    max_contribution: 737.50, // Maximum par individu
+    max_contribution_couple: 1475.00, // Maximum pour un couple (2 × 737.50$)
     exemption_single: 19790,
-    exemption_couple: 32080,
+    exemption_couple: 32080, // Corrigé selon CFFP: 31610 -> 32080
     exemption_single_one_child: 32080,
     exemption_single_multiple_children: 36185,
-    exemption_couple_one_child: 36185,
-    exemption_couple_multiple_children: 39975,
+    exemption_couple_one_child: 36185, // Corrigé selon CFFP: 35715 -> 36185
+    exemption_couple_multiple_children: 39975, // Corrigé selon CFFP: 39505 -> 39975
     first_threshold: 5000,
     base_rate_single: 0.0747,
     additional_rate_single: 0.1122,

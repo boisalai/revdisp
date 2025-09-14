@@ -200,6 +200,7 @@ export const config2025: TaxYearConfig = {
    */
   ramq: {
     max_contribution: 744,
+    max_contribution_couple: 1488.00, // Maximum pour un couple (2 × 744$)
     exemption_single: 19790, // Maintenu pour 2025
     exemption_couple: 32080, // Maintenu pour 2025
     exemption_single_one_child: 32080,
