@@ -106,10 +106,9 @@ export class SolidarityCalculator extends BaseCalculator {
       federal_net_income?: Decimal
     }
   ): Decimal {
-    // Use provided tax results if available, otherwise estimate
-    if (taxResults?.quebec_net_income && taxResults?.federal_net_income) {
-      // Use the lower of the two (more conservative approach)
-      return Decimal.min(taxResults.quebec_net_income, taxResults.federal_net_income)
+    // Use Quebec net income if available (this is line 275)
+    if (taxResults?.quebec_net_income) {
+      return taxResults.quebec_net_income
     }
     
     // Fallback: estimate based on gross income minus realistic deductions
@@ -122,16 +121,18 @@ export class SolidarityCalculator extends BaseCalculator {
         .plus(household.spouse.grossRetirementIncome)
     }
     
-    // More realistic deduction estimates based on income level
+    // More realistic deduction estimates based on income level for line 275 calculation
     let deductionRate: number
     if (totalGrossIncome.lessThan(30000)) {
-      deductionRate = 0.10  // 10% deductions for low income
-    } else if (totalGrossIncome.lessThan(60000)) {
-      deductionRate = 0.15  // 15% deductions for middle income
-    } else if (totalGrossIncome.lessThan(100000)) {
-      deductionRate = 0.25  // 25% deductions for higher income
+      deductionRate = 0.08  // 8% deductions for low income (basic exemptions)
+    } else if (totalGrossIncome.lessThan(50000)) {
+      deductionRate = 0.12  // 12% deductions for middle-low income
+    } else if (totalGrossIncome.lessThan(80000)) {
+      deductionRate = 0.18  // 18% deductions for middle income
+    } else if (totalGrossIncome.lessThan(120000)) {
+      deductionRate = 0.28  // 28% deductions for higher income
     } else {
-      deductionRate = 0.35  // 35% deductions for high income (includes higher tax brackets)
+      deductionRate = 0.40  // 40% deductions for very high income (higher tax brackets + all deductions)
     }
     
     return totalGrossIncome.times(1 - deductionRate)
