@@ -198,7 +198,7 @@ export class RevenuDisponibleCalculator {
     
     // Solidarity tax credit
     if (this.calculators.solidarity) {
-      const solidarityResult = (this.calculators.solidarity as any).calculateHousehold(household, {
+      const solidarityResult = await (this.calculators.solidarity as any).calculateHousehold(household, {
         quebec_net_income: results.quebec.net_income?.individual || new Decimal(0),
         federal_net_income: results.canada.net_income?.individual || new Decimal(0)
       })
@@ -212,7 +212,7 @@ export class RevenuDisponibleCalculator {
 
     // Work premium
     if (this.calculators.work_premium) {
-      const workPremiumResult = (this.calculators.work_premium as any).calculateHousehold(household, {
+      const workPremiumResult = await (this.calculators.work_premium as any).calculateHousehold(household, {
         quebec_net_income: results.quebec.net_income?.individual || new Decimal(0),
         federal_net_income: results.canada.net_income?.individual || new Decimal(0)
       })
