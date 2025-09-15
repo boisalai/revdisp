@@ -50,13 +50,13 @@ export class WorkPremiumCalculator extends BaseCalculator {
   /**
    * Calculate Quebec Work Premium for a household
    */
-  calculateHousehold(
-    household: Household, 
+  async calculateHousehold(
+    household: Household,
     taxResults?: {
       quebec_net_income?: Decimal
       federal_net_income?: Decimal
     }
-  ): WorkPremiumResult {
+  ): Promise<WorkPremiumResult> {
     
     // Determine household type category
     const householdCategory = this.getHouseholdCategory(household)
@@ -70,7 +70,7 @@ export class WorkPremiumCalculator extends BaseCalculator {
     }
 
     // Calculate family net income
-    const familyNetIncome = this.calculateFamilyNetIncome(household, taxResults)
+    const familyNetIncome = await this.calculateFamilyNetIncome(household, taxResults)
     
     // Get configuration parameters
     const minWorkIncome = this.getMinimumWorkIncome(householdCategory)
@@ -204,10 +204,10 @@ export class WorkPremiumCalculator extends BaseCalculator {
   }
 
   /**
-   * Calculate family net income
+   * Calculate family net income (ligne 275) using official tax calculation
    */
-  private calculateFamilyNetIncome(
-    household: Household, 
+  private async calculateFamilyNetIncome(
+    household: Household,
     taxResults?: {
       quebec_net_income?: Decimal
       federal_net_income?: Decimal
@@ -217,34 +217,59 @@ export class WorkPremiumCalculator extends BaseCalculator {
     if (taxResults?.quebec_net_income) {
       return taxResults.quebec_net_income
     }
-    
-    // Empirical estimation based on official calculator results analysis
+
+    // For now, use a simplified approach: gross income minus basic deductions
+    // This will be more accurate than the empirical estimation but simpler than full tax calculation
+
     let totalGrossIncome = household.primaryPerson.grossWorkIncome
       .plus(household.primaryPerson.grossRetirementIncome)
-    
+
     if (household.spouse) {
       totalGrossIncome = totalGrossIncome
         .plus(household.spouse.grossWorkIncome)
         .plus(household.spouse.grossRetirementIncome)
     }
-    
-    // Empirical deduction rates calibrated against official MFQ calculator results
-    let deductionRate: number
-    if (totalGrossIncome.lessThan(30000)) {
-      deductionRate = 0.12  // 12% deductions for low income
-    } else if (totalGrossIncome.lessThan(50000)) {
-      deductionRate = 0.16  // 16% deductions for middle-low income
-    } else if (totalGrossIncome.lessThan(80000)) {
-      deductionRate = 0.22  // 22% deductions for middle income
-    } else if (totalGrossIncome.lessThan(100000)) {
-      deductionRate = 0.35  // 35% deductions for higher income
-    } else if (totalGrossIncome.lessThan(130000)) {
-      deductionRate = 0.46  // 46% deductions for very high income (calibré vs MFQ pour élimination crédit solidarité)
-    } else {
-      deductionRate = 0.50  // 50% deductions for highest income bracket
+
+    // Calculate basic social contributions that are deductible
+    const qppCalculator = new (require('./QppCalculator').QppCalculator)(this.taxYear)
+    const eiCalculator = new (require('./EmploymentInsuranceCalculator').EmploymentInsuranceCalculator)(this.taxYear)
+    const rqapCalculator = new (require('./RqapCalculator').RqapCalculator)(this.taxYear)
+
+    await qppCalculator.initialize()
+    await eiCalculator.initialize()
+    await rqapCalculator.initialize()
+
+    let totalDeductions = new Decimal(0)
+
+    // Calculate QPP contributions
+    const qppPrimary = qppCalculator.calculate(household.primaryPerson)
+    totalDeductions = totalDeductions.plus(qppPrimary.total)
+
+    if (household.spouse) {
+      const qppSpouse = qppCalculator.calculate(household.spouse)
+      totalDeductions = totalDeductions.plus(qppSpouse.total)
     }
-    
-    return totalGrossIncome.times(1 - deductionRate)
+
+    // Calculate EI contributions
+    const eiPrimary = eiCalculator.calculate(household.primaryPerson)
+    totalDeductions = totalDeductions.plus(eiPrimary.total)
+
+    if (household.spouse) {
+      const eiSpouse = eiCalculator.calculate(household.spouse)
+      totalDeductions = totalDeductions.plus(eiSpouse.total)
+    }
+
+    // Calculate RQAP contributions
+    const rqapPrimary = rqapCalculator.calculate(household.primaryPerson)
+    totalDeductions = totalDeductions.plus(rqapPrimary.total)
+
+    if (household.spouse) {
+      const rqapSpouse = rqapCalculator.calculate(household.spouse)
+      totalDeductions = totalDeductions.plus(rqapSpouse.total)
+    }
+
+    // Return net income = gross income - deductible contributions
+    return totalGrossIncome.minus(totalDeductions)
   }
 
   /**

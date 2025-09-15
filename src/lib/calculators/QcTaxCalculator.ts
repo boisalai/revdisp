@@ -109,8 +109,8 @@ export class QcTaxCalculator extends BaseCalculator {
     // 6. Calculate net tax (cannot be negative)
     const netTax = Decimal.max(0, taxBeforeCredits.minus(credits.total))
 
-    // 7. Calculate net income
-    const netIncome = grossIncome.minus(totalDeductions).minus(netTax)
+    // 7. Calculate net income (ligne 275) - revenu total moins déductions AVANT impôt
+    const netIncome = grossIncome.minus(totalDeductions)
 
     return {
       gross_income: this.quantize(grossIncome),
