@@ -40,12 +40,10 @@ export class SocialAssistanceCalculator extends BaseCalculator {
 
   calculateSocialAssistance(input: SocialAssistanceInput): SocialAssistanceResult {
     const config = this.calculatorConfig as SocialAssistanceConfig;
-    
-    // Vérification de l'admissibilité basée sur les avoirs liquides
+
+    // Calculer dans tous les cas - la réduction progressive éliminera les non-admissibles
+    // Vérification des avoirs liquides seulement pour les détails de calcul
     const eligibilityCheck = this.checkEligibility(input, config);
-    if (!eligibilityCheck.eligible) {
-      return this.createIneligibleResult(input, eligibilityCheck.reason!, config);
-    }
 
     // Déterminer le programme applicable
     const program = this.determineProgram(input);
@@ -81,11 +79,14 @@ export class SocialAssistanceCalculator extends BaseCalculator {
 
     // Prestation nette après réduction des revenus
     const netBenefitAfterReduction = Decimal.max(0, grossBenefit.minus(incomeReduction));
-    
+
     // Le supplément ne s'applique que si la personne a encore droit à une prestation de base
     const finalWorkIncomeSuplement = netBenefitAfterReduction.gt(0) ? workIncomeSuplement : new Decimal(0);
-    
+
     const netBenefit = netBenefitAfterReduction.plus(finalWorkIncomeSuplement);
+
+    // Déterminer l'admissibilité finale : eligible si prestation nette > 0 ET avoirs liquides OK
+    const finalEligible = netBenefit.gt(0) && eligibilityCheck.eligible;
 
     return {
       base_benefit: baseBenefit.times(12).toNumber(), // Annuel
@@ -97,15 +98,16 @@ export class SocialAssistanceCalculator extends BaseCalculator {
       work_income_supplement: finalWorkIncomeSuplement.times(12).toNumber(), // Annuel
       income_reduction: incomeReduction.times(12).toNumber(), // Annuel
       gross_benefit: grossBenefit.times(12).toNumber(), // Annuel
-      net_benefit: netBenefit.times(12).toNumber(), // Annuel
-      eligible: true,
+      net_benefit: finalEligible ? netBenefit.times(12).toNumber() : 0, // Annuel - 0 si non admissible
+      eligible: finalEligible,
       program,
+      ineligibility_reason: !finalEligible ? (eligibilityCheck.reason || 'revenus_trop_eleves') : undefined,
       calculation_details: {
         base_benefit_category: this.getBaseBenefitCategory(input),
         constraint_details: this.getConstraintDetails(input),
         work_income_calculation: this.getWorkIncomeCalculationDetails(totalWorkIncome, workIncomeExemption, finalWorkIncomeSuplement),
         liquid_assets_check: this.getLiquidAssetsDetails(input, config),
-        monthly_net_benefit: netBenefit.toNumber() // Garder le mensuel pour les détails
+        monthly_net_benefit: finalEligible ? netBenefit.toNumber() : 0 // Garder le mensuel pour les détails
       }
     };
   }

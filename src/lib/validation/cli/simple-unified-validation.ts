@@ -144,8 +144,8 @@ class SimpleUnifiedValidator {
         ca_tps: results.canada?.gst_credit?.amount || 0,
         ca_pfrt: results.canada?.canada_workers?.amount || 0,
         ca_allocation_enfants: results.canada?.child_benefit?.net_benefit || 0,
-        qc_allocation_logement: results.quebec?.housing_allocation?.net_allocation || 0,
-        qc_aide_sociale: results.quebec?.social_assistance?.net_assistance || 0
+        qc_allocation_logement: results.quebec?.housing_allowance?.annual_allowance || 0,
+        qc_aide_sociale: results.quebec?.social_assistance?.net_benefit || 0
       }
     } catch (error) {
       console.error('❌ Erreur API locale:', error)

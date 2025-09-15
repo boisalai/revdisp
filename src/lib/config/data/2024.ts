@@ -456,23 +456,23 @@ export const config2024: TaxYearConfig = {
   social_assistance: {
     aide_sociale: {  // Regular social assistance
       single_adult: {
-        base: 762,                      // Prestation de base mensuelle 2024 (inclut ajustement)
-        adjustment: 0,                  // Ajustement déjà inclus dans base
+        base: 762,                      // Prestation de base mensuelle 2024 (Article 56)
+        adjustment: 45,                 // Ajustement selon Article 67.4
         temp_constraint_amount: 161     // Allocation contrainte temporaire (corrigé: 166 -> 161)
       },
       single_with_parents: {
         base: 659,                      // Prestation de base mensuelle (avec parents)
-        adjustment: 0,                  // Ajustement déjà inclus dans base
+        adjustment: 45,                 // Ajustement selon Article 67.4
         temp_constraint_amount: 161     // Allocation contrainte temporaire
       },
       couple: {
-        base: 1179,                     // Prestation de base mensuelle
-        adjustment: 0,                  // Ajustement déjà inclus dans base
+        base: 1179,                     // Prestation de base mensuelle (Article 56)
+        adjustment: 45,                 // Ajustement selon Article 67.4
         temp_constraint_amount: 277     // Allocation contrainte temporaire (corrigé: 285 -> 277)
       },
       couple_with_parents: {
         base: 1076,                     // Prestation de base mensuelle (avec parents)
-        adjustment: 0,                  // Ajustement déjà inclus dans base
+        adjustment: 45,                 // Ajustement selon Article 67.4
         temp_constraint_amount: 277     // Allocation contrainte temporaire
       },
       couple_one_constraint: {
