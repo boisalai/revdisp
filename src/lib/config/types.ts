@@ -22,6 +22,28 @@ export interface QuebecTaxConfig {
   tax_brackets: TaxBracket[]
   credits: {
     basic_amount: number
+    // Nouvelles structures avec seuils de réduction
+    living_alone?: {
+      base_amount: number
+      single_parent_supplement: number
+      reduction_threshold: number
+      reduction_rate: number
+      elimination_threshold_base: number
+      elimination_threshold_supplement: number
+    }
+    age_credit?: {
+      base_amount: number
+      reduction_threshold_single: number
+      reduction_threshold_couple: number
+      reduction_rate: number
+    }
+    pension_credit?: {
+      max_amount: number
+      reduction_threshold_single: number
+      reduction_threshold_couple: number
+      reduction_rate: number
+    }
+    // Anciens paramètres (pour compatibilité)
     age_65_amount: number
     pension_amount: number
     living_alone_amount: number
