@@ -312,6 +312,7 @@ export class RevenuDisponibleCalculator {
       // Convert to Decimal and store detailed result
       results.quebec.social_assistance = {
         base_benefit: new Decimal(socialAssistanceResult.base_benefit),
+        adjustment_benefit: new Decimal(socialAssistanceResult.adjustment_benefit),
         constraint_allocation: new Decimal(socialAssistanceResult.constraint_allocation),
         single_adjustment: new Decimal(socialAssistanceResult.single_adjustment),
         total_work_income: new Decimal(socialAssistanceResult.total_work_income),
