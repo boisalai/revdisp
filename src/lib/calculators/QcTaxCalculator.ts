@@ -176,7 +176,7 @@ export class QcTaxCalculator extends BaseCalculator {
   }
 
   /**
-   * Calculate non-refundable tax credits
+   * Calculate non-refundable tax credits with progressive reduction thresholds
    */
   private calculateCredits(person: Person, household: Household, taxableIncome: Decimal): {
     basic: Decimal
@@ -188,28 +188,20 @@ export class QcTaxCalculator extends BaseCalculator {
     const creditAmounts = this.getCreditAmounts()
     const lowestRate = this.getLowestTaxRate()
 
-    // Basic personal amount (everyone gets this)
+    // Get family net income for reduction calculations (line 275 equivalent)
+    const familyNetIncome = this.calculateFamilyNetIncomeForCredits(person, household)
+
+    // Basic personal amount (everyone gets this - no reduction)
     const basicCredit = this.toDecimal(creditAmounts.basic_amount).times(lowestRate)
 
-    // Age 65+ credit
-    let age65Credit = new Decimal(0)
-    if (person.age >= 65) {
-      age65Credit = this.toDecimal(creditAmounts.age_65_amount).times(lowestRate)
-    }
+    // Age 65+ credit with income-based reduction
+    const age65Credit = this.calculateAgeCredit(person, household, familyNetIncome, creditAmounts, lowestRate)
 
-    // Pension credit (for retirement income)
-    let pensionCredit = new Decimal(0)
-    if (person.isRetired && person.grossRetirementIncome.greaterThan(0)) {
-      const maxPensionCredit = this.toDecimal(creditAmounts.pension_amount)
-      const eligibleAmount = Decimal.min(person.grossRetirementIncome, maxPensionCredit)
-      pensionCredit = eligibleAmount.times(lowestRate)
-    }
+    // Pension credit with income-based reduction
+    const pensionCredit = this.calculatePensionCredit(person, household, familyNetIncome, creditAmounts, lowestRate)
 
-    // Living alone credit (single person without children)
-    let livingAloneCredit = new Decimal(0)
-    if (!household.spouse && (household.children?.length ?? 0) === 0) {
-      livingAloneCredit = this.toDecimal(creditAmounts.living_alone_amount).times(lowestRate)
-    }
+    // Living alone credit with income-based reduction and single-parent supplement
+    const livingAloneCredit = this.calculateLivingAloneCredit(person, household, familyNetIncome, creditAmounts, lowestRate)
 
     const totalCredits = basicCredit.plus(age65Credit).plus(pensionCredit).plus(livingAloneCredit)
 
@@ -220,6 +212,121 @@ export class QcTaxCalculator extends BaseCalculator {
       living_alone: this.quantize(livingAloneCredit),
       total: this.quantize(totalCredits)
     }
+  }
+
+  /**
+   * Calculate family net income for credit reduction calculations
+   * Approximation of Quebec line 275 (revenu familial net)
+   */
+  private calculateFamilyNetIncomeForCredits(person: Person, household: Household): Decimal {
+    // For credit calculations, we use a simplified family net income
+    // This should ideally be the actual line 275 value from tax calculation
+    let familyIncome = person.isRetired ? person.grossRetirementIncome : person.grossWorkIncome
+
+    if (household.spouse) {
+      const spouseIncome = household.spouse.isRetired ?
+        household.spouse.grossRetirementIncome : household.spouse.grossWorkIncome
+      familyIncome = familyIncome.plus(spouseIncome)
+    }
+
+    // Rough deduction for employment/pension contributions (simplified)
+    const approximateDeductions = familyIncome.times(0.1) // Approximation
+    return Decimal.max(0, familyIncome.minus(approximateDeductions))
+  }
+
+  /**
+   * Calculate age credit (65+) with income-based reduction
+   */
+  private calculateAgeCredit(person: Person, household: Household, familyNetIncome: Decimal, creditAmounts: any, lowestRate: Decimal): Decimal {
+    if (person.age < 65) return new Decimal(0)
+
+    const ageConfig = creditAmounts.age_credit || { base_amount: creditAmounts.age_65_amount || 3798 }
+    const baseAmount = this.toDecimal(ageConfig.base_amount || 3798)
+
+    // Income threshold depends on marital status
+    const reductionThreshold = household.spouse ?
+      this.toDecimal(ageConfig.reduction_threshold_couple || 70125) :
+      this.toDecimal(ageConfig.reduction_threshold_single || 43250)
+
+    const reductionRate = this.toDecimal(ageConfig.reduction_rate || 0.15)
+
+    // Calculate reduced amount
+    const reducedAmount = this.applyIncomeReduction(baseAmount, familyNetIncome, reductionThreshold, reductionRate)
+
+    return reducedAmount.times(lowestRate)
+  }
+
+  /**
+   * Calculate pension credit with income-based reduction
+   */
+  private calculatePensionCredit(person: Person, household: Household, familyNetIncome: Decimal, creditAmounts: any, lowestRate: Decimal): Decimal {
+    if (!person.isRetired || person.grossRetirementIncome.lessThanOrEqualTo(0)) {
+      return new Decimal(0)
+    }
+
+    const pensionConfig = creditAmounts.pension_credit || { max_amount: creditAmounts.pension_amount || 3374 }
+    const maxAmount = this.toDecimal(pensionConfig.max_amount || 3374)
+
+    // Eligible amount is minimum of retirement income and max credit amount
+    const eligibleAmount = Decimal.min(person.grossRetirementIncome, maxAmount)
+
+    // Income threshold depends on marital status
+    const reductionThreshold = household.spouse ?
+      this.toDecimal(pensionConfig.reduction_threshold_couple || 70125) :
+      this.toDecimal(pensionConfig.reduction_threshold_single || 43250)
+
+    const reductionRate = this.toDecimal(pensionConfig.reduction_rate || 0.15)
+
+    // Calculate reduced amount
+    const reducedAmount = this.applyIncomeReduction(eligibleAmount, familyNetIncome, reductionThreshold, reductionRate)
+
+    return reducedAmount.times(lowestRate)
+  }
+
+  /**
+   * Calculate living alone credit with income-based reduction and single-parent supplement
+   */
+  private calculateLivingAloneCredit(person: Person, household: Household, familyNetIncome: Decimal, creditAmounts: any, lowestRate: Decimal): Decimal {
+    // Only for single persons without spouse
+    if (household.spouse) return new Decimal(0)
+
+    const livingConfig = creditAmounts.living_alone || {
+      base_amount: creditAmounts.living_alone_amount || 2069,
+      single_parent_supplement: 2554,
+      reduction_threshold: 40925,
+      reduction_rate: 0.1875
+    }
+
+    let baseAmount = this.toDecimal(livingConfig.base_amount || 2069)
+
+    // Add single-parent supplement if applicable
+    const hasEligibleChildren = (household.children?.length ?? 0) > 0
+    if (hasEligibleChildren) {
+      const supplement = this.toDecimal(livingConfig.single_parent_supplement || 2554)
+      baseAmount = baseAmount.plus(supplement)
+    }
+
+    const reductionThreshold = this.toDecimal(livingConfig.reduction_threshold || 40925)
+    const reductionRate = this.toDecimal(livingConfig.reduction_rate || 0.1875)
+
+    // Calculate reduced amount
+    const reducedAmount = this.applyIncomeReduction(baseAmount, familyNetIncome, reductionThreshold, reductionRate)
+
+    return reducedAmount.times(lowestRate)
+  }
+
+  /**
+   * Apply income-based reduction to a credit amount
+   */
+  private applyIncomeReduction(baseAmount: Decimal, familyNetIncome: Decimal, threshold: Decimal, reductionRate: Decimal): Decimal {
+    if (familyNetIncome.lessThanOrEqualTo(threshold)) {
+      return baseAmount
+    }
+
+    const excessIncome = familyNetIncome.minus(threshold)
+    const reduction = excessIncome.times(reductionRate)
+
+    return Decimal.max(0, baseAmount.minus(reduction))
   }
 
   private getTaxBrackets() {

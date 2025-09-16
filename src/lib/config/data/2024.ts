@@ -29,10 +29,34 @@ export const config2024: TaxYearConfig = {
       { min: 126000, max: 999999999, rate: 0.2575 }
     ],
     credits: {
-      basic_amount: 18056, // Mis à jour selon la source CFFP 2024
-      age_65_amount: 3395,
-      pension_amount: 3017,
-      living_alone_amount: 1890
+      basic_amount: 18056, // Montant personnel de base officiel 2024
+      // Crédit pour personne vivant seule (avec seuils de réduction)
+      living_alone: {
+        base_amount: 2069,           // Montant de base pour personne seule
+        single_parent_supplement: 2554, // Supplément famille monoparentale
+        reduction_threshold: 40925,   // Seuil de réduction du revenu
+        reduction_rate: 0.1875,      // Taux de réduction 18.75%
+        elimination_threshold_base: 49446,    // Élimination complète (base)
+        elimination_threshold_supplement: 62412 // Élimination avec supplément
+      },
+      // Crédit en raison de l'âge (65+)
+      age_credit: {
+        base_amount: 3798,           // Montant de base 2024
+        reduction_threshold_single: 43250,    // Seuil réduction personne seule
+        reduction_threshold_couple: 70125,    // Seuil réduction couple
+        reduction_rate: 0.15         // Taux de réduction 15%
+      },
+      // Crédit pour revenus de retraite
+      pension_credit: {
+        max_amount: 3374,            // Montant maximal 2024
+        reduction_threshold_single: 43250,    // Seuil réduction personne seule
+        reduction_threshold_couple: 70125,    // Seuil réduction couple
+        reduction_rate: 0.15         // Taux de réduction 15%
+      },
+      // Anciens paramètres (pour compatibilité temporaire)
+      age_65_amount: 3798,
+      pension_amount: 3374,
+      living_alone_amount: 2069
     },
     deduction_rates: {
       cpp: 1.0, // 100% déductible (RRQ au Québec)
