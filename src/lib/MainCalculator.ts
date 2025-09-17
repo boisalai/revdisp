@@ -157,22 +157,28 @@ export class RevenuDisponibleCalculator {
     // 4. Calculate RAMQ (using net family income from Quebec tax if available)
     if (this.calculators.ramq) {
       let familyNetIncome: Decimal
-      
-      // Use Quebec tax net income if available, otherwise gross income as fallback
+
+      // Use Quebec tax net income if available, otherwise estimate from gross income
       if (results.quebec.net_income && results.quebec.net_income.family) {
         familyNetIncome = results.quebec.net_income.family
       } else {
-        // Fallback to gross family income
-        familyNetIncome = household.primaryPerson.isRetired 
-          ? household.primaryPerson.grossRetirementIncome 
+        // Calculate approximate net income from gross (estimating standard deductions)
+        const primaryGrossIncome = household.primaryPerson.isRetired
+          ? household.primaryPerson.grossRetirementIncome
           : household.primaryPerson.grossWorkIncome
-        
+
+        let totalGrossIncome = primaryGrossIncome
         if (household.spouse) {
           const spouseIncome = household.spouse.isRetired
             ? household.spouse.grossRetirementIncome
             : household.spouse.grossWorkIncome
-          familyNetIncome = familyNetIncome.plus(spouseIncome)
+          totalGrossIncome = totalGrossIncome.plus(spouseIncome)
         }
+
+        // Estimate net income using standard deductions (RRQ, AE, RQAP, employment deduction)
+        // This is an approximation for cases where Quebec tax calculation is not available
+        const estimatedDeductions = totalGrossIncome.times(0.08) // ~8% for typical deductions
+        familyNetIncome = totalGrossIncome.minus(estimatedDeductions)
       }
 
       const ramqResult = (this.calculators.ramq as any).calculate(household, {

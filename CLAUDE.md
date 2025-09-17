@@ -357,6 +357,66 @@ const taxes = calculationResult.impotQuebec        // ❌
 
 **🎯 RÈGLE** : Toujours vérifier si on parle d'impôt brut ou de régime fiscal net lors des analyses
 
+## 📊 PRÉSENTATION TABLEAU DÉTAILLÉ DES ÉCARTS
+
+### Format Standard pour Analyse Complète
+
+Lors de l'analyse des écarts avec le calculateur MFQ, **TOUJOURS** présenter le tableau complet suivant :
+
+```
+## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX
+**Type**: [SINGLE/COUPLE] | **Détails du ménage** | **Revenu total**: [montant]$
+
+| Programme | Notre Calculateur | MFQ Officiel | Écart |
+|-----------|-------------------|--------------|-------|
+| **REVENU DISPONIBLE** | **[montant]$** | **[montant]$** | **[écart]$** |
+
+### 🏛️ RÉGIME FISCAL DU QUÉBEC
+| Programme | Notre Calculateur | MFQ Officiel | Écart |
+|-----------|-------------------|--------------|-------|
+| **Régime fiscal QC (net)** | **[montant]$** | **[montant]$** | **[écart]$** |
+| Impôt sur le revenu des particuliers | [montant]$ | [montant]$ | [écart]$ |
+| Aide sociale | [montant]$ | [montant]$ | [écart]$ |
+| Allocation famille | [montant]$ | [montant]$ | [écart]$ |
+| Supplément pour l'achat de fournitures scolaires | [montant]$ | [montant]$ | [écart]$ |
+| Prime au travail | [montant]$ | [montant]$ | [écart]$ |
+| Crédit pour la solidarité | [montant]$ | [montant]$ | [écart]$ |
+| Crédit d'impôt pour frais de garde d'enfants | [montant]$ | [montant]$ | [écart]$ |
+| Allocation-logement | [montant]$ | [montant]$ | [écart]$ |
+| Crédit d'impôt remboursable pour frais médicaux | [montant]$ | [montant]$ | [écart]$ |
+| Montant pour le soutien des aînés | [montant]$ | [montant]$ | [écart]$ |
+
+### 🍁 RÉGIME FISCAL FÉDÉRAL
+| Programme | Notre Calculateur | MFQ Officiel | Écart |
+|-----------|-------------------|--------------|-------|
+| **Régime fiscal fédéral (net)** | **[montant]$** | **[montant]$** | **[écart]$** |
+| Impôt sur le revenu des particuliers | [montant]$ | [montant]$ | [écart]$ |
+| Allocation canadienne pour enfants | [montant]$ | [montant]$ | [écart]$ |
+| Crédit pour la TPS | [montant]$ | [montant]$ | [écart]$ |
+| Allocation canadienne pour les travailleurs | [montant]$ | [montant]$ | [écart]$ |
+| Supplément pour le logement | [montant]$ | [montant]$ | [écart]$ |
+| Programme de la Sécurité de la vieillesse | [montant]$ | [montant]$ | [écart]$ |
+| Supplément de revenu garanti | [montant]$ | [montant]$ | [écart]$ |
+| Allocation de soutien aux personnes handicapées | [montant]$ | [montant]$ | [écart]$ |
+| Supplément remboursable pour frais médicaux | [montant]$ | [montant]$ | [écart]$ |
+
+### 💼 COTISATIONS
+| Programme | Notre Calculateur | MFQ Officiel | Écart |
+|-----------|-------------------|--------------|-------|
+| Assurance-emploi | [montant]$ | [montant]$ | [écart]$ |
+| Régime québécois d'assurance parentale | [montant]$ | [montant]$ | [écart]$ |
+| Régime de rentes du Québec | [montant]$ | [montant]$ | [écart]$ |
+| Fonds des services de santé | [montant]$ | [montant]$ | [écart]$ |
+| Régime d'assurance médicaments du Québec | [montant]$ | [montant]$ | [écart]$ |
+```
+
+### Instructions Importantes
+
+1. **Distinguer systématiquement** "Impôt sur le revenu des particuliers" (brut) vs "Régime fiscal" (net)
+2. **Inclure tous les programmes** même ceux à 0$ pour vision complète
+3. **Identifier les 2-3 plus grands écarts** pour prioriser corrections
+4. **Indiquer montants indisponibles** avec mention explicite
+
 ## 🧹 Historique des Changements Récents
 
 ### Septembre 2024 - Nettoyage Structure & UI
