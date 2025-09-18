@@ -363,6 +363,14 @@ export interface SocialAssistanceConfig {
 /**
  * Configuration fiscale complète pour une année donnée
  */
+export interface WorkerDeductionConfig {
+  amount: number
+}
+
+export interface PersonalBasicDeductionConfig {
+  amount: number
+}
+
 export interface TaxYearConfig {
   year: number
   federal_tax: FederalTaxConfig
@@ -373,6 +381,8 @@ export interface TaxYearConfig {
   fss: FssConfig
   ramq: RamqConfig
   solidarity: SolidarityConfig
+  worker_deduction: WorkerDeductionConfig
+  personal_basic_deduction: PersonalBasicDeductionConfig
   work_premium: WorkPremiumConfig
   family_allowance: FamilyAllowanceConfig
   canada_child_benefit: CanadaChildBenefitConfig

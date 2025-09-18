@@ -37,8 +37,8 @@ export class SolidarityCalculator extends BaseCalculator {
   calculate(...args: any[]): Record<string, Decimal> {
     const [household, taxResults] = args
 
-    // Use sync calculation with improved deduction rates
-    const familyNetIncome = this.calculateFamilyNetIncomeSync(household, taxResults)
+    // Use official calculation method instead of empirical estimation
+    const familyNetIncome = this.calculateFamilyNetIncomeOfficial(household, taxResults)
 
     // Check basic eligibility
     if (!this.isEligible(household, familyNetIncome)) {
@@ -130,9 +130,20 @@ export class SolidarityCalculator extends BaseCalculator {
   }
 
   /**
-   * Calculate family net income (ligne 275) - synchronous version with improved rates
+   * Calculate family net income (ligne 275) using official TP-1 structure
+   *
+   * IMPORTANT: Pour un couple, on doit calculer la ligne 275 de chaque adulte séparément,
+   * puis sommer les résultats. Chaque adulte a sa propre déclaration TP-1.
+   *
+   * Based on Quebec tax form TP-1:
+   * Ligne 199: Revenu total (par adulte)
+   * Ligne 201: Déduction pour travailleur (par adulte)
+   * Ligne 248: Déduction pour cotisation au RRQ ou au RQAP (par adulte)
+   * Ligne 275: Revenu net (par adulte)
+   *
+   * Revenu familial net = Ligne275Adulte1 + Ligne275Adulte2
    */
-  private calculateFamilyNetIncomeSync(
+  private calculateFamilyNetIncomeOfficial(
     household: Household,
     taxResults?: {
       quebec_net_income?: Decimal
@@ -144,33 +155,70 @@ export class SolidarityCalculator extends BaseCalculator {
       return taxResults.quebec_net_income
     }
 
-    // Improved empirical estimation based on validation results
-    let totalGrossIncome = household.primaryPerson.grossWorkIncome
-      .plus(household.primaryPerson.grossRetirementIncome)
+    // Calculate ligne 275 for primary person
+    const primaryNetIncome = this.calculatePersonalNetIncome(household.primaryPerson)
 
+    // Calculate ligne 275 for spouse (if exists)
+    let spouseNetIncome = new Decimal(0)
     if (household.spouse) {
-      totalGrossIncome = totalGrossIncome
-        .plus(household.spouse.grossWorkIncome)
-        .plus(household.spouse.grossRetirementIncome)
+      spouseNetIncome = this.calculatePersonalNetIncome(household.spouse)
     }
 
-    // Improved deduction rates calibrated to eliminate credits for high-income couples
-    let deductionRate: number
-    if (totalGrossIncome.lessThan(30000)) {
-      deductionRate = 0.12  // 12% deductions for low income
-    } else if (totalGrossIncome.lessThan(50000)) {
-      deductionRate = 0.16  // 16% deductions for middle-low income
-    } else if (totalGrossIncome.lessThan(80000)) {
-      deductionRate = 0.22  // 22% deductions for middle income
-    } else if (totalGrossIncome.lessThan(100000)) {
-      deductionRate = 0.48  // 48% deductions for higher income (was 35%, corrected)
-    } else if (totalGrossIncome.lessThan(130000)) {
-      deductionRate = 0.55  // 55% deductions for very high income (was 46%, corrected)
-    } else {
-      deductionRate = 0.60  // 60% deductions for highest income bracket (was 50%, corrected)
+    // Sum individual net incomes to get family net income
+    return primaryNetIncome.plus(spouseNetIncome)
+  }
+
+  /**
+   * Calculate personal net income (ligne 275) for an individual
+   *
+   * This follows the official TP-1 calculation for one person:
+   * Ligne 199: Revenu total
+   * MOINS Ligne 201: Déduction pour travailleur (si applicable)
+   * MOINS Ligne 205: Déduction pour régime de pension agréé (RPA)
+   * MOINS Ligne 248: Cotisations RRQ/RQAP
+   * ÉGALE Ligne 275: Revenu net
+   *
+   * NOTE: Le montant personnel de base (ligne 350) N'EST PAS utilisé ici.
+   * Il sert pour les crédits d'impôt non remboursables (ligne 399).
+   */
+  private calculatePersonalNetIncome(person: Person): Decimal {
+    // ===== LIGNE 199: REVENU TOTAL (pour cette personne) =====
+    const personalGrossIncome = person.grossWorkIncome.plus(person.grossRetirementIncome)
+
+    // ===== DÉDUCTIONS INDIVIDUELLES =====
+    let personalDeductions = new Decimal(0)
+
+    // LIGNE 201: Déduction pour travailleur (1350$ si revenu de travail > 0)
+    if (person.grossWorkIncome.greaterThan(0)) {
+      const workerDeductionAmount = new Decimal(this.getConfigValue('worker_deduction.amount'))
+      personalDeductions = personalDeductions.plus(workerDeductionAmount)
     }
 
-    return totalGrossIncome.times(1 - deductionRate)
+    // LIGNE 205: Déduction pour régime de pension agréé (RPA)
+    // Les revenus de retraite sont considérés comme provenant d'un RPA
+    // et sont donc déductibles intégralement
+    const rpaDeduction = person.grossRetirementIncome
+    personalDeductions = personalDeductions.plus(rpaDeduction)
+
+    // LIGNE 248: Cotisations RRQ/RQAP (pour cette personne seulement)
+    try {
+      const qppCalculator = new (require('./QppCalculator').QppCalculator)(this.taxYear)
+      const rqapCalculator = new (require('./RqapCalculator').RqapCalculator)(this.taxYear)
+
+      // Cotisations RRQ de cette personne
+      const qppContribution = qppCalculator.calculate(person)
+      personalDeductions = personalDeductions.plus(qppContribution.total || 0)
+
+      // Cotisations RQAP de cette personne
+      const rqapContribution = rqapCalculator.calculate(person)
+      personalDeductions = personalDeductions.plus(rqapContribution.total || 0)
+
+    } catch (error) {
+      // Continue sans ces déductions si erreur
+    }
+
+    // ===== LIGNE 275: REVENU NET PERSONNEL =====
+    return personalGrossIncome.minus(personalDeductions)
   }
 
   /**

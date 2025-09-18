@@ -134,6 +134,26 @@ export const config2024: TaxYearConfig = {
   },
 
   /**
+   * Déduction pour travailleur (Ligne 201 TP-1)
+   *
+   * Source: Formulaire TP-1 2024
+   * https://www.revenuquebec.ca/documents/fr/formulaires/tp/2024-12/TP-1.D(2024-12).pdf
+   */
+  worker_deduction: {
+    amount: 1350  // Déduction pour travailleur 2024
+  },
+
+  /**
+   * Montant personnel de base (Ligne 350 TP-1)
+   *
+   * Source: Page 18 - Paramètres du régime d'imposition du Québec 2024
+   * https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf
+   */
+  personal_basic_deduction: {
+    amount: 18056  // Montant personnel de base 2024
+  },
+
+  /**
    * Prime au travail du Québec 2024
    * 
    * Sources:

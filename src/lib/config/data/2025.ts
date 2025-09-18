@@ -154,11 +154,25 @@ export const config2025: TaxYearConfig = {
   },
 
   /**
+   * Déduction pour travailleur (Ligne 201 TP-1)
+   */
+  worker_deduction: {
+    amount: 1400  // Déduction pour travailleur 2025 (estimation indexée)
+  },
+
+  /**
+   * Montant personnel de base (Ligne 350 TP-1)
+   */
+  personal_basic_deduction: {
+    amount: 18800  // Montant personnel de base 2025 (estimation indexée)
+  },
+
+  /**
    * Prime au travail du Québec 2025
-   * 
+   *
    * Crédit d'impôt remboursable pour soutenir et valoriser l'effort de travail
    * et inciter les personnes à quitter l'aide financière de dernier recours.
-   * 
+   *
    * Sources:
    * - https://www.revenuquebec.ca/en/citizens/tax-credits/work-premium-tax-credits/
    * - https://www.budget.finances.gouv.qc.ca/budget/outils/depenses-fiscales/fiches/fiche-110905.asp

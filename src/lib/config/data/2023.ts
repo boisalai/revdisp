@@ -100,8 +100,22 @@ export const config2023: TaxYearConfig = {
   },
 
   /**
+   * Déduction pour travailleur (Ligne 201 TP-1)
+   */
+  worker_deduction: {
+    amount: 1300  // Déduction pour travailleur 2023
+  },
+
+  /**
+   * Montant personnel de base (Ligne 350 TP-1)
+   */
+  personal_basic_deduction: {
+    amount: 17183  // Montant personnel de base 2023
+  },
+
+  /**
    * Prime au travail du Québec 2023
-   * 
+   *
    * Sources:
    * - Estimations basées sur l'indexation et les paramètres 2024
    */
