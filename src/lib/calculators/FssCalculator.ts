@@ -14,8 +14,8 @@ export class FssCalculator extends BaseCalculator {
   }
 
   calculate(person: Person): Record<string, Decimal> {
-    // FSS s'applique uniquement aux retraités de 65 ans et plus
-    // VALIDATION MFQ CONFIRMÉE: FSS = 0$ pour revenus de travail
+    // FSS s'applique uniquement aux retraités de 65 ans et plus avec revenus de retraite
+    // VALIDATION MFQ CONFIRMÉE: FSS = 0$ pour revenus de travail (ménages < 65 ans)
     if (!person.isRetired || person.age < 65) {
       return {
         contribution: new Decimal(0),
