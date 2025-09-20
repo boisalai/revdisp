@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { CalculationResults } from '../lib/MainCalculator'
 import { Household } from '../lib/models'
 import Decimal from 'decimal.js'
+import { getConfigForYear } from '../lib/config/data'
 
 interface DetailedResultsProps {
   results: CalculationResults
@@ -19,6 +20,145 @@ interface ProgramDetail {
   formula: string
   currentValue: number
   parameters: { label: string; value: string; isReference?: boolean }[]
+}
+
+/**
+ * Fonction pour récupérer les paramètres officiels d'un programme depuis la configuration
+ */
+function getOfficialParameters(programKey: string, taxYear: number, language: 'fr' | 'en'): { label: string; value: string }[] {
+  try {
+    const config = getConfigForYear(taxYear)
+    const parameters: { label: string; value: string }[] = []
+
+    switch (programKey) {
+      case 'quebec_tax':
+      case 'impot_quebec':
+        const qcTax = config.quebec_tax
+        const basicAmount = qcTax.credits?.basic_amount || 0
+        const brackets = qcTax.tax_brackets || []
+        const credits = qcTax.credits || {}
+
+        // Toutes les tranches d'imposition
+        if (brackets.length > 0) {
+          parameters.push(
+            { label: language === 'fr' ? 'Première tranche' : 'First bracket', value: `0 $ - ${brackets[0].max.toLocaleString()} $ (${(brackets[0].rate * 100).toFixed(1)}%)` }
+          )
+          if (brackets.length > 1) {
+            parameters.push(
+              { label: language === 'fr' ? 'Deuxième tranche' : 'Second bracket', value: `${brackets[0].max.toLocaleString()} $ - ${brackets[1].max.toLocaleString()} $ (${(brackets[1].rate * 100).toFixed(1)}%)` }
+            )
+          }
+          if (brackets.length > 2) {
+            parameters.push(
+              { label: language === 'fr' ? 'Troisième tranche' : 'Third bracket', value: `${brackets[1].max.toLocaleString()} $ - ${brackets[2].max.toLocaleString()} $ (${(brackets[2].rate * 100).toFixed(1)}%)` }
+            )
+          }
+          if (brackets.length > 3) {
+            parameters.push(
+              { label: language === 'fr' ? 'Quatrième tranche' : 'Fourth bracket', value: `${brackets[2].max.toLocaleString()} $ et plus (${(brackets[3].rate * 100).toFixed(2)}%)` }
+            )
+          }
+        }
+
+        // Montant personnel de base
+        parameters.push(
+          { label: language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount', value: `${basicAmount.toLocaleString()} $` }
+        )
+
+        // Montant pour personne vivant seule
+        if (credits.living_alone_amount) {
+          parameters.push(
+            { label: language === 'fr' ? 'Montant pour personne vivant seule' : 'Living alone amount', value: `${credits.living_alone_amount.toLocaleString()} $` }
+          )
+        }
+
+        // Montant en raison de l'âge (65 ans et plus)
+        if (credits.age_65_amount) {
+          parameters.push(
+            { label: language === 'fr' ? 'Montant en raison de l\'âge (65+)' : 'Age amount (65+)', value: `${credits.age_65_amount.toLocaleString()} $` }
+          )
+        }
+
+        // Montant pour revenus de retraite
+        if (credits.pension_amount) {
+          parameters.push(
+            { label: language === 'fr' ? 'Montant pour revenus de retraite' : 'Pension income amount', value: `${credits.pension_amount.toLocaleString()} $` }
+          )
+        }
+
+        // Déduction maximale pour travailleur
+        if (config.worker_deduction?.amount) {
+          parameters.push(
+            { label: language === 'fr' ? 'Déduction maximale pour travailleur' : 'Maximum worker deduction', value: `${config.worker_deduction.amount.toLocaleString()} $` }
+          )
+        }
+        break
+
+      default:
+        // Paramètres génériques si programme non spécifique
+        parameters.push(
+          { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+          { label: language === 'fr' ? 'Programme' : 'Program', value: programKey }
+        )
+    }
+
+    return parameters
+  } catch (error) {
+    console.error('Erreur lors de la récupération des paramètres:', error)
+    return [
+      { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+      { label: language === 'fr' ? 'Erreur' : 'Error', value: language === 'fr' ? 'Paramètres non disponibles' : 'Parameters not available' }
+    ]
+  }
+}
+
+/**
+ * Fonction pour récupérer les références officielles d'un programme
+ */
+function getOfficialReferences(programKey: string, taxYear: number, language: 'fr' | 'en'): { label: string; value: string; isReference: boolean }[] {
+  switch (programKey) {
+    case 'quebec_tax':
+    case 'impot_quebec':
+      return language === 'fr' ? [
+        {
+          label: 'Revenu Québec - Barème d\'imposition du Québec',
+          value: 'https://www.revenuquebec.ca/fr/citoyens/declaration-de-revenus/produire-votre-declaration-de-revenus/report-dimpot-et-remboursement/bareme-dimposition/',
+          isReference: true
+        },
+        {
+          label: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Crédits d\'impôt non remboursables',
+          value: 'https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/credits-dimpot-non-remboursables/',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Revenu Québec - Quebec Tax Schedule',
+          value: 'https://www.revenuquebec.ca/en/citizens/income-tax-return/completing-your-income-tax-return/report-and-receipt/tax-schedule/',
+          isReference: true
+        },
+        {
+          label: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Non-refundable tax credits',
+          value: 'https://www.revenuquebec.ca/en/citizens/tax-credits/non-refundable-tax-credits/',
+          isReference: true
+        }
+      ]
+    default:
+      return []
+  }
 }
 
 const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
@@ -1151,10 +1291,17 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
 
       const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
-      
+
+      // En-tête de section pour la personne
+      steps.push({
+        label: label,
+        value: '',
+        isReference: true
+      })
+
       // 1. Revenu brut
-      steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Revenu brut déclaré' : 'Gross income declared'}`, 
+      steps.push({
+        label: `${language === 'fr' ? 'Revenu brut déclaré' : 'Gross income declared'}`,
         value: formatAmount(grossIncome)
       })
 
@@ -1177,7 +1324,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         
         if (deductions.length > 0) {
           steps.push({ 
-            label: `${label} - ${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
+            label: `${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
             value: `-${formatAmount(totalDeductions)}`
           })
           deductions.forEach(ded => {
@@ -1192,7 +1339,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       // 3. Revenu imposable
       const taxableIncome = Math.max(0, grossIncome - totalDeductions)
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Revenu imposable' : 'Taxable income'}`, 
+        label: `${language === 'fr' ? 'Revenu imposable' : 'Taxable income'}`, 
         value: formatAmount(taxableIncome)
       })
 
@@ -1201,7 +1348,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       let previousMax = 0
 
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Calcul par paliers fiscaux' : 'Tax calculation by brackets'}`, 
+        label: `${language === 'fr' ? 'Calcul par paliers fiscaux' : 'Tax calculation by brackets'}`, 
         value: ''
       })
 
@@ -1213,9 +1360,9 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           const taxInBracket = taxableInBracket * bracket.rate
           taxBeforeCredits += taxInBracket
           
-          const bracketLabel = bracket.max === 999999999 
-            ? `${formatAmount(bracket.min)}${language === 'fr' ? '$ et plus' : '$ and above'}`
-            : `${formatAmount(bracket.min)}$ - ${formatAmount(bracket.max)}$`
+          const bracketLabel = bracket.max === 999999999
+            ? `${formatAmount(bracket.min)}${language === 'fr' ? ' et plus' : ' and above'}`
+            : `${formatAmount(bracket.min)} - ${formatAmount(bracket.max)}`
           
           steps.push({ 
             label: `  • ${bracketLabel} à ${(bracket.rate * 100).toFixed(1)}%`, 
@@ -1226,7 +1373,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
 
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Impôt avant crédits' : 'Tax before credits'}`, 
+        label: `${language === 'fr' ? 'Impôt avant crédits' : 'Tax before credits'}`, 
         value: formatAmount(taxBeforeCredits)
       })
 
@@ -1275,14 +1422,14 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
 
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Total des crédits d\'impôt' : 'Total tax credits'}`, 
+        label: `${language === 'fr' ? 'Total des crédits d\'impôt' : 'Total tax credits'}`, 
         value: formatAmount(totalCredits)
       })
 
       // 6. Impôt net
       const netTax = Math.max(0, taxBeforeCredits - totalCredits)
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Impôt du Québec net' : 'Net Quebec tax'}`, 
+        label: `${language === 'fr' ? 'Impôt à payer' : 'Tax payable'}`, 
         value: formatAmount(netTax)
       })
 
@@ -1309,61 +1456,22 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     if (household.spouse) {
       const spouseResult = calculatePersonDetails(
         household.spouse, 
-        language === 'fr' ? 'Conjoint' : 'Spouse',
+        language === 'fr' ? 'Conjoint(e)' : 'Spouse',
         primaryContributions // Simplification: mêmes cotisations pour les deux
       )
       calculationSteps.push(...spouseResult.steps)
       totalTax += spouseResult.tax
     }
 
-    // Utiliser la valeur réelle calculée par le MainCalculator pour cohérence
-    const actualTax = results.taxes?.quebec instanceof Decimal ? results.taxes.quebec.toNumber() : totalTax
+    // Utiliser la somme des calculs individuels pour cohérence avec le détail affiché
+    const actualTax = totalTax
     
     // Ajouter le total
-    calculationSteps.push({ 
-      label: language === 'fr' ? 'TOTAL - Impôt du Québec (ménage)' : 'TOTAL - Quebec Tax (household)', 
+    calculationSteps.push({
+      label: language === 'fr' ? 'TOTAL - Impôt du Québec (ménage)' : 'TOTAL - Quebec Tax (household)',
       value: formatAmount(actualTax),
-      isTotal: true 
+      isTotal: true
     })
-
-    // Références officielles
-    const webReferences = language === 'fr' ? [
-      {
-        title: 'Revenu Québec - Barème d\'imposition du Québec',
-        url: 'https://www.revenuquebec.ca/fr/citoyens/declaration-de-revenus/produire-votre-declaration-de-revenus/report-dimpot-et-remboursement/bareme-dimposition/'
-      },
-      {
-        title: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
-        url: taxYear === 2025 
-          ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
-          : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf'
-      },
-      {
-        title: 'Revenu Québec - Crédits d\'impôt non remboursables',
-        url: 'https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/credits-dimpot-non-remboursables/'
-      }
-    ] : [
-      {
-        title: 'Revenu Québec - Quebec Tax Schedule',
-        url: 'https://www.revenuquebec.ca/en/citizens/income-tax-return/completing-your-income-tax-return/report-and-receipt/tax-schedule/'
-      },
-      {
-        title: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
-        url: taxYear === 2025 
-          ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
-          : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf'
-      },
-      {
-        title: 'Revenu Québec - Non-refundable tax credits',
-        url: 'https://www.revenuquebec.ca/en/citizens/tax-credits/non-refundable-tax-credits/'
-      }
-    ]
-
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
 
     return {
       name: language === 'fr' ? 'Impôt du Québec' : 'Quebec Income Tax',
@@ -1431,10 +1539,17 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
 
       const steps: { label: string; value: string; isTotal?: boolean; isReference?: boolean }[] = []
-      
+
+      // En-tête de section pour la personne
+      steps.push({
+        label: label,
+        value: '',
+        isReference: true
+      })
+
       // 1. Revenu brut
-      steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Revenu brut déclaré' : 'Gross income declared'}`, 
+      steps.push({
+        label: `${language === 'fr' ? 'Revenu brut déclaré' : 'Gross income declared'}`,
         value: formatAmount(grossIncome)
       })
 
@@ -1457,7 +1572,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         
         if (deductions.length > 0) {
           steps.push({ 
-            label: `${label} - ${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
+            label: `${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
             value: `-${formatAmount(totalDeductions)}`
           })
           deductions.forEach(ded => {
@@ -1472,7 +1587,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       // 3. Revenu imposable
       const taxableIncome = Math.max(0, grossIncome - totalDeductions)
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Revenu imposable' : 'Taxable income'}`, 
+        label: `${language === 'fr' ? 'Revenu imposable' : 'Taxable income'}`, 
         value: formatAmount(taxableIncome)
       })
 
@@ -1481,7 +1596,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       let previousMax = 0
 
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Calcul par paliers fiscaux fédéraux' : 'Federal tax calculation by brackets'}`, 
+        label: `${language === 'fr' ? 'Calcul par paliers fiscaux fédéraux' : 'Federal tax calculation by brackets'}`, 
         value: ''
       })
 
@@ -1493,9 +1608,9 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           const taxInBracket = taxableInBracket * bracket.rate
           taxBeforeCredits += taxInBracket
           
-          const bracketLabel = bracket.max === 999999999 
-            ? `${formatAmount(bracket.min)}${language === 'fr' ? '$ et plus' : '$ and above'}`
-            : `${formatAmount(bracket.min)}$ - ${formatAmount(bracket.max)}$`
+          const bracketLabel = bracket.max === 999999999
+            ? `${formatAmount(bracket.min)}${language === 'fr' ? ' et plus' : ' and above'}`
+            : `${formatAmount(bracket.min)} - ${formatAmount(bracket.max)}`
           
           steps.push({ 
             label: `  • ${bracketLabel} à ${(bracket.rate * 100).toFixed(1)}%`, 
@@ -1506,7 +1621,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
 
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Impôt avant crédits' : 'Tax before credits'}`, 
+        label: `${language === 'fr' ? 'Impôt avant crédits' : 'Tax before credits'}`, 
         value: formatAmount(taxBeforeCredits)
       })
 
@@ -1545,14 +1660,14 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
 
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Total des crédits d\'impôt fédéraux' : 'Total federal tax credits'}`, 
+        label: `${language === 'fr' ? 'Total des crédits d\'impôt fédéraux' : 'Total federal tax credits'}`, 
         value: formatAmount(totalCredits)
       })
 
       // 6. Impôt net
       const netTax = Math.max(0, taxBeforeCredits - totalCredits)
       steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Impôt fédéral net' : 'Net federal tax'}`, 
+        label: `${language === 'fr' ? 'Impôt à payer' : 'Tax payable'}`, 
         value: formatAmount(netTax)
       })
 
@@ -1579,7 +1694,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     if (household.spouse) {
       const spouseResult = calculatePersonDetails(
         household.spouse, 
-        language === 'fr' ? 'Conjoint' : 'Spouse',
+        language === 'fr' ? 'Conjoint(e)' : 'Spouse',
         primaryContributions // Simplification: mêmes cotisations pour les deux
       )
       calculationSteps.push(...spouseResult.steps)
@@ -2757,7 +2872,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       const spouseIs75Plus = spouseResult.is_75_plus?.toNumber() === 1
 
       calculationSteps.push({
-        label: language === 'fr' ? 'Conjoint' : 'Spouse',
+        label: language === 'fr' ? 'Conjoint(e)' : 'Spouse',
         value: language === 'fr' ? `${spouseAge} ans${spouseIs75Plus ? ' (75+)' : ''}` : `${spouseAge} years old${spouseIs75Plus ? ' (75+)' : ''}`
       })
 
@@ -2925,7 +3040,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       const spouseGisAmount = spouseResult.gis_amount?.toNumber() || 0
       const spouseOasAmount = spouseResult.annual_amount?.toNumber() || 0
       calculationSteps.push({
-        label: language === 'fr' ? '• Conjoint (PSV + SRG)' : '• Spouse (OAS + GIS)',
+        label: language === 'fr' ? '• Conjoint(e) (PSV + SRG)' : '• Spouse (OAS + GIS)',
         value: formatCurrency(spouseOasAmount + spouseGisAmount)
       })
     }
@@ -3564,17 +3679,32 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                   {language === 'fr' ? 'Détail du calcul' : 'Calculation Details'}
                 </h5>
                 <div className="space-y-1 bg-gray-50 p-3 rounded">
-                  {currentProgram.parameters.filter(param => !(param as any).isReference).map((param, index) => {
-                    // Détecter la section total pour la mettre en évidence
-                    const isTotalSection = param.label.includes('Total') || param.label.includes('couple')
+                  {currentProgram.parameters.map((param, index) => {
+                    const isReference = (param as any).isReference
+
+                    // Si c'est une référence (en-tête de section), afficher en gras
+                    if (isReference) {
+                      // Ajouter un espace supplémentaire pour "Conjoint(e)"
+                      const isSpouse = param.label.includes('Conjoint(e)') || param.label.includes('Spouse')
+                      return (
+                        <div key={index} className={`${isSpouse ? 'mt-8 pt-4' : 'mt-3'} first:mt-0`}>
+                          <span className="text-sm font-bold" style={{ color: '#000000' }}>
+                            {param.label}
+                          </span>
+                        </div>
+                      )
+                    }
+
+                    // Détecter la section total pour la mettre en évidence (mais exclure "TOTAL - Impôt du Québec")
+                    const isTotalSection = (param.label.includes('Total') || param.label.includes('couple')) && !param.label.includes('TOTAL - Impôt du Québec')
                     // Détecter si le label contient du HTML
                     const hasHtml = param.label.includes('<span')
-                    
+
                     return (
                       <div key={index} className="flex justify-between items-center" style={{ lineHeight: '1.3' }}>
                         {hasHtml ? (
-                          <span 
-                            className="text-sm" 
+                          <span
+                            className="text-sm"
                             style={{ color: '#000000' }}
                             dangerouslySetInnerHTML={{ __html: param.label }}
                           />
@@ -3591,15 +3721,38 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                   })}
                 </div>
               </div>
-              
-              {/* Section Références */}
-              {currentProgram.parameters.some(param => (param as any).isReference) && (
+
+              {/* Section Paramètres */}
+              {displayedProgram && (
                 <div>
                   <h5 className="font-semibold mb-2" style={{ color: '#000000' }}>
-                    {language === 'fr' ? 'Références officielles' : 'Official References'}
+                    {language === 'fr' ? 'Paramètres' : 'Parameters'}
                   </h5>
-                  <div className="space-y-1">
-                    {currentProgram.parameters.filter(param => (param as any).isReference).map((param, index) => (
+                  <div className="space-y-1 bg-blue-50 p-3 rounded">
+                    {getOfficialParameters(displayedProgram, taxYear || 2024, language).map((param, index) => (
+                      <div key={index} className="flex justify-between items-center" style={{ lineHeight: '1.3' }}>
+                        <span className="text-sm" style={{ color: '#000000' }}>
+                          {param.label}
+                        </span>
+                        <span className="font-medium text-sm" style={{ color: '#000000' }}>
+                          {param.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Section Références */}
+              {(() => {
+                const officialReferences = displayedProgram ? getOfficialReferences(displayedProgram, taxYear || 2024, language) : []
+                return officialReferences.length > 0 && (
+                  <div>
+                    <h5 className="font-semibold mb-2" style={{ color: '#000000' }}>
+                      {language === 'fr' ? 'Références officielles' : 'Official References'}
+                    </h5>
+                    <div className="space-y-1">
+                      {officialReferences.map((param, index) => (
                       <div key={index} className="text-sm flex items-start" style={{ lineHeight: '1.3' }}>
                         <span className="mr-2 mt-1" style={{ color: '#000000' }}>•</span>
                         <a 
@@ -3615,7 +3768,7 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
                     ))}
                   </div>
                 </div>
-              )}
+              )})()}
             </div>
           ) : (
             <div className="flex items-center justify-center h-full" style={{ color: '#000000' }}>
