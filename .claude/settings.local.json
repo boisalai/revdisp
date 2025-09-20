@@ -31,7 +31,8 @@
       "WebFetch(domain:cdn-contenu.quebec.ca)",
       "Bash(node:*)",
       "Bash(timeout 60 npm run validate:progressive -- --count 5)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "WebFetch(domain:www.rcgt.com)"
     ],
     "deny": [
       "Bash(rm -fr:*)"

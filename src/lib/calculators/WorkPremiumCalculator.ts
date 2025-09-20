@@ -56,8 +56,8 @@ export class WorkPremiumCalculator extends BaseCalculator {
       }
     }
 
-    // Calculate family net income using official method only
-    const familyNetIncome = this.calculateFamilyNetIncomeOfficial(household, taxResults)
+    // Calculate family net income using official Quebec tax calculator
+    const familyNetIncome = this.calculateFamilyNetIncomeWithQcTax(household, taxResults)
 
     // Get configuration parameters
     const minWorkIncome = this.getMinimumWorkIncome(householdCategory)
@@ -256,6 +256,67 @@ export class WorkPremiumCalculator extends BaseCalculator {
    * Ligne 275: Revenu net (par adulte)
    *
    * Revenu familial net = Ligne275Adulte1 + Ligne275Adulte2
+   */
+  /**
+   * Calculate family net income (ligne 275) using official Quebec tax calculator
+   */
+  private calculateFamilyNetIncomeWithQcTax(
+    household: Household,
+    taxResults?: {
+      quebec_net_income?: Decimal
+      federal_net_income?: Decimal
+    }
+  ): Decimal {
+    // Use Quebec net income if available (this is line 275)
+    if (taxResults?.quebec_net_income) {
+      return taxResults.quebec_net_income
+    }
+
+    // Use official Quebec tax calculator to get exact line 275
+    try {
+      const QcTaxCalculator = require('./QcTaxCalculator').QcTaxCalculator
+      const qcTaxCalculator = new QcTaxCalculator(this.taxYear)
+
+      // Calculate contributions first (needed for tax calculation)
+      const qppCalculator = new (require('./QppCalculator').QppCalculator)(this.taxYear)
+      const eiCalculator = new (require('./EmploymentInsuranceCalculator').EmploymentInsuranceCalculator)(this.taxYear)
+      const rqapCalculator = new (require('./RqapCalculator').RqapCalculator)(this.taxYear)
+
+      // Calculate QPP, EI, RQAP for proper deductions
+      const qppPrimary = qppCalculator.calculate(household.primaryPerson)
+      const eiPrimary = eiCalculator.calculate(household.primaryPerson)
+      const rqapPrimary = rqapCalculator.calculate(household.primaryPerson)
+
+      let qppSpouse = new Decimal(0)
+      let eiSpouse = new Decimal(0)
+      let rqapSpouse = new Decimal(0)
+
+      if (household.spouse) {
+        qppSpouse = qppCalculator.calculate(household.spouse).total
+        eiSpouse = eiCalculator.calculate(household.spouse).total
+        rqapSpouse = rqapCalculator.calculate(household.spouse).total
+      }
+
+      // Calculate Quebec tax with proper contributions
+      const contributions = {
+        rrq: qppPrimary.total.plus(qppSpouse),
+        ei: eiPrimary.total.plus(eiSpouse),
+        rqap: rqapPrimary.total.plus(rqapSpouse)
+      }
+
+      const qcTaxResult = qcTaxCalculator.calculateHousehold(household, contributions)
+
+      // Return family net income (ligne 275)
+      return qcTaxResult.combined.net_income.family
+
+    } catch (error) {
+      // Fallback to old method if tax calculator fails
+      return this.calculateFamilyNetIncomeOfficial(household, taxResults)
+    }
+  }
+
+  /**
+   * Fallback method - Calculate family net income using simplified approach
    */
   private calculateFamilyNetIncomeOfficial(
     household: Household,
