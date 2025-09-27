@@ -46,23 +46,48 @@ export class QppCalculator extends BaseCalculator {
 
   private calculateContribution(income: Decimal, isSelfEmployed: boolean = false): Decimal {
     const basicExemption = this.toDecimal(this.getConfigValue('basic_exemption'))
-    
+
     if (income.lessThanOrEqualTo(basicExemption)) {
       return new Decimal(0)
     }
 
-    const maxEarnings = this.toDecimal(this.getConfigValue('max_pensionable_earnings'))
-    const pensionableEarnings = Decimal.min(income, maxEarnings).minus(basicExemption)
-    
-    // Calcule le taux total : base + supplémentaire
-    const baseRate = this.toDecimal(this.getConfigValue('base_rate') || 0.054)
-    const additionalRate = this.toDecimal(this.getConfigValue('additional_rate_first') || 0.01)
-    let rate = baseRate.plus(additionalRate)
-    if (isSelfEmployed) {
-      rate = rate.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
+    // Paramètres RRQ 2024+
+    const maxPensionableEarnings = this.toDecimal(this.getConfigValue('max_pensionable_earnings'))  // 68500
+    const maxAdditionalEarnings = this.toDecimal(this.getConfigValue('max_additional_earnings'))    // 73200
+    const firstRate = this.toDecimal(this.getConfigValue('first_contribution_rate'))                // 6.40%
+    const secondRate = this.toDecimal(this.getConfigValue('second_contribution_rate'))              // 4.00%
+
+    let totalContribution = new Decimal(0)
+
+    // Première cotisation : de 3500$ à 68500$ à 6.40%
+    if (income.greaterThan(basicExemption)) {
+      const firstBracketIncome = Decimal.min(income, maxPensionableEarnings).minus(basicExemption)
+      let firstContrib = firstBracketIncome.times(firstRate)
+
+      if (isSelfEmployed) {
+        firstContrib = firstContrib.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
+      }
+
+      totalContribution = totalContribution.plus(firstContrib)
     }
 
-    return pensionableEarnings.times(rate)
+    // Deuxième cotisation : revenus au-dessus du maximum de la première cotisation (si applicable)
+    if (income.greaterThan(maxPensionableEarnings) && maxAdditionalEarnings.greaterThan(maxPensionableEarnings)) {
+      const secondBracketIncome = Decimal.min(income, maxAdditionalEarnings).minus(maxPensionableEarnings)
+
+      // Seulement si le revenu dépasse effectivement le seuil de la première cotisation
+      if (secondBracketIncome.greaterThan(0)) {
+        let secondContrib = secondBracketIncome.times(secondRate)
+
+        if (isSelfEmployed) {
+          secondContrib = secondContrib.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
+        }
+
+        totalContribution = totalContribution.plus(secondContrib)
+      }
+    }
+
+    return totalContribution
   }
 
 }

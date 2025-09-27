@@ -94,6 +94,25 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         }
         break
 
+      case 'rrq':
+        const qpp = config.qpp
+        if (qpp) {
+          const formatPercentage = (rate: number) => {
+            const percentage = (rate * 100).toFixed(2)
+            return language === 'fr' ? percentage.replace('.', ',') : percentage
+          }
+
+          parameters.push(
+            { label: language === 'fr' ? 'Exemption de base' : 'Basic exemption', value: `${qpp.basic_exemption.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Maximum gains assurables (1ère)' : 'Maximum pensionable earnings (1st)', value: `${qpp.max_pensionable_earnings.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux employé (1ère cotisation)' : 'Employee rate (1st contribution)', value: `${formatPercentage(qpp.first_contribution_rate)}%` },
+            { label: language === 'fr' ? 'Maximum gains admissibles (2ème)' : 'Maximum additional earnings (2nd)', value: `${qpp.max_additional_earnings.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux employé (2ème cotisation)' : 'Employee rate (2nd contribution)', value: `${formatPercentage(qpp.second_contribution_rate)}%` },
+            { label: language === 'fr' ? 'Cotisation maximale totale' : 'Maximum total contribution', value: `${qpp.max_total_contribution.toLocaleString()} $` }
+          )
+        }
+        break
+
       default:
         // Paramètres génériques si programme non spécifique
         parameters.push(
@@ -156,6 +175,51 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
           isReference: true
         }
       ]
+    case 'rrq':
+    case 'CA_qpp_total':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Cotisations au RRQ',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'Régie des rentes du Québec - Cotisations au RRQ',
+          value: 'https://www.rrq.gouv.qc.ca/fr/programmes/regime_rentes/cotisations/Pages/cotisations.aspx',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Cotisations au RRQ pour les employeurs',
+          value: 'https://www.revenuquebec.ca/fr/entreprises/retenues-et-cotisations-de-lemployeur/calculer-les-retenues-et-les-cotisations/cotisations-au-regime-de-rentes-du-quebec/',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Canada - Prestations du RRQ/RPC',
+          value: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - QPP Contributions',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'Régie des rentes du Québec - QPP Contributions',
+          value: 'https://www.rrq.gouv.qc.ca/en/programmes/regime_rentes/cotisations/Pages/cotisations.aspx',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - QPP contributions for employers',
+          value: 'https://www.revenuquebec.ca/en/businesses/source-deductions-and-employer-contributions/calculating-source-deductions-and-contributions/quebec-pension-plan-contributions/',
+          isReference: true
+        },
+        {
+          label: 'Government of Canada - QPP/CPP benefits',
+          value: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp.html',
+          isReference: true
+        }
+      ]
     default:
       return []
   }
@@ -190,17 +254,55 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
         { label: 'Exemption de base', value: '15 705 $' }
       ]
     },
-    rrq: {
-      name: 'Régime de rentes du Québec (RRQ)',
-      description: 'Régime public d\'assurance qui offre une protection financière de base lors de la retraite, du décès ou en cas d\'invalidité.',
-      formula: '(Revenus - 3 500 $) × 5.4% + contribution additionnelle',
-      parameters: [
-        { label: 'Taux de base 2024', value: '5.4%' },
-        { label: 'Exemption de base', value: '3 500 $' },
-        { label: 'Maximum assurable', value: '68 500 $' },
-        { label: 'Cotisation max', value: '3 510 $' }
-      ]
-    },
+    rrq: (() => {
+      // Paramètres dynamiques selon l'année fiscale
+      const getRRQParams = (year: number) => {
+        if (year === 2025) {
+          return {
+            exemption: '3 500',
+            maxPensionable: '71 300',
+            maxAdditional: '81 200',
+            firstRate: '6,40',
+            secondRate: '4,00',
+            maxTotal: '4 735,20'
+          }
+        } else if (year === 2024) {
+          return {
+            exemption: '3 500',
+            maxPensionable: '68 500',
+            maxAdditional: '73 200',
+            firstRate: '6,40',
+            secondRate: '4,00',
+            maxTotal: '4 348'
+          }
+        } else { // 2023
+          return {
+            exemption: '3 500',
+            maxPensionable: '66 600',
+            maxAdditional: '66 600',
+            firstRate: '5,40',
+            secondRate: '0,00',
+            maxTotal: '3 408,60'
+          }
+        }
+      }
+
+      const params = getRRQParams(taxYear)
+
+      return {
+        name: 'Régime de rentes du Québec (RRQ)',
+        description: 'Régime public d\'assurance qui offre une protection financière de base lors de la retraite, du décès ou en cas d\'invalidité. Cotisation obligatoire sur les revenus d\'emploi au-dessus de l\'exemption de base.',
+        formula: `Première cotisation: (Revenus - ${params.exemption}\\$) × ${params.firstRate}% + Deuxième cotisation: (Revenus excédentaires) × ${params.secondRate}%`,
+        parameters: [
+          { label: 'Exemption générale', value: `${params.exemption}\\$` },
+          { label: 'Maximum gains assurables (1ère)', value: `${params.maxPensionable}\\$` },
+          { label: 'Taux employé (1ère cotisation)', value: `${params.firstRate}%` },
+          { label: 'Maximum gains admissibles (2ème)', value: `${params.maxAdditional}\\$` },
+          { label: 'Taux employé (2ème cotisation)', value: `${params.secondRate}%` },
+          { label: 'Cotisation maximale totale', value: `${params.maxTotal}\\$` }
+        ]
+      }
+    })(),
     assurance_emploi: {
       name: 'Assurance-emploi (AE)',
       description: 'Programme qui offre une aide financière temporaire aux travailleurs canadiens qui perdent leur emploi sans en être responsables.',
@@ -337,17 +439,55 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
         { label: 'Basic Exemption', value: '$15,705' }
       ]
     },
-    rrq: {
-      name: 'Quebec Pension Plan (QPP)',
-      description: 'Public insurance plan that provides basic financial protection upon retirement, death or in case of disability.',
-      formula: '(Income - $3,500) × 5.4% + additional contribution',
-      parameters: [
-        { label: '2024 Base Rate', value: '5.4%' },
-        { label: 'Basic Exemption', value: '$3,500' },
-        { label: 'Maximum Insurable', value: '$68,500' },
-        { label: 'Maximum Contribution', value: '$3,510' }
-      ]
-    },
+    rrq: (() => {
+      // Paramètres dynamiques selon l'année fiscale
+      const getRRQParams = (year: number) => {
+        if (year === 2025) {
+          return {
+            exemption: '3,500',
+            maxPensionable: '71,300',
+            maxAdditional: '81,200',
+            firstRate: '6.40',
+            secondRate: '4.00',
+            maxTotal: '4,735.20'
+          }
+        } else if (year === 2024) {
+          return {
+            exemption: '3,500',
+            maxPensionable: '68,500',
+            maxAdditional: '73,200',
+            firstRate: '6.40',
+            secondRate: '4.00',
+            maxTotal: '4,348'
+          }
+        } else { // 2023
+          return {
+            exemption: '3,500',
+            maxPensionable: '66,600',
+            maxAdditional: '66,600',
+            firstRate: '5.40',
+            secondRate: '0.00',
+            maxTotal: '3,408.60'
+          }
+        }
+      }
+
+      const params = getRRQParams(taxYear)
+
+      return {
+        name: 'Quebec Pension Plan (QPP)',
+        description: 'Public insurance plan that provides basic financial protection upon retirement, death or in case of disability. Mandatory contribution on employment income above the basic exemption.',
+        formula: `First contribution: (Income - \\$${params.exemption}) × ${params.firstRate}% + Second contribution: (Excess income) × ${params.secondRate}%`,
+        parameters: [
+          { label: 'Basic exemption', value: `\\$${params.exemption}` },
+          { label: 'Maximum pensionable earnings (1st)', value: `\\$${params.maxPensionable}` },
+          { label: 'Employee rate (1st contribution)', value: `${params.firstRate}%` },
+          { label: 'Maximum additional earnings (2nd)', value: `\\$${params.maxAdditional}` },
+          { label: 'Employee rate (2nd contribution)', value: `${params.secondRate}%` },
+          { label: 'Maximum total contribution', value: `\\$${params.maxTotal}` }
+        ]
+      }
+    })(),
     assurance_emploi: {
       name: 'Employment Insurance (EI)',
       description: 'Program that provides temporary financial assistance to Canadian workers who lose their jobs through no fault of their own.',
@@ -545,15 +685,19 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     if (!household) return null
     
     // Paramètres officiels selon l'année
-    const params2024 = { 
-      basicExemption: 3500, 
+    const params2024 = {
+      basicExemption: 3500,
       maxPensionable: 68500,
-      totalRate: 0.064 // 6.40% (5.40% base + 1.00% supplémentaire)
+      maxAdditional: 73200,
+      firstRate: 0.064, // 6.40% première cotisation
+      secondRate: 0.04  // 4.00% deuxième cotisation
     }
-    const params2025 = { 
-      basicExemption: 3500, 
+    const params2025 = {
+      basicExemption: 3500,
       maxPensionable: 71300,
-      totalRate: 0.064 // 6.40% (5.40% base + 1.00% supplémentaire)
+      maxAdditional: 81200,
+      firstRate: 0.064, // 6.40% première cotisation
+      secondRate: 0.04  // 4.00% deuxième cotisation
     }
     const params = taxYear === 2025 ? params2025 : params2024
 
@@ -587,31 +731,78 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         return { steps, contribution: 0 }
       }
 
-      // Calcul simplifié RRQ : (Revenu - Exemption) × 6.40%
-      const pensionableEarnings = Math.min(workIncomeNum, params.maxPensionable) - params.basicExemption
-      const totalContribution = pensionableEarnings * params.totalRate
-      const isAtMax = workIncomeNum >= params.maxPensionable
+      // Calcul RRQ complet avec deux cotisations
+      let totalContribution = 0
 
-      steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Exemption de base' : 'Basic exemption'}`, 
+      // Première cotisation (de 3500$ au maximum des gains assurables)
+      const firstBracketIncome = Math.min(workIncomeNum, params.maxPensionable) - params.basicExemption
+      const firstContribution = Math.max(0, firstBracketIncome * params.firstRate)
+      totalContribution += firstContribution
+
+      // Deuxième cotisation (au-dessus du maximum des gains assurables, si applicable)
+      let secondContribution = 0
+      if (workIncomeNum > params.maxPensionable && params.maxAdditional > params.maxPensionable) {
+        const secondBracketIncome = Math.min(workIncomeNum, params.maxAdditional) - params.maxPensionable
+        secondContribution = Math.max(0, secondBracketIncome * params.secondRate)
+        totalContribution += secondContribution
+      }
+
+      steps.push({
+        label: `${label} - ${language === 'fr' ? 'Exemption de base' : 'Basic exemption'}`,
         value: formatAmount(params.basicExemption)
       })
-      steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Maximum des gains ouvrant droit à pension (' + taxYear + ')' : 'Maximum pensionable earnings (' + taxYear + ')'}`, 
+      steps.push({
+        label: `${label} - ${language === 'fr' ? 'Maximum des gains ouvrant droit à pension (' + taxYear + ')' : 'Maximum pensionable earnings (' + taxYear + ')'}`,
         value: formatAmount(params.maxPensionable)
       })
-      steps.push({ 
+
+      // Affichage première cotisation
+      const isFirstAtMax = workIncomeNum >= params.maxPensionable
+      steps.push({
         label: `${label} - ${language === 'fr' ? 'Gains ouvrant droit à pension' : 'Pensionable earnings'}`,
-        value: formatAmount(pensionableEarnings) + (isAtMax ? (language === 'fr' ? ' (plafonné)' : ' (capped)') : '')
+        value: formatAmount(firstBracketIncome) + (isFirstAtMax ? (language === 'fr' ? ' (plafonné)' : ' (capped)') : '')
       })
-      steps.push({ 
-        label: `${label} - ${language === 'fr' ? 'Taux employé RRQ (' + taxYear + ')' : 'RRQ employee rate (' + taxYear + ')'}`, 
-        value: formatPercent(params.totalRate) + (language === 'fr' ? ' (5,40% + 1,00%)' : ' (5.40% + 1.00%)')
+      steps.push({
+        label: `${label} - ${language === 'fr' ? 'Taux employé RRQ (' + taxYear + ')' : 'RRQ employee rate (' + taxYear + ')'}`,
+        value: formatPercent(params.firstRate)
       })
-      steps.push({ 
+      steps.push({
         label: `${label} - ${language === 'fr' ? 'Cotisation RRQ' : 'RRQ contribution'}`,
-        value: formatAmount(totalContribution)
+        value: formatAmount(firstContribution)
       })
+
+      // Affichage deuxième cotisation si applicable
+      if (secondContribution > 0) {
+        const secondBracketIncome = Math.min(workIncomeNum, params.maxAdditional) - params.maxPensionable
+        const isSecondAtMax = workIncomeNum >= params.maxAdditional
+
+        steps.push({
+          label: `${label} - ${language === 'fr' ? 'Gains admissibles (2ème cotisation)' : 'Additional pensionable earnings'}`,
+          value: formatAmount(secondBracketIncome) + (isSecondAtMax ? (language === 'fr' ? ' (plafonné)' : ' (capped)') : '')
+        })
+        steps.push({
+          label: `${label} - ${language === 'fr' ? 'Taux supplémentaire RRQ (' + taxYear + ')' : 'Additional RRQ rate (' + taxYear + ')'}`,
+          value: formatPercent(params.secondRate)
+        })
+        steps.push({
+          label: `${label} - ${language === 'fr' ? 'Deuxième cotisation' : 'Second contribution'}`,
+          value: formatAmount(secondContribution)
+        })
+
+        // Ajouter le total des deux cotisations
+        steps.push({
+          label: `${label} - ${language === 'fr' ? 'Total cotisation RRQ' : 'Total RRQ contribution'}`,
+          value: formatAmount(totalContribution),
+          isTotal: true
+        })
+      } else {
+        // Si pas de deuxième cotisation, la première est déjà le total
+        steps.push({
+          label: `${label} - ${language === 'fr' ? 'Total cotisation RRQ' : 'Total RRQ contribution'}`,
+          value: formatAmount(totalContribution),
+          isTotal: true
+        })
+      }
 
       return { steps, contribution: totalContribution }
     }
@@ -638,55 +829,15 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })
     }
 
-    // Ajouter des références web
-    const webReferences = language === 'fr' ? [
-      {
-        title: 'Chaire en fiscalité et en finances publiques - Cotisations au RRQ',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
-      },
-      {
-        title: 'Régie des rentes du Québec - Cotisations au RRQ',
-        url: 'https://www.rrq.gouv.qc.ca/fr/programmes/regime_rentes/cotisations/Pages/cotisations.aspx'
-      },
-      {
-        title: 'Revenu Québec - Cotisations au RRQ pour les employeurs',
-        url: 'https://www.revenuquebec.ca/fr/entreprises/retenues-et-cotisations-de-lemployeur/calculer-les-retenues-et-les-cotisations/cotisations-au-regime-de-rentes-du-quebec/'
-      },
-      {
-        title: 'Gouvernement du Canada - Prestations du RRQ/RPC',
-        url: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc.html'
-      }
-    ] : [
-      {
-        title: 'Chaire en fiscalité et en finances publiques - QPP Contributions',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
-      },
-      {
-        title: 'Régie des rentes du Québec - QPP contributions',
-        url: 'https://www.rrq.gouv.qc.ca/en/programmes/regime_rentes/cotisations/Pages/cotisations.aspx'
-      },
-      {
-        title: 'Revenu Québec - QPP contributions for employers',
-        url: 'https://www.revenuquebec.ca/en/businesses/source-deductions-and-employer-contributions/calculating-source-deductions-and-contributions/quebec-pension-plan-contributions/'
-      },
-      {
-        title: 'Government of Canada - QPP/CPP benefits',
-        url: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp.html'
-      }
-    ]
 
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
-    
     return {
       name: language === 'fr' ? 'Régime de rentes du Québec (RRQ)' : 'Quebec Pension Plan (QPP)',
-      description: language === 'fr' 
+      description: language === 'fr'
         ? 'Régime public d\'assurance qui offre une protection financière de base lors de la retraite, du décès ou en cas d\'invalidité. Cotisation obligatoire sur les revenus d\'emploi au-dessus de l\'exemption de base.'
         : 'Public insurance plan that provides basic financial protection upon retirement, death or in case of disability. Mandatory contribution on employment income above the basic exemption.',
-      formula: '',
+      formula: language === 'fr'
+        ? 'Première cotisation: (Revenus - 3 500\$) × 6,40% + Deuxième cotisation: (Revenus excédentaires) × 4,00%'
+        : 'First contribution: (Income - \$3,500) × 6.40% + Second contribution: (Excess income) × 4.00%',
       currentValue: totalContribution,
       parameters: calculationSteps
     }

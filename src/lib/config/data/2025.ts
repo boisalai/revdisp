@@ -97,13 +97,23 @@ export const config2025: TaxYearConfig = {
    * Paramètres officiels 2025 selon Retraite Québec
    */
   qpp: {
+    // Paramètres officiels RRQ 2025
     basic_exemption: 3500,
-    max_pensionable_earnings: 71300, // Officiel 2025
-    max_additional_earnings: 76100, // Estimation indexée
-    base_rate: 0.054, // 5.40% base
-    additional_rate_first: 0.01, // 1.00% supplémentaire
-    additional_rate_second: 0.01, // 1.00% deuxième tranche (identique)
-    self_employed_multiplier: 2.0 // Travailleur autonome paie 2×
+    max_pensionable_earnings: 71300,       // Maximum des gains assurables première cotisation
+    max_additional_earnings: 81200,        // Maximum des gains admissibles deuxième cotisation
+
+    // Première cotisation (de 3500$ à 71300$)
+    first_contribution_rate: 0.064,        // 6.40% (taux de l'employé)
+    max_first_contribution: 4339.20,       // Cotisation maximale première partie
+
+    // Deuxième cotisation (de 71300$ à 81200$)
+    second_contribution_rate: 0.04,        // 4.00% (taux supplémentaire)
+    max_second_contribution: 396,          // Cotisation maximale deuxième partie
+
+    // Total maximum
+    max_total_contribution: 4735.20,       // 4339.20 + 396
+
+    self_employed_multiplier: 2.0
   },
 
   /**

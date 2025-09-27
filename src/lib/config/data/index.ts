@@ -43,3 +43,6 @@ export function isYearSupported(year: number): boolean {
 
 // Export des configurations individuelles pour usage direct
 export { config2023, config2024, config2025 }
+
+// Export pour compatibilité
+export const getConfig = getConfigForYear

@@ -76,9 +76,16 @@ export interface QppConfig {
   basic_exemption: number
   max_pensionable_earnings: number
   max_additional_earnings: number
-  base_rate: number
-  additional_rate_first: number
-  additional_rate_second: number
+  // Nouvelles propriétés pour RRQ 2024+
+  first_contribution_rate: number
+  second_contribution_rate: number
+  max_first_contribution: number
+  max_second_contribution: number
+  max_total_contribution: number
+  // Anciens paramètres (pour compatibilité)
+  base_rate?: number
+  additional_rate_first?: number
+  additional_rate_second?: number
   self_employed_multiplier: number
 }
 

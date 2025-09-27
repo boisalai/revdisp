@@ -58,9 +58,15 @@ export const config2023: TaxYearConfig = {
     basic_exemption: 3500,
     max_pensionable_earnings: 66600,
     max_additional_earnings: 66600, // Pas de palier additionnel en 2023
+    first_contribution_rate: 0.054, // Taux unique en 2023
+    second_contribution_rate: 0.0, // Pas de second palier en 2023
+    max_first_contribution: 3408.60, // (66600 - 3500) * 0.054
+    max_second_contribution: 0, // Pas de second palier
+    max_total_contribution: 3408.60,
+    // Anciens paramètres conservés pour compatibilité
     base_rate: 0.054,
     additional_rate_first: 0.01,
-    additional_rate_second: 0.01, // Même taux en 2023
+    additional_rate_second: 0.01,
     self_employed_multiplier: 2.0
   },
   fss: {

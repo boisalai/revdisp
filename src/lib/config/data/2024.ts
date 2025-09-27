@@ -32,7 +32,7 @@ export const config2024: TaxYearConfig = {
       basic_amount: 18056, // Montant personnel de base officiel 2024
       // Crédit pour personne vivant seule (avec seuils de réduction)
       living_alone: {
-        base_amount: 2069,           // Montant de base pour personne seule
+        base_amount: 1985,           // Montant de base pour personne seule CONFORME FORMULAIRE OFFICIEL
         single_parent_supplement: 2554, // Supplément famille monoparentale
         reduction_threshold: 40925,   // Seuil de réduction du revenu
         reduction_rate: 0.1875,      // Taux de réduction 18.75%
@@ -89,12 +89,22 @@ export const config2024: TaxYearConfig = {
     min_earnings: 2000
   },
   qpp: {
+    // Paramètres officiels RRQ 2024
     basic_exemption: 3500,
-    max_pensionable_earnings: 68500,
-    max_additional_earnings: 73200,
-    base_rate: 0.054, // 5.40% base
-    additional_rate_first: 0.01, // 1.00% supplémentaire
-    additional_rate_second: 0.01, // 1.00% deuxième tranche (identique)
+    max_pensionable_earnings: 68500,    // Maximum des gains assurables première cotisation
+    max_additional_earnings: 73200,     // Maximum des gains admissibles deuxième cotisation
+
+    // Première cotisation (de 3500$ à 68500$)
+    first_contribution_rate: 0.064,     // 6.40% (taux de l'employé)
+    max_first_contribution: 4160,       // Cotisation maximale première partie
+
+    // Deuxième cotisation (de 68500$ à 73200$)
+    second_contribution_rate: 0.04,     // 4.00% (taux supplémentaire)
+    max_second_contribution: 188,       // Cotisation maximale deuxième partie
+
+    // Total maximum
+    max_total_contribution: 4348,       // 4160 + 188
+
     self_employed_multiplier: 2.0
   },
   fss: {
