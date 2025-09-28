@@ -293,6 +293,181 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         }
         break
 
+      case 'federal_tax':
+        const federalTax = config.federal_tax
+        if (federalTax) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'federal_tax' }
+          )
+
+          // Paliers d'imposition
+          parameters.push(
+            { label: language === 'fr' ? 'Paliers d\'imposition fédéraux' : 'Federal tax brackets', value: '' }
+          )
+
+          federalTax.tax_brackets.forEach((bracket, index) => {
+            const minFormatted = bracket.min.toLocaleString()
+            const maxFormatted = bracket.max >= 999999999 ? (language === 'fr' ? 'et plus' : 'and over') : bracket.max.toLocaleString()
+            const rateFormatted = `${(bracket.rate * 100)}%`
+
+            parameters.push({
+              label: `${language === 'fr' ? 'Palier' : 'Bracket'} ${index + 1}`,
+              value: `${minFormatted} $ - ${maxFormatted} $ : ${rateFormatted}`
+            })
+          })
+
+          // Crédits d'impôt non remboursables
+          if (federalTax.credits) {
+            parameters.push(
+              { label: language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount', value: `${federalTax.credits.basic_amount.toLocaleString()} $` }
+            )
+
+            if (federalTax.credits.age_65_amount) {
+              parameters.push(
+                { label: language === 'fr' ? 'Montant en raison de l\'âge (65+)' : 'Age amount (65+)', value: `${federalTax.credits.age_65_amount.toLocaleString()} $` }
+              )
+            }
+
+            if (federalTax.credits.pension_amount) {
+              parameters.push(
+                { label: language === 'fr' ? 'Montant pour revenus de pension' : 'Pension income amount', value: `${federalTax.credits.pension_amount.toLocaleString()} $` }
+              )
+            }
+          }
+        }
+        break
+
+      case 'allocation_enfants':
+        const childBenefit = config.canada_child_benefit
+        if (childBenefit) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'allocation_enfants' }
+          )
+
+          // Montants de base
+          parameters.push(
+            { label: language === 'fr' ? 'Montant de base (< 6 ans)' : 'Base amount (< 6 years)', value: `${childBenefit.base_amounts.under_6.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Montant de base (6-17 ans)' : 'Base amount (6-17 years)', value: `${childBenefit.base_amounts.age_6_to_17.toLocaleString()} $` }
+          )
+
+          // Prestation pour enfants handicapés
+          if (childBenefit.disability_benefit) {
+            parameters.push(
+              { label: language === 'fr' ? 'Prestation enfants handicapés' : 'Child disability benefit', value: `${childBenefit.disability_benefit.amount.toLocaleString()} $` }
+            )
+          }
+
+          // Seuils de revenu
+          if (childBenefit.thresholds) {
+            parameters.push(
+              { label: language === 'fr' ? 'Premier seuil de réduction' : 'First reduction threshold', value: `${childBenefit.thresholds.first.toLocaleString()} $` },
+              { label: language === 'fr' ? 'Deuxième seuil de réduction' : 'Second reduction threshold', value: `${childBenefit.thresholds.second.toLocaleString()} $` }
+            )
+          }
+
+          // Taux de réduction première phase
+          if (childBenefit.reduction_rates?.first_phase) {
+            parameters.push(
+              { label: language === 'fr' ? 'Taux réduction (1 enfant, phase 1)' : 'Reduction rate (1 child, phase 1)', value: `${(childBenefit.reduction_rates.first_phase.one_child * 100)}%` },
+              { label: language === 'fr' ? 'Taux réduction (2 enfants, phase 1)' : 'Reduction rate (2 children, phase 1)', value: `${(childBenefit.reduction_rates.first_phase.two_children * 100)}%` },
+              { label: language === 'fr' ? 'Taux réduction (3 enfants, phase 1)' : 'Reduction rate (3 children, phase 1)', value: `${(childBenefit.reduction_rates.first_phase.three_children * 100)}%` },
+              { label: language === 'fr' ? 'Taux réduction (4+ enfants, phase 1)' : 'Reduction rate (4+ children, phase 1)', value: `${(childBenefit.reduction_rates.first_phase.four_plus_children * 100)}%` }
+            )
+          }
+
+          // Taux de réduction deuxième phase
+          if (childBenefit.reduction_rates?.second_phase) {
+            parameters.push(
+              { label: language === 'fr' ? 'Taux réduction (phase 2)' : 'Reduction rate (phase 2)', value: `${(childBenefit.reduction_rates.second_phase.one_child * 100)}%` }
+            )
+          }
+        }
+        break
+
+      case 'credit_tps':
+        const gstCredit = config.gst_credit
+        if (gstCredit) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'credit_tps' }
+          )
+
+          // Montants de base
+          parameters.push(
+            { label: language === 'fr' ? 'Montant de base (adulte)' : 'Base amount (adult)', value: `${gstCredit.base_amount} $` },
+            { label: language === 'fr' ? 'Montant conjoint/personne à charge' : 'Spouse/dependent amount', value: `${gstCredit.spouse_amount} $` },
+            { label: language === 'fr' ? 'Montant par enfant' : 'Amount per child', value: `${gstCredit.child_amount} $` }
+          )
+
+          // Supplément pour célibataire
+          parameters.push(
+            { label: language === 'fr' ? 'Seuil de revenu pour supplément célibataire' : 'Income threshold for single supplement', value: `${gstCredit.single_income_threshold.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux du supplément célibataire' : 'Single supplement rate', value: `${(gstCredit.single_supplement_rate * 100)}%` },
+            { label: language === 'fr' ? 'Maximum du supplément célibataire' : 'Maximum single supplement', value: `${gstCredit.single_supplement_max} $` }
+          )
+
+          // Seuils et réduction
+          parameters.push(
+            { label: language === 'fr' ? 'Seuil de revenu familial pour réduction' : 'Family income threshold for reduction', value: `${gstCredit.family_income_threshold.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux de réduction' : 'Reduction rate', value: `${(gstCredit.reduction_rate * 100)}%` }
+          )
+
+          // Information sur les versements
+          parameters.push(
+            { label: language === 'fr' ? 'Fréquence des versements' : 'Payment frequency', value: language === 'fr' ? 'Trimestriel (janvier, avril, juillet, octobre)' : 'Quarterly (January, April, July, October)' },
+            { label: language === 'fr' ? 'Basé sur la déclaration de' : 'Based on tax return of', value: `${taxYear - 1}` }
+          )
+        }
+        break
+
+      case 'allocation_travailleurs':
+        const canadaWorkers = config.canada_workers
+        if (canadaWorkers) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'allocation_travailleurs' }
+          )
+
+          // Montants maximaux de base
+          parameters.push(
+            { label: language === 'fr' ? 'Montant maximal (personne seule)' : 'Maximum amount (single person)', value: `${canadaWorkers.basic_amount.single_max.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Montant maximal (famille sans enfants)' : 'Maximum amount (family without children)', value: `${canadaWorkers.basic_amount.family_max.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Montant maximal (parent seul)' : 'Maximum amount (single parent)', value: `${canadaWorkers.basic_amount.single_parent_max.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Montant maximal (couple avec enfants)' : 'Maximum amount (couple with children)', value: `${canadaWorkers.basic_amount.family_with_children_max.toLocaleString()} $` }
+          )
+
+          // Supplément invalidité
+          if (canadaWorkers.disability_supplement) {
+            parameters.push(
+              { label: language === 'fr' ? 'Supplément invalidité (maximum)' : 'Disability supplement (maximum)', value: `${canadaWorkers.disability_supplement.max_amount} $` }
+            )
+          }
+
+          // Seuils de revenu
+          if (canadaWorkers.income_thresholds) {
+            parameters.push(
+              { label: language === 'fr' ? 'Revenu minimum de travail (personne seule)' : 'Minimum work income (single person)', value: `${canadaWorkers.income_thresholds.minimum_work_income.toLocaleString()} $` },
+              { label: language === 'fr' ? 'Revenu minimum de travail (couple)' : 'Minimum work income (couple)', value: `${canadaWorkers.income_thresholds.minimum_work_income_couple.toLocaleString()} $` }
+            )
+
+            // Seuils de réduction
+            parameters.push(
+              { label: language === 'fr' ? 'Début réduction (personne seule)' : 'Phase-out start (single person)', value: `${canadaWorkers.income_thresholds.phase_out_start_single.toLocaleString()} $` },
+              { label: language === 'fr' ? 'Début réduction (famille)' : 'Phase-out start (family)', value: `${canadaWorkers.income_thresholds.phase_out_start_family.toLocaleString()} $` },
+              { label: language === 'fr' ? 'Début réduction (parent seul)' : 'Phase-out start (single parent)', value: `${canadaWorkers.income_thresholds.phase_out_start_single_parent.toLocaleString()} $` }
+            )
+
+            // Taux
+            parameters.push(
+              { label: language === 'fr' ? 'Taux d\'accumulation' : 'Phase-in rate', value: '27%' },
+              { label: language === 'fr' ? 'Taux de réduction' : 'Phase-out rate', value: '15%' }
+            )
+          }
+        }
+        break
+
       default:
         // Paramètres génériques si programme non spécifique
         parameters.push(
@@ -605,6 +780,192 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
           value: taxYear === 2025
             ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
             : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ]
+    case 'federal_tax':
+      return language === 'fr' ? [
+        {
+          label: 'Agence du revenu du Canada - Taux d\'imposition fédéraux',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/foire-aux-questions-particuliers/taux-imposition-federaux-particuliers-annees-imposition-courante-precedentes.html',
+          isReference: true
+        },
+        {
+          label: 'Agence du revenu du Canada - Montants pour les crédits d\'impôt fédéraux ' + taxYear,
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/foire-aux-questions-particuliers/montants-credits-impot-federaux.html',
+          isReference: true
+        },
+        {
+          label: 'Agence du revenu du Canada - Crédits d\'impôt non remboursables',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/credits-impot-non-remboursables.html',
+          isReference: true
+        },
+        {
+          label: 'Guide T1 général - Déclaration de revenus et de prestations',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/formulaires-publications/guides/t1-general.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Canada Revenue Agency - Federal Income Tax Rates',
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/federal-income-tax-rates-individuals-current-previous-tax-years.html',
+          isReference: true
+        },
+        {
+          label: 'Canada Revenue Agency - Amounts for federal tax credits ' + taxYear,
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/amounts-federal-tax-credits.html',
+          isReference: true
+        },
+        {
+          label: 'Canada Revenue Agency - Non-refundable tax credits',
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30000-basic-personal-amount/non-refundable-tax-credits.html',
+          isReference: true
+        },
+        {
+          label: 'T1 General Guide - Income Tax and Benefit Return',
+          value: 'https://www.canada.ca/en/revenue-agency/services/forms-publications/guides/t1-general.html',
+          isReference: true
+        }
+      ]
+    case 'allocation_enfants':
+      return language === 'fr' ? [
+        {
+          label: 'Agence du revenu du Canada - Allocation canadienne pour enfants',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/apercu-allocation-canadienne-enfants.html',
+          isReference: true
+        },
+        {
+          label: 'Calculateur de prestations pour enfants et familles',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/calculateur-prestations-enfants-familles.html',
+          isReference: true
+        },
+        {
+          label: 'CFFP - Allocation canadienne pour enfants',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-canadienne-enfants/',
+          isReference: true
+        },
+        {
+          label: 'Agence du revenu du Canada - Comment nous calculons vos versements',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-enfants-apercu/allocation-canadienne-enfants-comment-nous-calculons-vos-versements.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Canada Revenue Agency - Canada Child Benefit',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-child-benefit-overview.html',
+          isReference: true
+        },
+        {
+          label: 'Child and family benefits calculator',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/child-family-benefits-calculator.html',
+          isReference: true
+        },
+        {
+          label: 'CFFP - Canada Child Benefit',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-canadienne-enfants/',
+          isReference: true
+        },
+        {
+          label: 'Canada Revenue Agency - How we calculate your payments',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-child-benefit-overview/canada-child-benefit-how-we-calculate-your-payments.html',
+          isReference: true
+        }
+      ]
+    case 'credit_tps':
+      return language === 'fr' ? [
+        {
+          label: 'Agence du revenu du Canada - Crédit pour la TPS/TVH',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/credit-tps-tvh.html',
+          isReference: true
+        },
+        {
+          label: 'Calculateur de prestations - ARC',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/calculateur-prestations-enfants-familles.html',
+          isReference: true
+        },
+        {
+          label: 'CFFP - Crédit d\'impôt pour la TPS',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/credit-tps-tvh/',
+          isReference: true
+        },
+        {
+          label: 'Agence du revenu du Canada - Comment calculer votre crédit',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/credit-tps-tvh/calculer-credit-tps-tvh.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Canada Revenue Agency - GST/HST Credit',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/goods-services-tax-harmonized-sales-tax-gst-hst-credit.html',
+          isReference: true
+        },
+        {
+          label: 'Benefits Calculator - CRA',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/child-family-benefits-calculator.html',
+          isReference: true
+        },
+        {
+          label: 'CFFP - GST Tax Credit',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/credit-tps-tvh/',
+          isReference: true
+        },
+        {
+          label: 'Canada Revenue Agency - How to calculate your credit',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/goods-services-tax-harmonized-sales-tax-gst-hst-credit/calculate-gst-hst-credit.html',
+          isReference: true
+        }
+      ]
+    case 'allocation_travailleurs':
+      return language === 'fr' ? [
+        {
+          label: 'Agence du revenu du Canada - Allocation canadienne pour les travailleurs',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs.html',
+          isReference: true
+        },
+        {
+          label: 'Admissibilité à l\'ACT',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs/act-admissibilite.html',
+          isReference: true
+        },
+        {
+          label: 'Montants de l\'ACT',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs/act-calculer-montant.html',
+          isReference: true
+        },
+        {
+          label: 'Supplément pour personnes handicapées',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs/act-supplement-personnes-handicapees.html',
+          isReference: true
+        },
+        {
+          label: 'Annexe 6 - ACT',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/formulaires-publications/formulaires/t1-annexe-6.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Canada Revenue Agency - Canada Workers Benefit',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-workers-benefit.html',
+          isReference: true
+        },
+        {
+          label: 'CWB Eligibility',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-workers-benefit/cwb-eligibility.html',
+          isReference: true
+        },
+        {
+          label: 'CWB Amounts',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-workers-benefit/cwb-calculate-amount.html',
+          isReference: true
+        },
+        {
+          label: 'Disability Supplement',
+          value: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-workers-benefit/cwb-disability-supplement.html',
+          isReference: true
+        },
+        {
+          label: 'Schedule 6 - CWB',
+          value: 'https://www.canada.ca/en/revenue-agency/services/forms-publications/forms/t1-schedule-6.html',
           isReference: true
         }
       ]
@@ -2248,44 +2609,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       isTotal: true 
     })
 
-    // Références officielles
-    const webReferences = language === 'fr' ? [
-      {
-        title: 'Agence du revenu du Canada - Taux d\'imposition fédéraux',
-        url: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/frequemment-demandees/taux-imposition-federaux-particuliers-annees-courante-anterieures.html'
-      },
-      {
-        title: 'Agence du revenu du Canada - Montants pour les crédits d\'impôt fédéraux ' + taxYear,
-        url: taxYear === 2025 
-          ? 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/frequemment-demandees/montants-impot-federal-2025.html'
-          : 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/frequemment-demandees/montants-impot-federal-2024.html'
-      },
-      {
-        title: 'Agence du revenu du Canada - Crédits d\'impôt non remboursables',
-        url: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/declaration-revenus/remplir-declaration-revenus/deductions-credits-depenses/ligne-30000-credits-impot-non-remboursables.html'
-      }
-    ] : [
-      {
-        title: 'Canada Revenue Agency - Federal income tax rates',
-        url: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions/canadian-income-tax-rates-individuals-current-previous-years.html'
-      },
-      {
-        title: 'Canada Revenue Agency - Federal tax credit amounts ' + taxYear,
-        url: taxYear === 2025 
-          ? 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions/federal-tax-amounts-2025.html'
-          : 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions/federal-tax-amounts-2024.html'
-      },
-      {
-        title: 'Canada Revenue Agency - Non-refundable tax credits',
-        url: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30000-non-refundable-tax-credits.html'
-      }
-    ]
-
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
 
     return {
       name: language === 'fr' ? 'Impôt fédéral' : 'Federal Income Tax',
@@ -2985,31 +3308,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       value: `${netBenefit.toLocaleString()} $`
     })
 
-    // Références officielles
-    const webReferences = [
-      {
-        title: language === 'fr' 
-          ? 'Agence du revenu du Canada - Allocation canadienne pour enfants'
-          : 'Canada Revenue Agency - Canada Child Benefit',
-        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/canada-child-benefit-overview.html'
-      },
-      {
-        title: language === 'fr'
-          ? 'Calculateur de prestations pour enfants et familles'
-          : 'Child and family benefits calculator',
-        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/child-family-benefits-calculator.html'
-      },
-      {
-        title: 'CFFP - Allocation canadienne pour enfants',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-canadienne-enfants/'
-      }
-    ]
-
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
 
     return {
       name: language === 'fr' ? 'Allocation canadienne pour enfants (ACE)' : 'Canada Child Benefit (CCB)',
@@ -3118,27 +3416,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       value: `${quarterlyPayment.toLocaleString()} $`
     })
 
-    // Références web
-    const webReferences = [
-      {
-        title: language === 'fr' 
-          ? 'Agence du revenu du Canada - Crédit pour la TPS/TVH'
-          : 'Canada Revenue Agency - GST/HST Credit',
-        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/goods-services-tax-harmonized-sales-tax-gst-hst-credit.html'
-      },
-      {
-        title: language === 'fr'
-          ? 'Calculateur de prestations - ARC'
-          : 'Benefits calculator - CRA',
-        url: 'https://www.canada.ca/en/revenue-agency/services/child-family-benefits/child-family-benefits-calculator.html'
-      }
-    ]
-
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
 
     return {
       name: language === 'fr' ? 'Crédit pour la TPS/TVH' : 'GST/HST Credit',
@@ -3248,14 +3525,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
     }
 
-    // Référence officielle
-    calculationSteps.push({
-      label: language === 'fr' ? 'Source officielle' : 'Official source',
-      value: language === 'fr'
-        ? 'Agence du revenu du Canada - Allocation canadienne pour les travailleurs'
-        : 'Canada Revenue Agency - Canada Workers Benefit',
-      isReference: true
-    })
 
     return {
       name: language === 'fr' ? 'Allocation canadienne pour les travailleurs (ACT)' : 'Canada Workers Benefit (CWB)',
