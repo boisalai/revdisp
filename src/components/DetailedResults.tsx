@@ -213,6 +213,86 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         }
         break
 
+      case 'prime_travail':
+        const workPremium = config.work_premium
+        if (workPremium) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'prime_travail' }
+          )
+
+          // Revenus minimum de travail
+          parameters.push(
+            { label: language === 'fr' ? 'Revenu minimum de travail (personne seule)' : 'Minimum work income (single person)', value: `${workPremium.minimum_work_income.single.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Revenu minimum de travail (couple)' : 'Minimum work income (couple)', value: `${workPremium.minimum_work_income.couple.toLocaleString()} $` }
+          )
+
+          // Montants maximaux
+          parameters.push(
+            { label: language === 'fr' ? 'Prime maximale (personne seule)' : 'Maximum premium (single person)', value: `${workPremium.maximum_amounts.single.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Prime maximale (famille monoparentale)' : 'Maximum premium (single parent)', value: `${workPremium.maximum_amounts.single_parent.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Prime maximale (couple avec enfants)' : 'Maximum premium (couple with children)', value: `${workPremium.maximum_amounts.couple_with_children.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Prime maximale (couple sans enfants)' : 'Maximum premium (couple without children)', value: `${workPremium.maximum_amounts.couple_without_children.toLocaleString()} $` }
+          )
+
+          // Taux de croissance
+          parameters.push(
+            { label: language === 'fr' ? 'Taux de croissance (sans enfants)' : 'Growth rate (no children)', value: `${(workPremium.growth_rates.no_children * 100)}%` },
+            { label: language === 'fr' ? 'Taux de croissance (avec enfants)' : 'Growth rate (with children)', value: `${(workPremium.growth_rates.with_children * 100)}%` }
+          )
+
+          // Seuils et réduction
+          if (workPremium.reduction) {
+            parameters.push(
+              { label: language === 'fr' ? 'Taux de réduction' : 'Reduction rate', value: `${(workPremium.reduction.rate * 100)}%` },
+              { label: language === 'fr' ? 'Seuil de réduction (personne seule)' : 'Reduction threshold (single person)', value: `${workPremium.reduction.thresholds.single.toLocaleString()} $` },
+              { label: language === 'fr' ? 'Seuil de réduction (famille monoparentale)' : 'Reduction threshold (single parent)', value: `${workPremium.reduction.thresholds.single_parent.toLocaleString()} $` }
+            )
+          }
+        }
+        break
+
+      case 'credit_solidarite':
+        const solidarity = config.solidarity
+        if (solidarity) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'credit_solidarite' }
+          )
+
+          // Composante TVQ
+          parameters.push(
+            { label: language === 'fr' ? 'Montant de base TVQ' : 'TVQ base amount', value: `${solidarity.tvq_component.base_amount} $` },
+            { label: language === 'fr' ? 'Montant conjoint TVQ' : 'TVQ spouse amount', value: `${solidarity.tvq_component.spouse_amount} $` },
+            { label: language === 'fr' ? 'Supplément personne seule TVQ' : 'TVQ single person supplement', value: `${solidarity.tvq_component.single_additional} $` }
+          )
+
+          // Composante logement
+          parameters.push(
+            { label: language === 'fr' ? 'Montant logement (couple)' : 'Housing amount (couple)', value: `${solidarity.housing_component.couple_amount} $` },
+            { label: language === 'fr' ? 'Montant logement (personne seule)' : 'Housing amount (single person)', value: `${solidarity.housing_component.single_amount} $` },
+            { label: language === 'fr' ? 'Montant par enfant (logement)' : 'Amount per child (housing)', value: `${solidarity.housing_component.child_amount} $` }
+          )
+
+          // Composante village nordique (si applicable)
+          if (solidarity.northern_village_component) {
+            parameters.push(
+              { label: language === 'fr' ? 'Montant adulte (village nordique)' : 'Adult amount (northern village)', value: `${solidarity.northern_village_component.adult_amount} $` },
+              { label: language === 'fr' ? 'Montant enfant (village nordique)' : 'Child amount (northern village)', value: `${solidarity.northern_village_component.child_amount} $` }
+            )
+          }
+
+          // Seuils et réduction
+          if (solidarity.reduction) {
+            parameters.push(
+              { label: language === 'fr' ? 'Seuil de réduction' : 'Reduction threshold', value: `${solidarity.reduction.threshold.toLocaleString()} $` },
+              { label: language === 'fr' ? 'Taux de réduction (général)' : 'Reduction rate (general)', value: `${(solidarity.reduction.rate * 100)}%` },
+              { label: language === 'fr' ? 'Taux de réduction (composante personne seule)' : 'Reduction rate (single component)', value: `${(solidarity.reduction.single_component_rate * 100)}%` }
+            )
+          }
+        }
+        break
+
       default:
         // Paramètres génériques si programme non spécifique
         parameters.push(
@@ -419,6 +499,112 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         {
           label: 'Chair in Taxation and Public Finance - Tax Measures Guide',
           value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/',
+          isReference: true
+        }
+      ]
+    case 'prime_travail':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Prime au travail',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/prime-au-travail/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Prime au travail',
+          value: 'https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/prime-au-travail/',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Québec - Prime au travail',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-financiere/prime-au-travail',
+          isReference: true
+        },
+        {
+          label: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chair in Taxation and Public Finance - Work Premium',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/prime-au-travail/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Work Premium',
+          value: 'https://www.revenuquebec.ca/en/citizens/tax-credits/work-premium/',
+          isReference: true
+        },
+        {
+          label: 'Government of Quebec - Work Premium',
+          value: 'https://www.quebec.ca/en/family-and-support-for-individuals/financial-assistance/work-premium',
+          isReference: true
+        },
+        {
+          label: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ]
+    case 'credit_solidarite':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Crédit solidarité',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/credit-dimpot-pour-la-solidarite/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Crédit d\'impôt pour la solidarité',
+          value: 'https://www.revenuquebec.ca/fr/citoyens/credits-dimpot/credit-dimpot-pour-la-solidarite/',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Québec - Crédit d\'impôt pour la solidarité',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-financiere/credit-impot-solidarite',
+          isReference: true
+        },
+        {
+          label: 'Calculateur officiel - Crédit d\'impôt solidarité ' + taxYear,
+          value: 'https://www.calculconversion.com/calcul-credit-impot-solidarite-2024-2025.html',
+          isReference: true
+        },
+        {
+          label: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chair in Taxation and Public Finance - Solidarity Credit',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/credit-dimpot-pour-la-solidarite/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Solidarity Tax Credit',
+          value: 'https://www.revenuquebec.ca/en/citizens/tax-credits/solidarity-tax-credit/',
+          isReference: true
+        },
+        {
+          label: 'Government of Quebec - Solidarity Tax Credit',
+          value: 'https://www.quebec.ca/en/family-and-support-for-individuals/financial-assistance/solidarity-tax-credit',
+          isReference: true
+        },
+        {
+          label: 'Official Calculator - Solidarity Tax Credit ' + taxYear,
+          value: 'https://www.calculconversion.com/calcul-credit-impot-solidarite-2024-2025.html',
+          isReference: true
+        },
+        {
+          label: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
           isReference: true
         }
       ]
