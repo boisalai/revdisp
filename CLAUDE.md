@@ -120,6 +120,29 @@ cd python-scraper && uv run debug_visual.py
 - **Responsive**: Mobile-first, breakpoints appropriés
 - **Typographie**: Police Ubuntu pour lisibilité optimale
 
+### 🚨 STRUCTURE OBLIGATOIRE - Section de Droite des Programmes
+
+**EXIGENCE CRITIQUE**: TOUS les programmes socio-fiscaux DOIVENT respecter la structure standard des **4 parties séparées** comme le RRQ :
+
+#### ✅ Architecture Technique Requise
+1. **Définition** - Propriété `description` dans la fonction `get[Program]Details()`
+2. **Détail du calcul** - Propriété `parameters` avec étapes de calcul UNIQUEMENT
+3. **Paramètres** - Via fonction `getOfficialParameters(programKey)`
+4. **Références officielles** - Via fonction `getOfficialReferences(programKey)`
+
+#### ❌ ERREURS À ÉVITER ABSOLUMENT
+- **NE JAMAIS** mélanger paramètres/références dans `calculationSteps`
+- **NE JAMAIS** ajouter `{ label: 'Paramètres', isReference: true }` dans les étapes de calcul
+- **NE JAMAIS** inclure références dans `calculationSteps`
+
+#### 🎯 Fichier concerné
+**`src/components/DetailedResults.tsx`**:
+- Fonctions `get[Program]Details()` : Calculs seulement dans `parameters`
+- Fonction `getOfficialParameters()` : Tous paramètres officiels
+- Fonction `getOfficialReferences()` : Toutes références URL
+
+Cette structure garantit l'uniformité et la qualité professionnelle de l'interface pour les 22 programmes implémentés.
+
 ## Stratégie de Validation
 
 ### Approche de Validation Progressive

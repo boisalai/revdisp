@@ -113,6 +113,40 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         }
         break
 
+      case 'aide_sociale':
+        const socialAssistance = config.social_assistance?.aide_sociale
+        if (socialAssistance) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'aide_sociale' }
+          )
+
+          // Paramètres pour personne seule
+          if (socialAssistance.single_adult) {
+            parameters.push(
+              { label: language === 'fr' ? 'Prestation de base (personne seule)' : 'Base benefit (single person)', value: `${socialAssistance.single_adult.base} $` },
+              { label: language === 'fr' ? 'Ajustement' : 'Adjustment', value: `${socialAssistance.single_adult.adjustment} $` },
+              { label: language === 'fr' ? 'Allocation contrainte temporaire' : 'Temporary constraint allocation', value: `${socialAssistance.single_adult.temp_constraint_amount} $` }
+            )
+          }
+
+          // Paramètres pour couple
+          if (socialAssistance.couple) {
+            parameters.push(
+              { label: language === 'fr' ? 'Prestation de base (couple)' : 'Base benefit (couple)', value: `${socialAssistance.couple.base} $` },
+              { label: language === 'fr' ? 'Allocation contrainte temporaire (couple)' : 'Temporary constraint allocation (couple)', value: `${socialAssistance.couple.temp_constraint_amount} $` }
+            )
+          }
+
+          // Paramètres revenus de travail
+          parameters.push(
+            { label: language === 'fr' ? 'Revenus de travail exclus (personne seule)' : 'Excluded work income (single person)', value: '200 $/mois' },
+            { label: language === 'fr' ? 'Revenus de travail exclus (couple)' : 'Excluded work income (couple)', value: '300 $/mois' },
+            { label: language === 'fr' ? 'Supplément revenus travail (2025)' : 'Work income supplement (2025)', value: '25%' }
+          )
+        }
+        break
+
       default:
         // Paramètres génériques si programme non spécifique
         parameters.push(
@@ -217,6 +251,40 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         {
           label: 'Government of Canada - QPP/CPP benefits',
           value: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp.html',
+          isReference: true
+        }
+      ]
+    case 'aide_sociale':
+      return language === 'fr' ? [
+        {
+          label: 'Gouvernement du Québec - Aide sociale et solidarité sociale',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale',
+          isReference: true
+        },
+        {
+          label: 'Montants des prestations d\'aide sociale',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale/montants-prestations-aide-sociale',
+          isReference: true
+        },
+        {
+          label: 'Ministère de l\'Emploi et de la Solidarité sociale du Québec',
+          value: 'https://www.mtess.gouv.qc.ca/services-en-ligne/individus/aide-sociale-solidarite-sociale/',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Government of Quebec - Social assistance and social solidarity',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale',
+          isReference: true
+        },
+        {
+          label: 'Social assistance benefit amounts',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale/montants-prestations-aide-sociale',
+          isReference: true
+        },
+        {
+          label: 'Ministry of Employment and Social Solidarity of Quebec',
+          value: 'https://www.mtess.gouv.qc.ca/services-en-ligne/individus/aide-sociale-solidarite-sociale/',
           isReference: true
         }
       ]
@@ -3467,21 +3535,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })
     }
 
-    // Références officielles
-    const webReferences = [
-      {
-        title: language === 'fr' 
-          ? 'Gouvernement du Québec - Aide sociale et solidarité sociale'
-          : 'Government of Quebec - Social assistance and social solidarity',
-        url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-sociale-et-solidarite-sociale'
-      }
-    ]
-
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
 
     return {
       name: language === 'fr' ? 'Aide sociale du Québec' : 'Quebec Social Assistance',
