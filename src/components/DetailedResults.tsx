@@ -147,6 +147,72 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         }
         break
 
+      case 'allocation_famille':
+        const familyAllowance = config.family_allowance
+        if (familyAllowance) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'allocation_famille' }
+          )
+
+          // Montants de base par enfant
+          parameters.push(
+            { label: language === 'fr' ? 'Montant de base maximum par enfant' : 'Maximum base amount per child', value: `${familyAllowance.basic_allowance.max_amount} $` },
+            { label: language === 'fr' ? 'Montant de base minimum par enfant' : 'Minimum base amount per child', value: `${familyAllowance.basic_allowance.min_amount} $` }
+          )
+
+          // Suppléments
+          if (familyAllowance.single_parent_supplement) {
+            parameters.push(
+              { label: language === 'fr' ? 'Supplément famille monoparentale (max)' : 'Single parent family supplement (max)', value: `${familyAllowance.single_parent_supplement.max_amount} $` },
+              { label: language === 'fr' ? 'Supplément famille monoparentale (min)' : 'Single parent family supplement (min)', value: `${familyAllowance.single_parent_supplement.min_amount} $` }
+            )
+          }
+
+          if (familyAllowance.school_supplies_supplement) {
+            parameters.push(
+              { label: language === 'fr' ? 'Supplément fournitures scolaires' : 'School supplies supplement', value: `${familyAllowance.school_supplies_supplement.amount} $` },
+              { label: language === 'fr' ? 'Âge éligible (min-max)' : 'Eligible age (min-max)', value: `${familyAllowance.school_supplies_supplement.min_age}-${familyAllowance.school_supplies_supplement.max_age} ans` }
+            )
+          }
+
+          // Suppléments enfant handicapé
+          if (familyAllowance.disabled_child_supplement) {
+            parameters.push(
+              { label: language === 'fr' ? 'Supplément enfant handicapé (base)' : 'Disabled child supplement (base)', value: `${familyAllowance.disabled_child_supplement.basic_amount} $` }
+            )
+          }
+
+          // Seuils et réduction
+          if (familyAllowance.reduction) {
+            parameters.push(
+              { label: language === 'fr' ? 'Seuil de réduction (couple)' : 'Reduction threshold (couple)', value: `${familyAllowance.reduction.thresholds.couple} $` },
+              { label: language === 'fr' ? 'Seuil de réduction (famille monoparentale)' : 'Reduction threshold (single parent)', value: `${familyAllowance.reduction.thresholds.single_parent} $` },
+              { label: language === 'fr' ? 'Taux de réduction' : 'Reduction rate', value: `${(familyAllowance.reduction.rate * 100)}%` }
+            )
+          }
+        }
+        break
+
+      case 'fournitures_scolaires':
+        const schoolSupplies = config.family_allowance?.school_supplies_supplement
+        if (schoolSupplies) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'fournitures_scolaires' }
+          )
+
+          // Montant et critères d'éligibilité
+          parameters.push(
+            { label: language === 'fr' ? 'Montant par enfant admissible' : 'Amount per eligible child', value: `${schoolSupplies.amount} $` },
+            { label: language === 'fr' ? 'Âge minimum' : 'Minimum age', value: `${schoolSupplies.min_age} ans` },
+            { label: language === 'fr' ? 'Âge maximum' : 'Maximum age', value: `${schoolSupplies.max_age} ans` },
+            { label: language === 'fr' ? 'Versement' : 'Payment', value: language === 'fr' ? 'Annuel (avec l\'allocation famille)' : 'Annual (with family allowance)' },
+            { label: language === 'fr' ? 'Critère d\'admissibilité' : 'Eligibility criteria', value: language === 'fr' ? 'Enfant âgé de 4 à 16 ans au 30 septembre' : 'Child aged 4 to 16 on September 30' }
+          )
+        }
+        break
+
       default:
         // Paramètres génériques si programme non spécifique
         parameters.push(
@@ -285,6 +351,74 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         {
           label: 'Ministry of Employment and Social Solidarity of Quebec',
           value: 'https://www.mtess.gouv.qc.ca/services-en-ligne/individus/aide-sociale-solidarite-sociale/',
+          isReference: true
+        }
+      ]
+    case 'allocation_famille':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Allocation famille',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/',
+          isReference: true
+        },
+        {
+          label: 'Retraite Québec - Allocation famille',
+          value: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Québec - Calcul de l\'allocation famille',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/enfance/aide-financiere-aux-familles/allocation-famille',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chair in Taxation and Public Finance - Family Allowance',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/',
+          isReference: true
+        },
+        {
+          label: 'Retraite Québec - Family Allowance',
+          value: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/',
+          isReference: true
+        },
+        {
+          label: 'Government of Quebec - Family Allowance Calculation',
+          value: 'https://www.quebec.ca/en/family-and-support-for-individuals/childhood/financial-assistance-families/family-allowance',
+          isReference: true
+        }
+      ]
+    case 'fournitures_scolaires':
+      return language === 'fr' ? [
+        {
+          label: 'Retraite Québec - Supplément pour l\'achat de fournitures scolaires',
+          value: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/Pages/supplement-fournitures-scolaires.aspx',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Québec - Supplément fournitures scolaires',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/enfance/aide-financiere-aux-familles/allocation-famille/supplement-fournitures-scolaires',
+          isReference: true
+        },
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Guide mesures fiscales',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Retraite Québec - School Supplies Supplement',
+          value: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/Pages/supplement-fournitures-scolaires.aspx',
+          isReference: true
+        },
+        {
+          label: 'Government of Quebec - School Supplies Supplement',
+          value: 'https://www.quebec.ca/en/family-and-support-for-individuals/childhood/financial-assistance-families/family-allowance/school-supplies-supplement',
+          isReference: true
+        },
+        {
+          label: 'Chair in Taxation and Public Finance - Tax Measures Guide',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/',
           isReference: true
         }
       ]
@@ -453,8 +587,7 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
           { label: `Montant par enfant (${taxYear})`, value: `${params.amount} $` },
           { label: 'Âge minimum', value: '4 ans' },
           { label: 'Âge maximum', value: '16 ans' },
-          { label: 'Versement', value: 'Annuel (avec l\'allocation famille)' },
-          { label: 'Référence officielle', value: 'Retraite Québec - Supplément fournitures scolaires', isReference: true }
+          { label: 'Versement', value: 'Annuel (avec l\'allocation famille)' }
         ]
       }
     })(),
@@ -673,8 +806,7 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
           { label: `Amount per child (${taxYear})`, value: `$${params.amount}` },
           { label: 'Minimum age', value: '4 years old' },
           { label: 'Maximum age', value: '16 years old' },
-          { label: 'Payment', value: 'Annual (with family allowance)' },
-          { label: 'Official reference', value: 'Retraite Québec - School Supply Supplement', isReference: true }
+          { label: 'Payment', value: 'Annual (with family allowance)' }
         ]
       }
     })(),
@@ -2477,40 +2609,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       isTotal: true
     })
 
-    // Ajouter les références officielles
-    const webReferences = language === 'fr' ? [
-      {
-        title: 'Chaire en fiscalité et en finances publiques - Allocation famille',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/'
-      },
-      {
-        title: 'Retraite Québec - Allocation famille',
-        url: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/'
-      },
-      {
-        title: 'Gouvernement du Québec - Calcul de l\'allocation famille',
-        url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/enfance/aide-financiere-aux-familles/allocation-famille'
-      }
-    ] : [
-      {
-        title: 'Chair in Taxation and Public Finance - Family Allowance',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-famille/'
-      },
-      {
-        title: 'Retraite Québec - Family Allowance',
-        url: 'https://www.retraitequebec.gouv.qc.ca/fr/enfants/allocation-famille/'
-      },
-      {
-        title: 'Government of Quebec - Family Allowance Calculation',
-        url: 'https://www.quebec.ca/en/family-and-support-for-individuals/childhood/financial-assistance-families/family-allowance'
-      }
-    ]
-
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
 
     return {
       name: language === 'fr' ? 'Allocation famille' : 'Family Allowance',
