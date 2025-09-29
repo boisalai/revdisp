@@ -95,7 +95,7 @@ export class SolidarityCalculator extends BaseCalculator {
     
     // Calculate family net income (ligne 275 des déclarations)
     const familyNetIncome = await this.calculateFamilyNetIncome(household, taxResults)
-    
+
     // Check basic eligibility
     if (!this.isEligible(household, familyNetIncome)) {
       return this.createZeroResult(familyNetIncome)
@@ -105,16 +105,16 @@ export class SolidarityCalculator extends BaseCalculator {
     const tvqComponent = this.calculateTvqComponent(household)
     const housingComponent = this.calculateHousingComponent(household)
     const northernVillageComponent = this.calculateNorthernVillageComponent(household)
-    
+
     // Count active components
     const componentsCount = this.countActiveComponents(tvqComponent, housingComponent, northernVillageComponent)
-    
+
     // Calculate gross total
     const grossTotal = tvqComponent.plus(housingComponent).plus(northernVillageComponent)
-    
+
     // Calculate reduction
     const reductionAmount = this.calculateReduction(grossTotal, familyNetIncome, componentsCount)
-    
+
     // Calculate net credit
     const netCredit = Decimal.max(0, grossTotal.minus(reductionAmount))
     

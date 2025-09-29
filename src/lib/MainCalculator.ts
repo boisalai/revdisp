@@ -131,7 +131,7 @@ export class RevenuDisponibleCalculator {
         }
         const qcTaxResult = qcTaxCalculator.calculateHousehold(household, contributions)
         results.taxes.quebec = qcTaxResult.combined.net_tax
-        
+
         // Store for RAMQ calculation
         results.quebec.net_income = qcTaxResult.combined.net_income
       }
@@ -194,19 +194,21 @@ export class RevenuDisponibleCalculator {
       .filter((value): value is Decimal => value instanceof Decimal)
       .reduce((sum, value) => sum.plus(value), new Decimal(0))
 
-    // Calculate total taxes  
+    // Calculate total taxes
     results.taxes.total = Object.values(results.taxes)
       .filter((value): value is Decimal => value instanceof Decimal)
       .reduce((sum, value) => sum.plus(value), new Decimal(0))
 
-    // 4. Calculate Quebec transfers and credits
+    // 5. Calculate Quebec transfers and credits (AFTER Quebec income tax)
+    // RÈGLE FONDAMENTALE: Tous les programmes QC qui utilisent le revenu familial net
+    // doivent être calculés APRÈS l'impôt sur le revenu des particuliers du Québec
     let totalTransfers = new Decimal(0)
     
-    // Solidarity tax credit
+    // Solidarity tax credit (utilise revenu familial net - ligne 275)
     if (this.calculators.solidarity) {
       const solidarityResult = await (this.calculators.solidarity as any).calculateHousehold(household, {
-        quebec_net_income: results.quebec.net_income?.individual || new Decimal(0),
-        federal_net_income: results.canada.net_income?.individual || new Decimal(0)
+        quebec_net_income: results.quebec.net_income?.family || results.quebec.net_income?.individual || new Decimal(0),
+        federal_net_income: results.canada.net_income?.family || results.canada.net_income?.individual || new Decimal(0)
       })
       
       // Store detailed result
@@ -216,11 +218,11 @@ export class RevenuDisponibleCalculator {
       totalTransfers = totalTransfers.plus(solidarityResult.net_credit)
     }
 
-    // Work premium
+    // Work premium (utilise revenu familial net - ligne 275)
     if (this.calculators.work_premium) {
       const workPremiumResult = await (this.calculators.work_premium as any).calculateHousehold(household, {
-        quebec_net_income: results.quebec.net_income?.individual || new Decimal(0),
-        federal_net_income: results.canada.net_income?.individual || new Decimal(0)
+        quebec_net_income: results.quebec.net_income?.family || results.quebec.net_income?.individual || new Decimal(0),
+        federal_net_income: results.canada.net_income?.family || results.canada.net_income?.individual || new Decimal(0)
       })
       
       // Store detailed result
