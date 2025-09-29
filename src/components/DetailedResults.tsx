@@ -468,6 +468,176 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         }
         break
 
+      case 'securite_vieillesse':
+        // Paramètres de la Sécurité de la vieillesse
+        const oasConfig = config.old_age_security
+        if (oasConfig) {
+          // Montants PSV
+          parameters.push(
+            { label: language === 'fr' ? 'Montant mensuel maximum PSV (2025)' : 'Maximum monthly OAS amount (2025)', value: '731 $' }
+          )
+
+          // Âge d'admissibilité
+          parameters.push(
+            { label: language === 'fr' ? 'Âge d\'admissibilité' : 'Eligibility age', value: '65 ans' }
+          )
+
+          // Majoration pour 75 ans et plus
+          parameters.push(
+            { label: language === 'fr' ? 'Majoration 75 ans et plus' : '75+ enhancement', value: '10%' }
+          )
+
+          // Seuil de récupération fiscale
+          parameters.push(
+            { label: language === 'fr' ? 'Seuil de récupération fiscale (2025)' : 'Recovery tax threshold (2025)', value: '90 997 $' }
+          )
+
+          // Taux de récupération
+          parameters.push(
+            { label: language === 'fr' ? 'Taux de récupération' : 'Recovery rate', value: '15%' }
+          )
+
+          // Seuil d'admissibilité SRG
+          parameters.push(
+            { label: language === 'fr' ? 'Seuil d\'admissibilité SRG (personne seule)' : 'GIS eligibility threshold (single)', value: '22 056 $' }
+          )
+
+          // Montant mensuel maximum SRG
+          parameters.push(
+            { label: language === 'fr' ? 'Montant mensuel maximum SRG' : 'Maximum monthly GIS amount', value: '1 092 $' }
+          )
+        }
+        break
+
+      case 'assurance_emploi':
+        const ei = config.employment_insurance
+        if (ei) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'assurance_emploi' }
+          )
+
+          // Paramètres de base
+          parameters.push(
+            { label: language === 'fr' ? 'Maximum de la rémunération assurable' : 'Maximum insurable earnings', value: `${ei.max_insurable_earnings.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux employé Québec' : 'Quebec employee rate', value: `${(ei.employee_rate * 100).toFixed(2)}%` },
+            { label: language === 'fr' ? 'Cotisation maximale employé' : 'Maximum employee contribution', value: `${ei.max_employee_contribution.toFixed(2)} $` }
+          )
+
+          // Paramètres spécifiques au Québec
+          if (ei.quebec_reduction) {
+            parameters.push(
+              { label: language === 'fr' ? 'Réduction Québec (RQAP)' : 'Quebec reduction (QPIP)', value: `${(ei.quebec_reduction * 100).toFixed(2)}%` },
+              { label: language === 'fr' ? 'Taux employeur (multiplicateur)' : 'Employer rate (multiplier)', value: `${ei.employer_rate_multiplier}×` }
+            )
+          }
+
+          // Seuil minimum
+          if (ei.min_insurable_earnings) {
+            parameters.push(
+              { label: language === 'fr' ? 'Revenu assurable minimum' : 'Minimum insurable earnings', value: `${ei.min_insurable_earnings.toLocaleString()} $` }
+            )
+          }
+        }
+        break
+
+      case 'rqap':
+        const qpip = config.qpip
+        if (qpip) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'rqap' }
+          )
+
+          // Paramètres de base
+          parameters.push(
+            { label: language === 'fr' ? 'Maximum de la rémunération assurable' : 'Maximum insurable earnings', value: `${qpip.max_insurable_earnings.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux employé RQAP' : 'QPIP employee rate', value: `${(qpip.employee_rate * 100).toFixed(3)}%` },
+            { label: language === 'fr' ? 'Taux employeur RQAP' : 'QPIP employer rate', value: `${(qpip.employer_rate * 100).toFixed(3)}%` }
+          )
+
+          // Paramètres spécifiques
+          if (qpip.self_employed_rate) {
+            parameters.push(
+              { label: language === 'fr' ? 'Taux travailleur autonome' : 'Self-employed rate', value: `${(qpip.self_employed_rate * 100).toFixed(3)}%` }
+            )
+          }
+
+          // Seuil minimum
+          if (qpip.min_earnings) {
+            parameters.push(
+              { label: language === 'fr' ? 'Revenu minimum' : 'Minimum earnings', value: `${qpip.min_earnings.toLocaleString()} $` }
+            )
+          }
+
+          // Cotisation maximale
+          const maxContribution = qpip.max_insurable_earnings * qpip.employee_rate
+          parameters.push(
+            { label: language === 'fr' ? 'Cotisation maximale employé' : 'Maximum employee contribution', value: `${maxContribution.toFixed(2)} $` }
+          )
+        }
+        break
+
+      case 'fss':
+        const fss = config.fss
+        if (fss) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'fss' }
+          )
+
+          // Paramètres de base FSS
+          parameters.push(
+            { label: language === 'fr' ? 'Premier seuil d\'exemption' : 'First exemption threshold', value: `${fss.first_threshold.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Deuxième seuil (cotisation maximale)' : 'Second threshold (maximum contribution)', value: `${fss.second_threshold.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux de cotisation' : 'Contribution rate', value: `${(fss.rate * 100).toFixed(1)}%` }
+          )
+
+          // Cotisation maximale
+          if (fss.max_contribution) {
+            parameters.push(
+              { label: language === 'fr' ? 'Cotisation maximale annuelle' : 'Maximum annual contribution', value: `${fss.max_contribution.toLocaleString()} $` }
+            )
+          }
+
+          // Admissibilité
+          parameters.push(
+            { label: language === 'fr' ? 'Admissibilité' : 'Eligibility', value: language === 'fr' ? 'Retraités de 65 ans et plus' : 'Retirees 65 years and older' }
+          )
+        }
+        break
+
+      case 'ramq':
+        const ramq = config.ramq
+        if (ramq) {
+          parameters.push(
+            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
+            { label: language === 'fr' ? 'Programme' : 'Program', value: 'ramq' }
+          )
+
+          // Seuils d’exemption
+          parameters.push(
+            { label: language === 'fr' ? 'Seuil d\'exemption (célibataire)' : 'Exemption threshold (single)', value: `${ramq.exemption_single.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Seuil d\'exemption (couple)' : 'Exemption threshold (couple)', value: `${ramq.exemption_couple.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Seuil d\'exemption (célibataire, 1 enfant)' : 'Exemption threshold (single, 1 child)', value: `${ramq.exemption_single_one_child.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Seuil d\'exemption (couple, 1+ enfants)' : 'Exemption threshold (couple, 1+ children)', value: `${ramq.exemption_couple_multiple_children.toLocaleString()} $` }
+          )
+
+          // Tranches et taux
+          parameters.push(
+            { label: language === 'fr' ? 'Première tranche' : 'First bracket', value: `${ramq.first_threshold.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux de base (célibataire)' : 'Base rate (single)', value: `${(ramq.base_rate_single * 100).toFixed(2)}%` },
+            { label: language === 'fr' ? 'Taux additionnel (célibataire)' : 'Additional rate (single)', value: `${(ramq.additional_rate_single * 100).toFixed(2)}%` }
+          )
+
+          // Cotisations maximales
+          parameters.push(
+            { label: language === 'fr' ? 'Cotisation maximale (célibataire)' : 'Maximum contribution (single)', value: `${ramq.max_contribution.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Cotisation maximale (couple)' : 'Maximum contribution (couple)', value: `${ramq.max_contribution_couple.toLocaleString()} $` }
+          )
+        }
+        break
+
       default:
         // Paramètres génériques si programme non spécifique
         parameters.push(
@@ -575,6 +745,195 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
           isReference: true
         }
       ]
+
+    case 'assurance_emploi':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Cotisations à l\'assurance-emploi',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'Agence du revenu du Canada - Taux de cotisation à l\'AE et maximums',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/entreprises/sujets/retenues-paie/retenues-paie-cotisations/assurance-emploi-ae/taux-cotisation-a-ae-maximums.html',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Canada - Assurance-emploi',
+          value: 'https://www.canada.ca/fr/services/prestations/ae.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - Comment fonctionne l\'assurance-emploi',
+          value: 'https://www.canada.ca/fr/emploi-developpement-social/programmes/assurance-emploi/ae-liste/rapports/comment-fonctionne.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - EI Contributions',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'Canada Revenue Agency - EI contribution rates and maximums',
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/employment-insurance-ei/ei-contribution-rates-maximum-amounts.html',
+          isReference: true
+        },
+        {
+          label: 'Government of Canada - Employment Insurance',
+          value: 'https://www.canada.ca/en/services/benefits/ei.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - How employment insurance works',
+          value: 'https://www.canada.ca/en/employment-social-development/programs/ei/ei-list/reports/how-works.html',
+          isReference: true
+        }
+      ]
+
+    case 'rqap':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - Cotisations au RQAP',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Régime québécois d\'assurance parentale',
+          value: 'https://www.revenuquebec.ca/fr/entreprises/retenues-et-cotisations-de-lemployeur/calculer-les-retenues-et-les-cotisations/cotisations-au-regime-quebecois-dassurance-parentale/',
+          isReference: true
+        },
+        {
+          label: 'Conseil de gestion de l\'assurance parentale - RQAP',
+          value: 'https://www.cgap.gouv.qc.ca/publications/rapports-annuels/',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Québec - Assurance parentale',
+          value: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/grossesse-et-parentalite/regime-quebecois-assurance-parentale',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - QPIP Contributions',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Quebec Parental Insurance Plan',
+          value: 'https://www.revenuquebec.ca/en/businesses/source-deductions-and-employer-contributions/calculating-source-deductions-and-contributions/quebec-parental-insurance-plan-contributions/',
+          isReference: true
+        },
+        {
+          label: 'Parental Insurance Management Council - QPIP',
+          value: 'https://www.cgap.gouv.qc.ca/publications/rapports-annuels/',
+          isReference: true
+        },
+        {
+          label: 'Government of Quebec - Parental Insurance',
+          value: 'https://www.quebec.ca/en/family-and-support-for-individuals/pregnancy-and-parenthood/quebec-parental-insurance-plan',
+          isReference: true
+        }
+      ]
+
+    case 'fss':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - FSS',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/fonds-des-services-de-sante-fss/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Fonds des services de santé',
+          value: 'https://www.revenuquebec.ca/fr/citoyens/declaration-de-revenus/produire-votre-declaration-de-revenus/comment-remplir-votre-declaration/aide-par-ligne/lignes-446-a-462-contributions-au-fss-et-au-regime-quebecois-dassurance-parentale/',
+          isReference: true
+        },
+        {
+          label: 'Gouvernement du Québec - FSS pour les retraités',
+          value: 'https://www.quebec.ca/sante/financement/fonds-services-sante',
+          isReference: true
+        },
+        {
+          label: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - HSF',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/fonds-des-services-de-sante-fss/',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Health Services Fund',
+          value: 'https://www.revenuquebec.ca/en/citizens/income-tax-return/completing-your-income-tax-return/completing-your-income-tax-return/help-with-line-by-line/lines-446-to-462-contributions-to-the-hsf-and-the-qpip/',
+          isReference: true
+        },
+        {
+          label: 'Government of Quebec - HSF for retirees',
+          value: 'https://www.quebec.ca/en/health/health-system-funding/health-services-fund',
+          isReference: true
+        },
+        {
+          label: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ]
+
+    case 'ramq':
+      return language === 'fr' ? [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - RAMQ',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/regime-dassurance-medicaments-du-quebec-ramq/',
+          isReference: true
+        },
+        {
+          label: 'Régie de l\'assurance maladie du Québec - RAMQ',
+          value: 'https://www.ramq.gouv.qc.ca/fr/citoyens/assurance-medicaments/admissibilite-assurance-medicaments/regimes-prives-assurance-medicaments',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Régime d\'assurance médicaments',
+          value: 'https://www.revenuquebec.ca/fr/citoyens/declaration-de-revenus/produire-votre-declaration-de-revenus/comment-remplir-votre-declaration/aide-par-ligne/lignes-446-a-462-contributions-au-fss-et-au-regime-quebecois-dassurance-parentale/',
+          isReference: true
+        },
+        {
+          label: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Chaire en fiscalité et en finances publiques - QHIP',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/regime-dassurance-medicaments-du-quebec-ramq/',
+          isReference: true
+        },
+        {
+          label: 'Régie de l\'assurance maladie du Québec - QHIP',
+          value: 'https://www.ramq.gouv.qc.ca/en/citizens/prescription-drug-insurance/eligibility-prescription-drug-insurance/private-prescription-drug-insurance-plans',
+          isReference: true
+        },
+        {
+          label: 'Revenu Québec - Quebec Health Insurance Plan',
+          value: 'https://www.revenuquebec.ca/en/citizens/income-tax-return/completing-your-income-tax-return/completing-your-income-tax-return/help-with-line-by-line/lines-446-to-462-contributions-to-the-hsf-and-the-qpip/',
+          isReference: true
+        },
+        {
+          label: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
+          value: taxYear === 2025
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
+            : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
+          isReference: true
+        }
+      ]
+
     case 'aide_sociale':
       return language === 'fr' ? [
         {
@@ -966,6 +1325,50 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         {
           label: 'Schedule 6 - CWB',
           value: 'https://www.canada.ca/en/revenue-agency/services/forms-publications/forms/t1-schedule-6.html',
+          isReference: true
+        }
+      ]
+    case 'securite_vieillesse':
+      return language === 'fr' ? [
+        {
+          label: 'Gouvernement du Canada - Sécurité de la vieillesse',
+          value: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc/securite-vieillesse.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - Pension de la Sécurité de la vieillesse',
+          value: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc/securite-vieillesse/pension-securite-vieillesse.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - Supplément de revenu garanti',
+          value: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc/securite-vieillesse/supplement-revenu-garanti.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - Montants de paiement PSV',
+          value: 'https://www.canada.ca/fr/services/prestations/pensionspubliques/rpc/securite-vieillesse/montants-paiement.html',
+          isReference: true
+        }
+      ] : [
+        {
+          label: 'Government of Canada - Old Age Security',
+          value: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - Old Age Security pension',
+          value: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/old-age-security-pension.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - Guaranteed Income Supplement',
+          value: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement.html',
+          isReference: true
+        },
+        {
+          label: 'Service Canada - OAS payment amounts',
+          value: 'https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/payments.html',
           isReference: true
         }
       ]
@@ -1686,48 +2089,11 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })
     }
 
-    // Ajouter des références web
-    const webReferences = language === 'fr' ? [
-      {
-        title: 'Chaire en fiscalité et en finances publiques - Cotisations au RQAP',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
-      },
-      {
-        title: 'Revenu Québec - Régime québécois d\'assurance parentale',
-        url: 'https://www.revenuquebec.ca/fr/entreprises/retenues-et-cotisations-de-lemployeur/calculer-les-retenues-et-les-cotisations/cotisations-au-regime-quebecois-dassurance-parentale/'
-      },
-      {
-        title: 'Conseil de gestion de l\'assurance parentale - RQAP',
-        url: 'https://www.cgap.gouv.qc.ca/publications/rapports-annuels/'
-      },
-      {
-        title: 'Gouvernement du Québec - Assurance parentale',
-        url: 'https://www.quebec.ca/famille-et-soutien-aux-personnes/aide-financiere/regime-quebecois-assurance-parentale'
-      }
-    ] : [
-      {
-        title: 'Chaire en fiscalité et en finances publiques - QPIP Contributions',
-        url: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/'
-      },
-      {
-        title: 'Revenu Québec - Quebec parental insurance plan',
-        url: 'https://www.revenuquebec.ca/en/businesses/source-deductions-and-employer-contributions/calculating-source-deductions-and-contributions/quebec-parental-insurance-plan-contributions/'
-      },
-      {
-        title: 'Conseil de gestion de l\'assurance parentale - QPIP',
-        url: 'https://www.cgap.gouv.qc.ca/publications/rapports-annuels/'
-      },
-      {
-        title: 'Government of Quebec - Parental insurance',
-        url: 'https://www.quebec.ca/en/family-and-support-for-individuals/financial-assistance/quebec-parental-insurance-plan'
-      }
-    ]
+    // Les références officielles sont maintenant gérées par getOfficialReferences()
+    // et ne doivent PAS être définies ici
 
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
+    // Les références officielles sont maintenant gérées par getOfficialReferences()
+    // et ne doivent PAS être ajoutées dans les étapes de calcul
     
     return {
       name: language === 'fr' ? 'Régime québécois d\'assurance parentale (RQAP)' : 'Quebec Parental Insurance Plan (QPIP)',
@@ -1925,11 +2291,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
     ]
 
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
+    // Les références officielles sont maintenant gérées par getOfficialReferences()
+    // et ne doivent PAS être ajoutées dans les étapes de calcul
     
     return {
       name: language === 'fr' ? 'Fonds des services de santé (FSS)' : 'Health Services Fund (HSF)',
@@ -2741,11 +3104,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
     ]
 
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
+    // Les références officielles sont maintenant gérées par getOfficialReferences()
+    // et ne doivent PAS être ajoutées dans les étapes de calcul
     
     return {
       name: language === 'fr' ? 'Assurance-emploi (AE)' : 'Employment Insurance (EI)',
@@ -3210,11 +3570,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       }
     ]
 
-    calculationSteps.push(...webReferences.map(ref => ({
-      label: ref.title,
-      value: ref.url,
-      isReference: true
-    })))
+    // Les références officielles sont maintenant gérées par getOfficialReferences()
+    // et ne doivent PAS être ajoutées dans les étapes de calcul
 
     return {
       name: language === 'fr' ? 'Crédit d\'impôt pour frais de garde d\'enfants' : 'Childcare Tax Credit',
@@ -3822,12 +4179,6 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       value: formatCurrency(calculatedTotalAmount)
     })
 
-    // Référence officielle
-    calculationSteps.push({
-      label: language === 'fr' ? 'Référence officielle' : 'Official reference',
-      value: language === 'fr' ? 'Canada.ca - Sécurité de la vieillesse' : 'Canada.ca - Old Age Security',
-      isReference: true
-    })
 
     return {
       name: language === 'fr' ? 'Programme de la Sécurité de la vieillesse (PSV + SRG)' : 'Old Age Security Program (OAS + GIS)',
