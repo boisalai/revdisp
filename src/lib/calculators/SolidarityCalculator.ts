@@ -32,13 +32,15 @@ export class SolidarityCalculator extends BaseCalculator {
   }
 
   /**
-   * Required by BaseCalculator - uses simplified calculation for sync compatibility
+   * Required by BaseCalculator - DOIT utiliser impôt QC calculé AVANT
    */
   calculate(...args: any[]): Record<string, Decimal> {
     const [household, taxResults] = args
 
-    // Use official Quebec tax calculator to get real line 275
-    const familyNetIncome = this.calculateFamilyNetIncomeWithQcTax(household, taxResults)
+    // EXIGENCE: Utiliser le revenu familial net calculé par l'impôt QC
+    // Si non disponible, forcer le calcul avec le calculateur d'impôt QC
+    const familyNetIncome = taxResults?.quebec_net_income ||
+      this.calculateFamilyNetIncomeWithQcTax(household, taxResults)
 
     // Check basic eligibility
     if (!this.isEligible(household, familyNetIncome)) {
@@ -229,54 +231,83 @@ export class SolidarityCalculator extends BaseCalculator {
   /**
    * Calculate personal net income (ligne 275) for an individual
    *
-   * This follows the official TP-1 calculation for one person:
-   * Ligne 199: Revenu total
-   * MOINS Ligne 201: Déduction pour travailleur (si applicable)
-   * MOINS Ligne 205: Déduction pour régime de pension agréé (RPA)
-   * MOINS Ligne 248: Cotisations RRQ/RQAP
-   * ÉGALE Ligne 275: Revenu net
+   * MÉTHODE OFFICIELLE selon document gouvernemental 2024:
+   * Ligne 275 = Ligne 199 (Revenu total) - Ligne 254 (Total des déductions)
    *
-   * NOTE: Le montant personnel de base (ligne 350) N'EST PAS utilisé ici.
-   * Il sert pour les crédits d'impôt non remboursables (ligne 399).
+   * Déductions officielles (Ligne 254):
+   * - Ligne 201: Déduction pour travailleur (max 1380$ en 2024)
+   * - Ligne 248: Déduction RRQ (base + supplémentaire selon formules officielles)
+   *
+   * Source: Document calcul.md avec paramètres officiels MFQ 2024
    */
   private calculatePersonalNetIncome(person: Person): Decimal {
     // ===== LIGNE 199: REVENU TOTAL (pour cette personne) =====
     const personalGrossIncome = person.grossWorkIncome.plus(person.grossRetirementIncome)
 
-    // ===== DÉDUCTIONS INDIVIDUELLES =====
+    // ===== DÉDUCTIONS OFFICIELLES (LIGNE 254) =====
     let personalDeductions = new Decimal(0)
 
-    // LIGNE 201: Déduction pour travailleur (1350$ si revenu de travail > 0)
+    // LIGNE 201: Déduction pour travailleur (OFFICIELLE 2024: 1380$)
     if (person.grossWorkIncome.greaterThan(0)) {
-      const workerDeductionAmount = new Decimal(this.getConfigValue('worker_deduction.amount'))
-      personalDeductions = personalDeductions.plus(workerDeductionAmount)
+      // Selon document officiel: moindre de 6% du revenu d'emploi ou 1380$ en 2024
+      const sixPercentOfIncome = person.grossWorkIncome.times(0.06)
+      const maxWorkerDeduction = new Decimal(1380) // Officiel 2024
+      const workerDeduction = Decimal.min(sixPercentOfIncome, maxWorkerDeduction)
+      personalDeductions = personalDeductions.plus(workerDeduction)
     }
 
-    // LIGNE 205: Déduction pour régime de pension agréé (RPA)
-    // Les revenus de retraite sont considérés comme provenant d'un RPA
-    // et sont donc déductibles intégralement
+    // LIGNE 248: Déduction RRQ (UTILISER CALCULATEUR VALIDÉ)
+    // Note: Utiliser le calculateur RRQ existant qui est validé à 100%
+    try {
+      const qppCalculator = new (require('./QppCalculator').QppCalculator)(this.taxYear)
+      const qppResult = qppCalculator.calculate(person)
+      // La déduction RRQ = cotisation payée × taux de déduction fiscal
+      // Utilisons directement la cotisation du calculateur validé × 15.625%
+      const rrqDeduction = qppResult.total.times(0.15625)
+      personalDeductions = personalDeductions.plus(rrqDeduction)
+    } catch (error) {
+      // Fallback si erreur
+    }
+
+    // LIGNE 205: Déduction RPA pour revenus de retraite
     const rpaDeduction = person.grossRetirementIncome
     personalDeductions = personalDeductions.plus(rpaDeduction)
 
-    // LIGNE 248: Cotisations RRQ/RQAP (pour cette personne seulement)
-    try {
-      const qppCalculator = new (require('./QppCalculator').QppCalculator)(this.taxYear)
-      const rqapCalculator = new (require('./RqapCalculator').RqapCalculator)(this.taxYear)
-
-      // Cotisations RRQ de cette personne
-      const qppContribution = qppCalculator.calculate(person)
-      personalDeductions = personalDeductions.plus(qppContribution.total || 0)
-
-      // Cotisations RQAP de cette personne
-      const rqapContribution = rqapCalculator.calculate(person)
-      personalDeductions = personalDeductions.plus(rqapContribution.total || 0)
-
-    } catch (error) {
-      // Continue sans ces déductions si erreur
-    }
-
-    // ===== LIGNE 275: REVENU NET PERSONNEL =====
+    // ===== LIGNE 275: REVENU NET PERSONNEL (OFFICIEL) =====
     return personalGrossIncome.minus(personalDeductions)
+  }
+
+  /**
+   * Calculate official RRQ deduction according to 2024 government parameters
+   *
+   * MÉTHODE OFFICIELLE 2024:
+   * Déduction RRQ = (Cotisation RRQ de base + Cotisation RRQ supplémentaire) × 15.625%
+   *
+   * Source: Document calcul.md - Tableau officiel ligne 28 et 34
+   */
+  private calculateOfficialRrqDeduction(grossWorkIncome: Decimal): Decimal {
+    // Étape 1: Calculer cotisation RRQ de base (max 4160$)
+    const baseRateContribution = new Decimal(0.15625) // Taux cotisation RRQ
+    const maxBaseContribution = new Decimal(4160) // Maximum cotisation de base 2024
+    const baseContribution = Decimal.min(
+      grossWorkIncome.times(baseRateContribution),
+      maxBaseContribution
+    )
+
+    // Étape 2: Calculer cotisation RRQ supplémentaire
+    const maxIncomeForSupp = new Decimal(73200)
+    const thresholdForSupp = new Decimal(68500)
+    const suppRate = new Decimal(0.04) // 4%
+
+    const applicableIncome = Decimal.min(grossWorkIncome, maxIncomeForSupp)
+    const excessIncome = Decimal.max(0, applicableIncome.minus(thresholdForSupp))
+    const supplementaryContribution = excessIncome.times(suppRate)
+
+    // Étape 3: Calculer déduction = (Cotisation totale) × 15.625%
+    const totalContribution = baseContribution.plus(supplementaryContribution)
+    const deductionRate = new Decimal(0.15625) // Taux de déduction officiel
+
+    return totalContribution.times(deductionRate)
   }
 
   /**

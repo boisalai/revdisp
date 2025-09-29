@@ -175,6 +175,32 @@ npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=100 --year=2
 - **Écarts Significatifs**: Différences >5% nécessitent correction documentée
 - **Traçabilité**: Toute correction référencée dans les commits
 
+#### 🚨 RÈGLE FONDAMENTALE - INTERDICTION ABSOLUE
+**JAMAIS ajuster des paramètres avec des valeurs empiriques**
+- ❌ **INTERDIT**: Modifier des taux, seuils ou montants basés sur des observations/calibrations
+- ❌ **INTERDIT**: Ajuster des paramètres pour "faire fonctionner" les calculs
+- ✅ **OBLIGATOIRE**: Utiliser UNIQUEMENT des paramètres trouvés dans des sources officielles
+- ✅ **OBLIGATOIRE**: Documenter toute valeur avec sa référence gouvernementale
+- 📋 **EXEMPLE**: Plutôt que d'ajuster un taux de déduction de 35% à 42%, rechercher la méthode officielle de calcul de la ligne 275 TP-1
+
+#### 🚨 RÈGLE D'ORDRE DE CALCUL - PROGRAMMES QUÉBÉCOIS
+**Tous les programmes socio-fiscaux du Québec qui utilisent le revenu familial net DOIVENT être calculés APRÈS l'impôt sur le revenu des particuliers du Québec**
+
+**Programmes concernés**:
+- ✅ **Crédit d'impôt pour solidarité** - Utilise ligne 275 (revenu familial net)
+- ✅ **Prime au travail** - Utilise ligne 275 (revenu familial net)
+- ✅ **Allocation famille** - Utilise ligne 275 (revenu familial net)
+- ✅ **Allocation-logement** - Utilise ligne 275 (revenu familial net)
+- ✅ **Soutien aux aînés** - Utilise ligne 275 (revenu familial net)
+
+**Séquence de calcul obligatoire**:
+1. **Cotisations sociales** (RRQ, AE, RQAP, FSS, RAMQ)
+2. **Impôt sur le revenu des particuliers du Québec** → Produit ligne 275 (revenu familial net)
+3. **Programmes socio-fiscaux QC** qui dépendent de la ligne 275
+4. **Impôt fédéral et programmes fédéraux**
+
+**Justification**: Le revenu familial net (ligne 275 TP-1) est calculé APRÈS déductions fiscales et sert de base aux seuils d'admissibilité des programmes québécois.
+
 ## 🐍 Système de Scraping Python/Selenium
 
 ### ✅ Scraper Opérationnel (Septembre 2024)
