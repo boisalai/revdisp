@@ -187,6 +187,7 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
   /**
    * Calculate work income for ACT eligibility
    * Includes employment income, self-employment income, and certain other work-related income
+   * Note: Secondary earner exemption is NOT applied here - it only applies to phase-out calculation
    */
   private calculateWorkIncome(household: Household): Decimal {
     let workIncome = new Decimal(0);
@@ -194,18 +195,9 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
     // Add primary person work income
     workIncome = workIncome.plus(household.primaryPerson.grossWorkIncome);
 
-    // Add spouse work income if applicable
+    // Add spouse work income if applicable (full amount for eligibility)
     if (household.spouse) {
-      let spouseWorkIncome = new Decimal(household.spouse.grossWorkIncome);
-      
-      // Apply secondary earner exemption for spouse with lower income
-      const primaryWorkIncome = new Decimal(household.primaryPerson.grossWorkIncome);
-      if (spouseWorkIncome.lessThan(primaryWorkIncome)) {
-        const exemption = new Decimal(this.calculatorConfig.secondary_earner_exemption);
-        spouseWorkIncome = Decimal.max(0, spouseWorkIncome.minus(exemption));
-      }
-      
-      workIncome = workIncome.plus(spouseWorkIncome);
+      workIncome = workIncome.plus(household.spouse.grossWorkIncome);
     }
 
     return workIncome;
@@ -213,7 +205,7 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
 
   /**
    * Calculate total family income for ACT phase-out
-   * Uses adjusted family net income
+   * Uses adjusted family net income with secondary earner exemption applied
    */
   private calculateTotalIncome(household: Household): Decimal {
     let totalIncome = new Decimal(0);
@@ -224,7 +216,16 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
 
     // Add spouse income if applicable
     if (household.spouse) {
-      totalIncome = totalIncome.plus(household.spouse.grossWorkIncome);
+      let spouseWorkIncome = new Decimal(household.spouse.grossWorkIncome);
+
+      // Apply secondary earner exemption for spouse with lower income (for phase-out calculation only)
+      const primaryWorkIncome = new Decimal(household.primaryPerson.grossWorkIncome);
+      if (spouseWorkIncome.lessThan(primaryWorkIncome)) {
+        const exemption = new Decimal(this.calculatorConfig.secondary_earner_exemption);
+        spouseWorkIncome = Decimal.max(0, spouseWorkIncome.minus(exemption));
+      }
+
+      totalIncome = totalIncome.plus(spouseWorkIncome);
       totalIncome = totalIncome.plus(household.spouse.grossRetirementIncome);
     }
 
