@@ -210,23 +210,33 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
   private calculateTotalIncome(household: Household): Decimal {
     let totalIncome = new Decimal(0);
 
-    // Add primary person income
-    totalIncome = totalIncome.plus(household.primaryPerson.grossWorkIncome);
+    // Get work incomes
+    const primaryWorkIncome = new Decimal(household.primaryPerson.grossWorkIncome);
+
+    // Add primary person retirement income (always included fully)
     totalIncome = totalIncome.plus(household.primaryPerson.grossRetirementIncome);
 
-    // Add spouse income if applicable
     if (household.spouse) {
-      let spouseWorkIncome = new Decimal(household.spouse.grossWorkIncome);
+      const spouseWorkIncome = new Decimal(household.spouse.grossWorkIncome);
+      const exemption = new Decimal(this.calculatorConfig.secondary_earner_exemption);
 
-      // Apply secondary earner exemption for spouse with lower income (for phase-out calculation only)
-      const primaryWorkIncome = new Decimal(household.primaryPerson.grossWorkIncome);
-      if (spouseWorkIncome.lessThan(primaryWorkIncome)) {
-        const exemption = new Decimal(this.calculatorConfig.secondary_earner_exemption);
-        spouseWorkIncome = Decimal.max(0, spouseWorkIncome.minus(exemption));
-      }
+      // Apply secondary earner exemption to the LOWER work income (per official CRA rules)
+      // "Le revenu gagné peut être réduit du plus petit montant entre le revenu de travail
+      // du conjoint qui a le revenu de travail le plus bas et 15 955 $"
+      const lowerWorkIncome = Decimal.min(primaryWorkIncome, spouseWorkIncome);
+      const exemptionAmount = Decimal.min(lowerWorkIncome, exemption);
 
-      totalIncome = totalIncome.plus(spouseWorkIncome);
+      // Calculate total work income after exemption
+      totalIncome = totalIncome
+        .plus(primaryWorkIncome)
+        .plus(spouseWorkIncome)
+        .minus(exemptionAmount);
+
+      // Add spouse retirement income (always included fully)
       totalIncome = totalIncome.plus(household.spouse.grossRetirementIncome);
+    } else {
+      // Single person: no secondary earner exemption
+      totalIncome = totalIncome.plus(primaryWorkIncome);
     }
 
     return totalIncome;
