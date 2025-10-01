@@ -317,45 +317,67 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
       case 'federal_tax':
         const federalTax = config.federal_tax
         if (federalTax) {
-          parameters.push(
-            { label: language === 'fr' ? 'Année d\'imposition' : 'Tax year', value: taxYear.toString() },
-            { label: language === 'fr' ? 'Programme' : 'Program', value: 'federal_tax' }
-          )
-
-          // Paliers d'imposition
-          parameters.push(
-            { label: language === 'fr' ? 'Paliers d\'imposition fédéraux' : 'Federal tax brackets', value: '' }
-          )
-
-          federalTax.tax_brackets.forEach((bracket, index) => {
-            const minFormatted = bracket.min.toLocaleString()
-            const maxFormatted = bracket.max >= 999999999 ? (language === 'fr' ? 'et plus' : 'and over') : bracket.max.toLocaleString()
-            const rateFormatted = `${(bracket.rate * 100)}%`
-
-            parameters.push({
-              label: `${language === 'fr' ? 'Palier' : 'Bracket'} ${index + 1}`,
-              value: `${minFormatted} $ - ${maxFormatted} $ : ${rateFormatted}`
-            })
-          })
-
-          // Crédits d'impôt non remboursables
-          if (federalTax.credits) {
+          // TRANCHES D'IMPOSITION FÉDÉRALES 2024
+          const fedBrackets = federalTax.tax_brackets || []
+          if (fedBrackets.length > 0) {
             parameters.push(
-              { label: language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount', value: `${federalTax.credits.basic_amount.toLocaleString()} $` }
+              { label: language === 'fr' ? 'Première tranche' : 'First bracket', value: `0 $ - ${fedBrackets[0].max.toLocaleString()} $ (${formatPercentage(fedBrackets[0].rate * 100, 1, language)})` }
             )
-
-            if (federalTax.credits.age_65_amount) {
+            if (fedBrackets.length > 1) {
               parameters.push(
-                { label: language === 'fr' ? 'Montant en raison de l\'âge (65+)' : 'Age amount (65+)', value: `${federalTax.credits.age_65_amount.toLocaleString()} $` }
+                { label: language === 'fr' ? 'Deuxième tranche' : 'Second bracket', value: `${fedBrackets[0].max.toLocaleString()} $ - ${fedBrackets[1].max.toLocaleString()} $ (${formatPercentage(fedBrackets[1].rate * 100, 1, language)})` }
               )
             }
-
-            if (federalTax.credits.pension_amount) {
+            if (fedBrackets.length > 2) {
               parameters.push(
-                { label: language === 'fr' ? 'Montant pour revenus de pension' : 'Pension income amount', value: `${federalTax.credits.pension_amount.toLocaleString()} $` }
+                { label: language === 'fr' ? 'Troisième tranche' : 'Third bracket', value: `${fedBrackets[1].max.toLocaleString()} $ - ${fedBrackets[2].max.toLocaleString()} $ (${formatPercentage(fedBrackets[2].rate * 100, 1, language)})` }
+              )
+            }
+            if (fedBrackets.length > 3) {
+              parameters.push(
+                { label: language === 'fr' ? 'Quatrième tranche' : 'Fourth bracket', value: `${fedBrackets[2].max.toLocaleString()} $ - ${fedBrackets[3].max.toLocaleString()} $ (${formatPercentage(fedBrackets[3].rate * 100, 1, language)})` }
+              )
+            }
+            if (fedBrackets.length > 4) {
+              parameters.push(
+                { label: language === 'fr' ? 'Cinquième tranche' : 'Fifth bracket', value: `${fedBrackets[3].max.toLocaleString()} $ et plus (${formatPercentage(fedBrackets[4].rate * 100, 1, language)})` }
               )
             }
           }
+
+          // CRÉDITS NON REMBOURSABLES
+          const fedCredits = federalTax.credits || {}
+          parameters.push(
+            { label: language === 'fr' ? 'Montant personnel de base (ligne 30000)' : 'Basic personal amount (line 30000)', value: `${fedCredits.basic_amount?.toLocaleString()} $` }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Crédit canadien pour emploi (ligne 31260)' : 'Canada employment amount (line 31260)', value: '1 433 $ (max)' }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Montant en raison de l\'âge 65+ (ligne 30100)' : 'Age amount 65+ (line 30100)', value: `${fedCredits.age_65_amount?.toLocaleString()} $` }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Montant pour revenus de pension (ligne 31400)' : 'Pension income amount (line 31400)', value: `${fedCredits.pension_amount?.toLocaleString()} $` }
+          )
+
+          // COTISATIONS SOCIALES - TRAITEMENT FISCAL
+          parameters.push(
+            { label: language === 'fr' ? 'Crédit RRQ (ligne 30800)' : 'QPP credit (line 30800)', value: language === 'fr' ? 'Cotisation × 15% × 0.835' : 'Contribution × 15% × 0.835' }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Crédit AE (ligne 31200)' : 'EI credit (line 31200)', value: language === 'fr' ? 'Cotisation × 15% × 0.835' : 'Contribution × 15% × 0.835' }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Crédit RQAP (ligne 31205)' : 'QPIP credit (line 31205)', value: language === 'fr' ? 'Cotisation × 15% × 0.835' : 'Contribution × 15% × 0.835' }
+          )
+
+          // ABATTEMENT DU QUÉBEC
+          parameters.push(
+            { label: language === 'fr' ? 'Abattement du Québec (ligne 44000)' : 'Quebec abatement (line 44000)', value: '16.5%' }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Note importante' : 'Important note', value: language === 'fr' ? 'Cotisations de base = CRÉDITS (pas déductions)' : 'Base contributions = CREDITS (not deductions)' }
+          )
         }
         break
 
@@ -1188,6 +1210,26 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
           label: 'Guide T1 général - Déclaration de revenus et de prestations',
           value: 'https://www.canada.ca/fr/agence-revenu/services/formulaires-publications/guides/t1-general.html',
           isReference: true
+        },
+        {
+          label: 'CFFP - Cotisations RRQ/RQAP/AE (traitement fiscal)',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'ARC - Ligne 30800 - Cotisations au RPC ou au RRQ',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/declaration-revenus/remplir-declaration-revenus/deductions-credits-depenses/ligne-30800-cotisations-rpc-rrq-emploi.html',
+          isReference: true
+        },
+        {
+          label: 'ARC - Ligne 31260 - Crédit canadien pour emploi',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/declaration-revenus/remplir-declaration-revenus/deductions-credits-depenses/ligne-31260-montant-canadien-emploi.html',
+          isReference: true
+        },
+        {
+          label: 'ARC - Ligne 44000 - Abattement du Québec',
+          value: 'https://www.canada.ca/fr/agence-revenu/services/impot/particuliers/sujets/tout-votre-declaration-revenus/declaration-revenus/remplir-declaration-revenus/deductions-credits-depenses/ligne-44000-abattement-quebec-remboursable.html',
+          isReference: true
         }
       ] : [
         {
@@ -1208,6 +1250,26 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         {
           label: 'T1 General Guide - Income Tax and Benefit Return',
           value: 'https://www.canada.ca/en/revenue-agency/services/forms-publications/guides/t1-general.html',
+          isReference: true
+        },
+        {
+          label: 'CFFP - RRQ/QPIP/EI Contributions (tax treatment)',
+          value: 'https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/',
+          isReference: true
+        },
+        {
+          label: 'CRA - Line 30800 - CPP or QPP contributions',
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-30800-cpp-qpp-contributions-through-employment.html',
+          isReference: true
+        },
+        {
+          label: 'CRA - Line 31260 - Canada employment amount',
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-31260-canada-employment-amount.html',
+          isReference: true
+        },
+        {
+          label: 'CRA - Line 44000 - Refundable Quebec abatement',
+          value: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/tax-return/completing-a-tax-return/deductions-credits-expenses/line-44000-refundable-quebec-abatement.html',
           isReference: true
         }
       ]
@@ -2946,39 +3008,17 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         value: formatAmount(grossIncome)
       })
 
-      // 2. Déductions (cotisations sociales)
-      let totalDeductions = 0
-      if (contributions) {
-        const deductions = []
-        if (contributions.rrq && contributions.rrq > 0) {
-          deductions.push({ name: 'RRQ', amount: contributions.rrq })
-          totalDeductions += contributions.rrq
-        }
-        if (contributions.ei && contributions.ei > 0) {
-          deductions.push({ name: 'AE', amount: contributions.ei })
-          totalDeductions += contributions.ei
-        }
-        if (contributions.rqap && contributions.rqap > 0) {
-          deductions.push({ name: 'RQAP', amount: contributions.rqap })
-          totalDeductions += contributions.rqap
-        }
-        
-        if (deductions.length > 0) {
-          steps.push({ 
-            label: `${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
-            value: `-${formatAmount(totalDeductions)}`
-          })
-          deductions.forEach(ded => {
-            steps.push({ 
-              label: `  • ${ded.name}`, 
-              value: `-${formatAmount(ded.amount)}`
-            })
-          })
-        }
-      }
+      // 2. IMPORTANT: Au fédéral, les cotisations de base ne sont PAS déductibles
+      // Elles donnent droit à un crédit d'impôt de 15% (appliqué plus bas)
+      steps.push({
+        label: `${language === 'fr' ? 'Note' : 'Note'}`,
+        value: language === 'fr'
+          ? 'Cotisations RRQ/AE/RQAP: crédit 15% (pas déduction)'
+          : 'RRQ/EI/QPIP contributions: 15% credit (not deduction)'
+      })
 
-      // 3. Revenu imposable
-      const taxableIncome = Math.max(0, grossIncome - totalDeductions)
+      // 3. Revenu imposable (PAS de déduction pour cotisations de base)
+      const taxableIncome = grossIncome
       steps.push({ 
         label: `${language === 'fr' ? 'Revenu imposable' : 'Taxable income'}`, 
         value: formatAmount(taxableIncome)
@@ -3019,41 +3059,89 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       })
 
       // 5. Crédits d'impôt fédéraux non remboursables
+      // IMPORTANT: Abattement du Québec 16.5% appliqué sur tous les crédits
       let totalCredits = 0
       const lowestRate = params.brackets[0].rate
+      const quebecAbatement = 0.165
+      const effectiveRate = lowestRate * (1 - quebecAbatement)
 
-      // Crédit personnel de base
-      const basicCredit = params.credits.basic * lowestRate
-      totalCredits += basicCredit
-      steps.push({ 
-        label: `  • ${language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount'}`, 
-        value: `${formatAmount(params.credits.basic)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(basicCredit)}`
+      steps.push({
+        label: `${language === 'fr' ? 'Crédits d\'impôt non remboursables (avec abattement QC 16.5%)' : 'Non-refundable tax credits (with QC abatement 16.5%)'}`,
+        value: ''
       })
 
-      // Crédit d'âge (65 ans et plus)
-      if (person.age >= 65) {
-        const ageCredit = params.credits.age65 * lowestRate
-        totalCredits += ageCredit
-        steps.push({ 
-          label: `  • ${language === 'fr' ? 'Montant en raison de l\'âge (65 ans et plus)' : 'Age amount (65 years and over)'}`, 
-          value: `${formatAmount(params.credits.age65)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(ageCredit)}`
+      // Crédit personnel de base (ligne 30000)
+      const basicCredit = params.credits.basic * effectiveRate
+      totalCredits += basicCredit
+      steps.push({
+        label: `  • ${language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount'} (30000)`,
+        value: `${formatAmount(params.credits.basic)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(basicCredit)}`
+      })
+
+      // Crédit canadien pour emploi (ligne 31260)
+      if (!person.isRetired && grossIncome > 0) {
+        const maxEmploymentAmount = 1433 // 2024 value
+        const eligibleAmount = Math.min(grossIncome, maxEmploymentAmount)
+        const employmentCredit = eligibleAmount * effectiveRate
+        totalCredits += employmentCredit
+        steps.push({
+          label: `  • ${language === 'fr' ? 'Crédit canadien pour emploi' : 'Canada employment amount'} (31260)`,
+          value: `${formatAmount(eligibleAmount)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(employmentCredit)}`
         })
       }
 
-      // Crédit de pension (retraités)
+      // Crédit d'âge (ligne 30100) - 65 ans et plus
+      if (person.age >= 65) {
+        const ageCredit = params.credits.age65 * effectiveRate
+        totalCredits += ageCredit
+        steps.push({
+          label: `  • ${language === 'fr' ? 'Montant en raison de l\'âge' : 'Age amount'} (30100) - 65+`,
+          value: `${formatAmount(params.credits.age65)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(ageCredit)}`
+        })
+      }
+
+      // Crédit de pension (ligne 31400) - retraités
       if (person.isRetired && person.grossRetirementIncome > 0) {
         const maxPensionAmount = params.credits.pension
         const eligibleAmount = Math.min(grossIncome, maxPensionAmount)
-        const pensionCredit = eligibleAmount * lowestRate
+        const pensionCredit = eligibleAmount * effectiveRate
         totalCredits += pensionCredit
-        steps.push({ 
-          label: `  • ${language === 'fr' ? 'Montant pour revenus de pension' : 'Pension income amount'}`, 
-          value: `${formatAmount(eligibleAmount)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(pensionCredit)}`
+        steps.push({
+          label: `  • ${language === 'fr' ? 'Montant pour revenus de pension' : 'Pension income amount'} (31400)`,
+          value: `${formatAmount(eligibleAmount)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(pensionCredit)}`
         })
       }
 
-      steps.push({ 
-        label: `${language === 'fr' ? 'Total des crédits d\'impôt fédéraux' : 'Total federal tax credits'}`, 
+      // Crédits pour cotisations sociales (lignes 30800, 31200, 31205)
+      if (contributions) {
+        if (contributions.rrq && contributions.rrq > 0) {
+          const rrqCredit = contributions.rrq * effectiveRate
+          totalCredits += rrqCredit
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Crédit RRQ' : 'QPP credit'} (30800)`,
+            value: `${formatAmount(contributions.rrq)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(rrqCredit)}`
+          })
+        }
+        if (contributions.ei && contributions.ei > 0) {
+          const eiCredit = contributions.ei * effectiveRate
+          totalCredits += eiCredit
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Crédit AE' : 'EI credit'} (31200)`,
+            value: `${formatAmount(contributions.ei)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(eiCredit)}`
+          })
+        }
+        if (contributions.rqap && contributions.rqap > 0) {
+          const rqapCredit = contributions.rqap * effectiveRate
+          totalCredits += rqapCredit
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Crédit RQAP' : 'QPIP credit'} (31205)`,
+            value: `${formatAmount(contributions.rqap)} × ${(lowestRate * 100).toFixed(1)}% × 0.835 = ${formatAmount(rqapCredit)}`
+          })
+        }
+      }
+
+      steps.push({
+        label: `${language === 'fr' ? 'Total des crédits d\'impôt fédéraux' : 'Total federal tax credits'}`,
         value: formatAmount(totalCredits)
       })
 

@@ -17,6 +17,10 @@ export interface FederalTaxResult {
     age_65: Decimal
     pension: Decimal
     living_alone: Decimal
+    employment: Decimal
+    cpp_qpp: Decimal
+    ei: Decimal
+    qpip: Decimal
     total: Decimal
   }
   net_tax: Decimal
@@ -24,6 +28,7 @@ export interface FederalTaxResult {
     individual: Decimal
     family: Decimal
   }
+  quebec_abatement: Decimal
 }
 
 export class FederalTaxCalculator extends BaseCalculator {
@@ -58,13 +63,18 @@ export class FederalTaxCalculator extends BaseCalculator {
         age_65: primaryResult.credits.age_65.plus(spouseResult?.credits.age_65 || 0),
         pension: primaryResult.credits.pension.plus(spouseResult?.credits.pension || 0),
         living_alone: primaryResult.credits.living_alone.plus(spouseResult?.credits.living_alone || 0),
+        employment: primaryResult.credits.employment.plus(spouseResult?.credits.employment || 0),
+        cpp_qpp: primaryResult.credits.cpp_qpp.plus(spouseResult?.credits.cpp_qpp || 0),
+        ei: primaryResult.credits.ei.plus(spouseResult?.credits.ei || 0),
+        qpip: primaryResult.credits.qpip.plus(spouseResult?.credits.qpip || 0),
         total: primaryResult.credits.total.plus(spouseResult?.credits.total || 0)
       },
       net_tax: primaryResult.net_tax.plus(spouseResult?.net_tax || 0),
       net_income: {
         individual: primaryResult.net_income.individual,
         family: primaryResult.net_income.individual.plus(spouseResult?.net_income.individual || 0)
-      }
+      },
+      quebec_abatement: primaryResult.quebec_abatement.plus(spouseResult?.quebec_abatement || 0)
     }
 
     return { primary: primaryResult, spouse: spouseResult, combined }
@@ -79,37 +89,38 @@ export class FederalTaxCalculator extends BaseCalculator {
     rqap?: Decimal
   }): FederalTaxResult {
     // 1. Determine gross income
-    const grossIncome = person.isRetired 
-      ? person.grossRetirementIncome 
+    const grossIncome = person.isRetired
+      ? person.grossRetirementIncome
       : person.grossWorkIncome
 
-    // 2. Calculate deductions (social contributions are fully deductible)
+    // 2. Calculate deductions
+    // IMPORTANT: Base RRQ/EI/RQAP contributions are NOT deductible at federal level
+    // They are converted to non-refundable tax credits instead (15% × contribution)
+    // Only enhanced QPP contributions (for income > $68,500) are deductible
     let totalDeductions = new Decimal(0)
-    if (contributions) {
-      if (contributions.rrq) {
-        totalDeductions = totalDeductions.plus(contributions.rrq)
-      }
-      if (contributions.ei) {
-        totalDeductions = totalDeductions.plus(contributions.ei)
-      }
-      if (contributions.rqap) {
-        totalDeductions = totalDeductions.plus(contributions.rqap)
-      }
-    }
 
-    // 3. Calculate taxable income
+    // TODO: Add enhanced QPP deduction for high earners
+    // if (grossIncome.greaterThan(68500)) {
+    //   const enhancedQppDeduction = calculateEnhancedQppDeduction(grossIncome)
+    //   totalDeductions = totalDeductions.plus(enhancedQppDeduction)
+    // }
+
+    // 3. Calculate taxable income (NO deduction for base contributions)
     const taxableIncome = Decimal.max(0, grossIncome.minus(totalDeductions))
 
     // 4. Calculate tax before credits
     const taxBeforeCredits = this.calculateTaxOnIncome(taxableIncome)
 
-    // 5. Calculate non-refundable tax credits
-    const credits = this.calculateCredits(person, household, taxableIncome)
+    // 5. Calculate non-refundable tax credits (including contribution credits)
+    const credits = this.calculateCredits(person, household, taxableIncome, contributions)
 
-    // 6. Calculate net tax (cannot be negative)
+    // 6. Calculate Quebec abatement (16.5% of non-refundable credits)
+    const quebecAbatement = credits.total.times(0.165)
+
+    // 7. Calculate net tax (cannot be negative)
     const netTax = Decimal.max(0, taxBeforeCredits.minus(credits.total))
 
-    // 7. Calculate net income (ligne 23600) - revenu total moins déductions AVANT impôt
+    // 8. Calculate net income (ligne 23600) - revenu total moins déductions AVANT impôt
     const netIncome = grossIncome.minus(totalDeductions)
 
     return {
@@ -121,7 +132,8 @@ export class FederalTaxCalculator extends BaseCalculator {
       net_income: {
         individual: this.quantize(netIncome),
         family: this.quantize(netIncome) // Will be combined at household level
-      }
+      },
+      quebec_abatement: this.quantize(quebecAbatement)
     }
   }
 
@@ -173,44 +185,99 @@ export class FederalTaxCalculator extends BaseCalculator {
 
   /**
    * Calculate non-refundable tax credits
+   *
+   * IMPORTANT: Quebec residents benefit from a 16.5% abatement
+   * Credits are calculated BEFORE abatement, which is applied separately
+   * Effective credit rate = 15% × (1 - 0.165) = 12.525%
    */
-  private calculateCredits(person: Person, household: Household, taxableIncome: Decimal): {
+  private calculateCredits(person: Person, household: Household, taxableIncome: Decimal, contributions?: {
+    rrq?: Decimal
+    ei?: Decimal
+    rqap?: Decimal
+  }): {
     basic: Decimal
     age_65: Decimal
     pension: Decimal
     living_alone: Decimal
+    employment: Decimal
+    cpp_qpp: Decimal
+    ei: Decimal
+    qpip: Decimal
     total: Decimal
   } {
     const creditAmounts = this.getCreditAmounts()
-    const lowestRate = this.getLowestTaxRate()
+    const lowestRate = this.getLowestTaxRate() // 15% for 2024
+    const quebecAbatementFactor = new Decimal(0.835) // 1 - 0.165
 
-    // Basic personal amount (everyone gets this)
-    const basicCredit = this.toDecimal(creditAmounts.basic_amount).times(lowestRate)
+    // 1. Basic personal amount (ligne 30000) - everyone gets this
+    // $15,705 for 2024 (if net income < $173,205)
+    const basicAmount = this.toDecimal(creditAmounts.basic_amount)
+    const basicCredit = basicAmount.times(lowestRate).times(quebecAbatementFactor)
 
-    // Age 65+ credit
+    // 2. Age 65+ credit (ligne 30100)
     let age65Credit = new Decimal(0)
     if (person.age >= 65) {
-      age65Credit = this.toDecimal(creditAmounts.age_65_amount).times(lowestRate)
+      const age65Amount = this.toDecimal(creditAmounts.age_65_amount)
+      age65Credit = age65Amount.times(lowestRate).times(quebecAbatementFactor)
     }
 
-    // Pension credit (for retirement income)
+    // 3. Pension credit (ligne 31400) - for retirement income
     let pensionCredit = new Decimal(0)
     if (person.isRetired && person.grossRetirementIncome.greaterThan(0)) {
-      const maxPensionCredit = this.toDecimal(creditAmounts.pension_amount)
-      const eligibleAmount = Decimal.min(person.grossRetirementIncome, maxPensionCredit)
-      pensionCredit = eligibleAmount.times(lowestRate)
+      const maxPensionAmount = this.toDecimal(creditAmounts.pension_amount)
+      const eligibleAmount = Decimal.min(person.grossRetirementIncome, maxPensionAmount)
+      pensionCredit = eligibleAmount.times(lowestRate).times(quebecAbatementFactor)
     }
 
-    // Federal doesn't have a specific living alone credit (unlike Quebec)
+    // 4. Federal doesn't have a specific living alone credit (unlike Quebec)
     let livingAloneCredit = new Decimal(0)
 
-    const totalCredits = basicCredit.plus(age65Credit).plus(pensionCredit).plus(livingAloneCredit)
+    // 5. Canada employment amount (ligne 31260)
+    // Maximum $1,433 for 2024, applies to employment income only
+    let employmentCredit = new Decimal(0)
+    if (!person.isRetired && person.grossWorkIncome.greaterThan(0)) {
+      const maxEmploymentAmount = new Decimal(1433) // 2024 value
+      const eligibleAmount = Decimal.min(person.grossWorkIncome, maxEmploymentAmount)
+      employmentCredit = eligibleAmount.times(lowestRate).times(quebecAbatementFactor)
+    }
+
+    // 6-8. Social contributions credits (lignes 30800, 31200, 31205)
+    // Base RRQ/CPP, EI, and QPIP contributions give 15% tax credit (NOT a deduction)
+    // Source: https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/cotisations-rrq-rqap-et-assurance-emploi/
+    let cppQppCredit = new Decimal(0)
+    let eiCredit = new Decimal(0)
+    let qpipCredit = new Decimal(0)
+
+    if (contributions) {
+      if (contributions.rrq) {
+        cppQppCredit = contributions.rrq.times(lowestRate).times(quebecAbatementFactor)
+      }
+      if (contributions.ei) {
+        eiCredit = contributions.ei.times(lowestRate).times(quebecAbatementFactor)
+      }
+      if (contributions.rqap) {
+        qpipCredit = contributions.rqap.times(lowestRate).times(quebecAbatementFactor)
+      }
+    }
+
+    const totalCredits = basicCredit
+      .plus(age65Credit)
+      .plus(pensionCredit)
+      .plus(livingAloneCredit)
+      .plus(employmentCredit)
+      .plus(cppQppCredit)
+      .plus(eiCredit)
+      .plus(qpipCredit)
 
     return {
       basic: this.quantize(basicCredit),
       age_65: this.quantize(age65Credit),
       pension: this.quantize(pensionCredit),
       living_alone: this.quantize(livingAloneCredit),
+      employment: this.quantize(employmentCredit),
+      cpp_qpp: this.quantize(cppQppCredit),
+      ei: this.quantize(eiCredit),
+      qpip: this.quantize(qpipCredit),
       total: this.quantize(totalCredits)
     }
   }
