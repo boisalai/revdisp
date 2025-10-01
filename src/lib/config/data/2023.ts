@@ -32,7 +32,10 @@ export const config2023: TaxYearConfig = {
       basic_amount: 17183, // Montant personnel de base officiel 2023
       age_65_amount: 3211,
       pension_amount: 3017,
-      living_alone_amount: 1890
+      living_alone: {
+        base_amount: 1969,           // Montant de base pour personne seule 2023
+        single_parent_supplement: 2431 // Supplément famille monoparentale 2023
+      }
     },
     deduction_rates: {
       cpp: 1.0,

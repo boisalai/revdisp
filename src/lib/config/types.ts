@@ -26,10 +26,10 @@ export interface QuebecTaxConfig {
     living_alone?: {
       base_amount: number
       single_parent_supplement: number
-      reduction_threshold: number
-      reduction_rate: number
-      elimination_threshold_base: number
-      elimination_threshold_supplement: number
+      reduction_threshold?: number
+      reduction_rate?: number
+      elimination_threshold_base?: number
+      elimination_threshold_supplement?: number
     }
     age_credit?: {
       base_amount: number
@@ -46,7 +46,7 @@ export interface QuebecTaxConfig {
     // Anciens paramètres (pour compatibilité)
     age_65_amount: number
     pension_amount: number
-    living_alone_amount: number
+    living_alone_amount?: number
   }
   deduction_rates: {
     cpp: number

@@ -14,6 +14,19 @@ interface DetailedResultsProps {
   formatCurrency: (value: number) => string
 }
 
+/**
+ * Format a percentage according to language conventions
+ * FR: uses comma (15,625%)
+ * EN: uses period (15.625%)
+ */
+function formatPercentage(value: number, decimals: number, language: 'fr' | 'en'): string {
+  const formatted = value.toFixed(decimals)
+  if (language === 'fr') {
+    return formatted.replace('.', ',') + '%'
+  }
+  return formatted + '%'
+}
+
 interface ProgramDetail {
   name: string
   description: string
@@ -41,21 +54,21 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
         // Toutes les tranches d'imposition
         if (brackets.length > 0) {
           parameters.push(
-            { label: language === 'fr' ? 'Première tranche' : 'First bracket', value: `0 $ - ${brackets[0].max.toLocaleString()} $ (${(brackets[0].rate * 100).toFixed(1)}%)` }
+            { label: language === 'fr' ? 'Première tranche' : 'First bracket', value: `0 $ - ${brackets[0].max.toLocaleString()} $ (${formatPercentage(brackets[0].rate * 100, 1, language)})` }
           )
           if (brackets.length > 1) {
             parameters.push(
-              { label: language === 'fr' ? 'Deuxième tranche' : 'Second bracket', value: `${brackets[0].max.toLocaleString()} $ - ${brackets[1].max.toLocaleString()} $ (${(brackets[1].rate * 100).toFixed(1)}%)` }
+              { label: language === 'fr' ? 'Deuxième tranche' : 'Second bracket', value: `${brackets[0].max.toLocaleString()} $ - ${brackets[1].max.toLocaleString()} $ (${formatPercentage(brackets[1].rate * 100, 1, language)})` }
             )
           }
           if (brackets.length > 2) {
             parameters.push(
-              { label: language === 'fr' ? 'Troisième tranche' : 'Third bracket', value: `${brackets[1].max.toLocaleString()} $ - ${brackets[2].max.toLocaleString()} $ (${(brackets[2].rate * 100).toFixed(1)}%)` }
+              { label: language === 'fr' ? 'Troisième tranche' : 'Third bracket', value: `${brackets[1].max.toLocaleString()} $ - ${brackets[2].max.toLocaleString()} $ (${formatPercentage(brackets[2].rate * 100, 1, language)})` }
             )
           }
           if (brackets.length > 3) {
             parameters.push(
-              { label: language === 'fr' ? 'Quatrième tranche' : 'Fourth bracket', value: `${brackets[2].max.toLocaleString()} $ et plus (${(brackets[3].rate * 100).toFixed(2)}%)` }
+              { label: language === 'fr' ? 'Quatrième tranche' : 'Fourth bracket', value: `${brackets[2].max.toLocaleString()} $ et plus (${formatPercentage(brackets[3].rate * 100, 2, language)})` }
             )
           }
         }
@@ -65,8 +78,16 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
           { label: language === 'fr' ? 'Montant personnel de base' : 'Basic personal amount', value: `${basicAmount.toLocaleString()} $` }
         )
 
-        // Montant pour personne vivant seule
-        if (credits.living_alone_amount) {
+        // Montant pour personne vivant seule (deux montants distincts)
+        if (credits.living_alone) {
+          parameters.push(
+            { label: language === 'fr' ? 'Montant de base pour personne vivant seule' : 'Basic living alone amount', value: `${credits.living_alone.base_amount.toLocaleString()} $` }
+          )
+          parameters.push(
+            { label: language === 'fr' ? 'Supplément pour famille monoparentale' : 'Single-parent family supplement', value: `${credits.living_alone.single_parent_supplement.toLocaleString()} $` }
+          )
+        } else if (credits.living_alone_amount) {
+          // Fallback pour ancienne structure (si jamais)
           parameters.push(
             { label: language === 'fr' ? 'Montant pour personne vivant seule' : 'Living alone amount', value: `${credits.living_alone_amount.toLocaleString()} $` }
           )
@@ -671,7 +692,9 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         },
         {
           label: 'Ministère des Finances du Québec - Paramètres fiscaux ' + taxYear,
-          value: taxYear === 2025
+          value: taxYear === 2023
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2023.pdf'
+            : taxYear === 2025
             ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf'
             : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf',
           isReference: true
@@ -689,7 +712,9 @@ function getOfficialReferences(programKey: string, taxYear: number, language: 'f
         },
         {
           label: 'Quebec Ministry of Finance - Tax Regime Parameters ' + taxYear,
-          value: taxYear === 2025
+          value: taxYear === 2023
+            ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2023.pdf'
+            : taxYear === 2025
             ? 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2025.pdf'
             : 'https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTEN_RegimeImpot2024.pdf',
           isReference: true
@@ -2508,16 +2533,17 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     // Paramètres fiscaux selon l'année
     const params2024 = {
       brackets: [
-        { min: 0, max: 49275, rate: 0.14 },
-        { min: 49275, max: 98540, rate: 0.19 },
-        { min: 98540, max: 119910, rate: 0.24 },
-        { min: 119910, max: 999999999, rate: 0.2575 }
+        { min: 0, max: 51780, rate: 0.14 },
+        { min: 51780, max: 103545, rate: 0.19 },
+        { min: 103545, max: 126000, rate: 0.24 },
+        { min: 126000, max: 999999999, rate: 0.2575 }
       ],
       credits: {
         basic: 18056,
-        age65: 3395,
-        pension: 3017,
-        livingAlone: 1890
+        age65: 3798,
+        pension: 3374,
+        livingAloneBase: 2069,           // Montant de base pour personne vivant seule 2024
+        livingAloneSingleParent: 2554    // Supplément famille monoparentale 2024
       }
     }
 
@@ -2530,9 +2556,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       ],
       credits: {
         basic: 18571,
-        age65: 3569,
-        pension: 3172,
-        livingAlone: 1985
+        age65: 3395,
+        pension: 3017,
+        livingAloneBase: 2128,           // Montant de base pour personne vivant seule 2025
+        livingAloneSingleParent: 2627    // Supplément famille monoparentale 2025
       }
     }
 
@@ -2547,7 +2574,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         basic: 17183,
         age65: 3211,
         pension: 3017,
-        livingAlone: 1890
+        livingAloneBase: 1969,           // Montant de base pour personne vivant seule 2023
+        livingAloneSingleParent: 2431    // Supplément famille monoparentale 2023
       }
     }
 
@@ -2583,14 +2611,15 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         value: formatAmount(grossIncome)
       })
 
-      // 2. Déduction pour travailleur seulement (ligne 201)
-      // Note: Les cotisations (RRQ, AE, RQAP) ne sont PAS déductibles selon le calculateur officiel
+      // 2. Déductions
       let totalDeductions = 0
+
+      // 2a. Déduction pour travailleur (ligne 201)
       if (!person.isRetired && grossIncome > 0) {
         const maxWorkerDeduction = taxYear === 2023 ? 1315 : (taxYear === 2025 ? 1420 : 1380)
         const workerDeduction = Math.min(grossIncome * 0.06, maxWorkerDeduction)
         if (workerDeduction > 0) {
-          totalDeductions = workerDeduction
+          totalDeductions += workerDeduction
           steps.push({
             label: `${language === 'fr' ? 'Déduction pour travailleur (ligne 201)' : 'Worker deduction (line 201)'}`,
             value: `-${formatAmount(workerDeduction)}`
@@ -2599,6 +2628,56 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
             label: `  • ${language === 'fr' ? 'Formule: min(6% × revenu, ' + maxWorkerDeduction + ' $)' : 'Formula: min(6% × income, $' + maxWorkerDeduction + ')'}`,
             value: `${formatAmount(grossIncome)} × 6% = ${formatAmount(workerDeduction)}`
           })
+        }
+      }
+
+      // 2b. Déduction RRQ
+      if (!person.isRetired && grossIncome > 0 && contributions?.rrq) {
+        // Paramètres RRQ selon l'année
+        const qppConfig = {
+          basic_exemption: 3500,
+          max_pensionable_earnings: taxYear === 2023 ? 66600 : (taxYear === 2025 ? 71300 : 68500),
+          max_additional_earnings: taxYear === 2023 ? 66600 : (taxYear === 2025 ? 81200 : 73200),
+          first_contribution_rate: 0.064,
+          second_contribution_rate: taxYear === 2023 ? 0 : 0.04
+        }
+
+        let firstContrib = 0
+        let secondContrib = 0
+
+        if (grossIncome > qppConfig.basic_exemption) {
+          const firstBracketIncome = Math.min(grossIncome, qppConfig.max_pensionable_earnings) - qppConfig.basic_exemption
+          firstContrib = firstBracketIncome * qppConfig.first_contribution_rate
+
+          if (grossIncome > qppConfig.max_pensionable_earnings && qppConfig.max_additional_earnings > qppConfig.max_pensionable_earnings) {
+            const secondBracketIncome = Math.min(grossIncome, qppConfig.max_additional_earnings) - qppConfig.max_pensionable_earnings
+            if (secondBracketIncome > 0) {
+              secondContrib = secondBracketIncome * qppConfig.second_contribution_rate
+            }
+          }
+        }
+
+        // Formule: (première × 15.625%) + (deuxième × 100%)
+        const firstDeduction = firstContrib * 0.15625
+        const secondDeduction = secondContrib
+        const rrqDeduction = firstDeduction + secondDeduction
+
+        if (rrqDeduction > 0) {
+          totalDeductions += rrqDeduction
+          steps.push({
+            label: `${language === 'fr' ? 'Déduction RRQ' : 'QPP deduction'}`,
+            value: `-${formatAmount(rrqDeduction)}`
+          })
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Première composante (15,625%)' : 'First component (15.625%)'}`,
+            value: `${formatAmount(firstContrib)} × ${formatPercentage(15.625, 3, language)} = ${formatAmount(firstDeduction)}`
+          })
+          if (secondDeduction > 0) {
+            steps.push({
+              label: `  • ${language === 'fr' ? 'Deuxième composante (100%)' : 'Second component (100%)'}`,
+              value: formatAmount(secondDeduction)
+            })
+          }
         }
       }
 
@@ -2629,10 +2708,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           const bracketLabel = bracket.max === 999999999
             ? `${formatAmount(bracket.min)}${language === 'fr' ? ' et plus' : ' and above'}`
             : `${formatAmount(bracket.min)} - ${formatAmount(bracket.max)}`
-          
-          steps.push({ 
-            label: `  • ${bracketLabel} à ${(bracket.rate * 100).toFixed(1)}%`, 
-            value: `${formatAmount(taxableInBracket)} × ${(bracket.rate * 100).toFixed(1)}% = ${formatAmount(taxInBracket)}`
+
+          steps.push({
+            label: `  • ${bracketLabel} à ${formatPercentage(bracket.rate * 100, 1, language)}`,
+            value: `${formatAmount(taxableInBracket)} × ${formatPercentage(bracket.rate * 100, 1, language)} = ${formatAmount(taxInBracket)}`
           })
         }
         previousMax = bracket.max
@@ -2647,44 +2726,92 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       let totalCredits = 0
       const lowestRate = params.brackets[0].rate
 
-      // Crédit personnel de base
+      // 5a. Crédit personnel de base (pas de réduction)
       const basicCredit = params.credits.basic * lowestRate
       totalCredits += basicCredit
-      steps.push({ 
-        label: `  • ${language === 'fr' ? 'Crédit personnel de base' : 'Basic personal credit'}`, 
-        value: `${formatAmount(params.credits.basic)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(basicCredit)}`
+      steps.push({
+        label: `  • ${language === 'fr' ? 'Crédit personnel de base' : 'Basic personal credit'}`,
+        value: `${formatAmount(params.credits.basic)} × ${formatPercentage(lowestRate * 100, 1, language)} = ${formatAmount(basicCredit)}`
       })
 
-      // Crédit d'âge (65 ans et plus)
+      // 5b. Montant accordé (combiné avec réduction unique de 18.75%)
+      // Composantes: vivant seule + famille monoparentale + âge 65+ + pension
+      let combinedAmount = 0
+      const combinedComponents: string[] = []
+
+      // Montant pour personne vivant seule (singles only)
+      if (!household.spouse) {
+        const hasChildren = household.numChildren > 0
+        combinedAmount += params.credits.livingAloneBase
+        combinedComponents.push(
+          `${language === 'fr' ? 'Personne seule' : 'Living alone'}: ${formatAmount(params.credits.livingAloneBase)}`
+        )
+
+        if (hasChildren) {
+          combinedAmount += params.credits.livingAloneSingleParent
+          combinedComponents.push(
+            `${language === 'fr' ? 'Famille monoparentale' : 'Single parent'}: ${formatAmount(params.credits.livingAloneSingleParent)}`
+          )
+        }
+      }
+
+      // Montant en raison de l'âge (65+)
       if (person.age >= 65) {
-        const ageCredit = params.credits.age65 * lowestRate
-        totalCredits += ageCredit
-        steps.push({ 
-          label: `  • ${language === 'fr' ? 'Crédit d\'âge (65 ans et plus)' : 'Age credit (65 years and over)'}`, 
-          value: `${formatAmount(params.credits.age65)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(ageCredit)}`
-        })
+        combinedAmount += params.credits.age65
+        combinedComponents.push(
+          `${language === 'fr' ? 'Âge 65+' : 'Age 65+'}: ${formatAmount(params.credits.age65)}`
+        )
       }
 
-      // Crédit de pension (retraités)
+      // Montant pour revenus de retraite
       if (person.isRetired && person.grossRetirementIncome > 0) {
-        const maxPensionAmount = params.credits.pension
-        const eligibleAmount = Math.min(grossIncome, maxPensionAmount)
-        const pensionCredit = eligibleAmount * lowestRate
-        totalCredits += pensionCredit
-        steps.push({ 
-          label: `  • ${language === 'fr' ? 'Crédit de pension' : 'Pension credit'}`, 
-          value: `${formatAmount(eligibleAmount)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(pensionCredit)}`
-        })
+        const eligiblePensionAmount = Math.min(person.grossRetirementIncome, params.credits.pension)
+        combinedAmount += eligiblePensionAmount
+        combinedComponents.push(
+          `${language === 'fr' ? 'Revenus retraite' : 'Pension income'}: ${formatAmount(eligiblePensionAmount)}`
+        )
       }
 
-      // Crédit pour personne vivant seule
-      if (!household.spouse && household.numChildren === 0) {
-        const livingAloneCredit = params.credits.livingAlone * lowestRate
-        totalCredits += livingAloneCredit
-        steps.push({ 
-          label: `  • ${language === 'fr' ? 'Crédit pour personne vivant seule' : 'Living alone credit'}`, 
-          value: `${formatAmount(params.credits.livingAlone)} × ${(lowestRate * 100).toFixed(1)}% = ${formatAmount(livingAloneCredit)}`
+      // Apply reduction if combinedAmount > 0
+      if (combinedAmount > 0) {
+        const reductionThreshold = taxYear === 2023 ? 38945 : (taxYear === 2025 ? 42090 : 40925)
+        const netIncome = taxableIncome // Approximation - devrait être ligne 275
+        const excessIncome = Math.max(0, netIncome - reductionThreshold)
+        const reduction = excessIncome * 0.1875 // 18.75%
+        const reducedAmount = Math.max(0, combinedAmount - reduction)
+        const combinedCredit = reducedAmount * lowestRate
+
+        totalCredits += combinedCredit
+
+        steps.push({
+          label: `  • ${language === 'fr' ? 'Montant accordé (avant réduction)' : 'Combined credit amount (before reduction)'}`,
+          value: formatAmount(combinedAmount)
         })
+
+        if (combinedComponents.length > 0) {
+          combinedComponents.forEach(comp => {
+            steps.push({
+              label: `    ◦ ${comp.split(':')[0]}`,
+              value: comp.split(':')[1].trim()
+            })
+          })
+        }
+
+        if (reduction > 0) {
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Réduction (18.75% au-delà de ' + formatAmount(reductionThreshold) + ')' : 'Reduction (18.75% above ' + formatAmount(reductionThreshold) + ')'}`,
+            value: `-${formatAmount(reduction)}`
+          })
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Montant accordé (après réduction)' : 'Combined amount (after reduction)'}`,
+            value: `${formatAmount(reducedAmount)} × ${formatPercentage(lowestRate * 100, 1, language)} = ${formatAmount(combinedCredit)}`
+          })
+        } else {
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Crédit accordé' : 'Combined credit'}`,
+            value: `${formatAmount(reducedAmount)} × ${formatPercentage(lowestRate * 100, 1, language)} = ${formatAmount(combinedCredit)}`
+          })
+        }
       }
 
       steps.push({ 
@@ -2742,8 +2869,8 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     return {
       name: language === 'fr' ? 'Impôt du Québec' : 'Quebec Income Tax',
       description: language === 'fr'
-        ? 'Impôt sur le revenu provincial calculé selon les paliers fiscaux du Québec. Inclut les crédits d\'impôt non remboursables et la déduction pour travailleur. Les cotisations sociales (RRQ, AE, RQAP) ne sont PAS déductibles du revenu.'
-        : 'Provincial income tax calculated according to Quebec tax brackets. Includes non-refundable tax credits and worker deduction. Social contributions (RRQ, AE, RQAP) are NOT deductible from income.',
+        ? 'Impôt sur le revenu provincial calculé selon les paliers fiscaux du Québec. Inclut les crédits d\'impôt non remboursables, la déduction pour travailleur et la déduction RRQ.'
+        : 'Provincial income tax calculated according to Quebec tax brackets. Includes non-refundable tax credits, worker deduction and QPP deduction.',
       formula: '',
       currentValue: actualTax,
       parameters: calculationSteps
@@ -2877,10 +3004,10 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
           const bracketLabel = bracket.max === 999999999
             ? `${formatAmount(bracket.min)}${language === 'fr' ? ' et plus' : ' and above'}`
             : `${formatAmount(bracket.min)} - ${formatAmount(bracket.max)}`
-          
-          steps.push({ 
-            label: `  • ${bracketLabel} à ${(bracket.rate * 100).toFixed(1)}%`, 
-            value: `${formatAmount(taxableInBracket)} × ${(bracket.rate * 100).toFixed(1)}% = ${formatAmount(taxInBracket)}`
+
+          steps.push({
+            label: `  • ${bracketLabel} à ${formatPercentage(bracket.rate * 100, 1, language)}`,
+            value: `${formatAmount(taxableInBracket)} × ${formatPercentage(bracket.rate * 100, 1, language)} = ${formatAmount(taxInBracket)}`
           })
         }
         previousMax = bracket.max

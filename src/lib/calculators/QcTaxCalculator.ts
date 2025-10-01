@@ -7,6 +7,7 @@ import Decimal from 'decimal.js'
 import { BaseCalculator } from '../core/BaseCalculator'
 import { CalculatorRegistry } from '../core/factory'
 import { Person, Household, HouseholdType } from '../models'
+import { QppCalculator } from './QppCalculator'
 
 export interface QcTaxResult {
   gross_income: Decimal
@@ -123,8 +124,21 @@ export class QcTaxCalculator extends BaseCalculator {
       totalDeductions = totalDeductions.plus(workerDeduction)
     }
 
-    // 2b. Note: Les cotisations (RRQ, AE, RQAP) ne sont PAS déductibles du revenu au Québec
-    // selon la méthodologie du calculateur officiel du Ministère des Finances
+    // 2b. Déduction RRQ
+    // La déduction RRQ est calculée selon la formule:
+    // - Première composante: première cotisation RRQ × 15.625% (car 1/0.064 = 15.625)
+    // - Deuxième composante: deuxième cotisation RRQ × 100%
+    // - Déduction totale = première composante + deuxième composante
+    if (!person.isRetired && person.grossWorkIncome.greaterThan(0)) {
+      const rrqComponents = this.calculateRrqComponents(person)
+
+      // Formule officielle: (première × 15.625%) + (deuxième × 100%)
+      const firstDeduction = rrqComponents.first.times(0.15625)  // 15.625% = 1/0.064
+      const secondDeduction = rrqComponents.second              // 100%
+      const rrqDeduction = firstDeduction.plus(secondDeduction)
+
+      totalDeductions = totalDeductions.plus(rrqDeduction)
+    }
 
     // 3. Calculate taxable income
     const taxableIncome = Decimal.max(0, grossIncome.minus(totalDeductions))
@@ -210,7 +224,10 @@ export class QcTaxCalculator extends BaseCalculator {
   }
 
   /**
-   * Calculate non-refundable tax credits with progressive reduction thresholds
+   * Calculate non-refundable tax credits according to official QC structure:
+   * 1. Montant personnel de base (no reduction)
+   * 2. Montant accordé (combined: living alone + single parent + age 65+ + pension)
+   *    with single 18.75% reduction applied to the total
    */
   private calculateCredits(person: Person, household: Household, taxableIncome: Decimal): {
     basic: Decimal
@@ -225,19 +242,73 @@ export class QcTaxCalculator extends BaseCalculator {
     // Get family net income for reduction calculations (line 275 equivalent)
     const familyNetIncome = this.calculateFamilyNetIncomeForCredits(person, household)
 
-    // Basic personal amount (everyone gets this - no reduction)
+    // 1. Montant personnel de base (everyone gets this - NO reduction)
     const basicCredit = this.toDecimal(creditAmounts.basic_amount).times(lowestRate)
 
-    // Age 65+ credit with income-based reduction
-    const age65Credit = this.calculateAgeCredit(person, household, familyNetIncome, creditAmounts, lowestRate)
+    // 2. Calculate "Montant accordé" components (before reduction)
+    let combinedAmount = new Decimal(0)
 
-    // Pension credit with income-based reduction
-    const pensionCredit = this.calculatePensionCredit(person, household, familyNetIncome, creditAmounts, lowestRate)
+    // 2a. Montant pour personne vivant seule (only singles)
+    let livingAloneAmount = new Decimal(0)
+    if (!household.spouse) {
+      const livingConfig = creditAmounts.living_alone || {
+        base_amount: creditAmounts.living_alone_amount || 2069,
+        single_parent_supplement: 2554
+      }
+      livingAloneAmount = this.toDecimal(livingConfig.base_amount)
 
-    // Living alone credit with income-based reduction and single-parent supplement
-    const livingAloneCredit = this.calculateLivingAloneCredit(person, household, familyNetIncome, creditAmounts, lowestRate)
+      // Add single-parent supplement if applicable
+      const hasEligibleChildren = (household.children?.length ?? 0) > 0
+      if (hasEligibleChildren) {
+        livingAloneAmount = livingAloneAmount.plus(this.toDecimal(livingConfig.single_parent_supplement))
+      }
 
-    const totalCredits = basicCredit.plus(age65Credit).plus(pensionCredit).plus(livingAloneCredit)
+      combinedAmount = combinedAmount.plus(livingAloneAmount)
+    }
+
+    // 2b. Montant en raison de l'âge (65+)
+    let ageAmount = new Decimal(0)
+    if (person.age >= 65) {
+      const ageConfig = creditAmounts.age_credit || { base_amount: creditAmounts.age_65_amount || 3798 }
+      ageAmount = this.toDecimal(ageConfig.base_amount || 3798)
+      combinedAmount = combinedAmount.plus(ageAmount)
+    }
+
+    // 2c. Montant pour revenus de retraite
+    let pensionAmount = new Decimal(0)
+    if (person.isRetired && person.grossRetirementIncome.greaterThan(0)) {
+      const pensionConfig = creditAmounts.pension_credit || { max_amount: creditAmounts.pension_amount || 3374 }
+      const maxAmount = this.toDecimal(pensionConfig.max_amount || 3374)
+      pensionAmount = Decimal.min(person.grossRetirementIncome, maxAmount)
+      combinedAmount = combinedAmount.plus(pensionAmount)
+    }
+
+    // 3. Apply SINGLE reduction of 18.75% to the combined total
+    // Seuils: 38945$ (2023), 40925$ (2024), 42090$ (2025)
+    const reductionThreshold = this.getReductionThreshold()
+    const reductionRate = new Decimal(0.1875) // 18.75%
+
+    const reducedCombinedAmount = this.applyIncomeReduction(
+      combinedAmount,
+      familyNetIncome,
+      reductionThreshold,
+      reductionRate
+    )
+
+    // Convert to credit by multiplying by lowest rate
+    const combinedCredit = reducedCombinedAmount.times(lowestRate)
+
+    // Calculate individual credits proportionally for reporting
+    // (they were all reduced together, so split proportionally)
+    const reductionFactor = combinedAmount.greaterThan(0)
+      ? reducedCombinedAmount.dividedBy(combinedAmount)
+      : new Decimal(1)
+
+    const age65Credit = ageAmount.times(reductionFactor).times(lowestRate)
+    const pensionCredit = pensionAmount.times(reductionFactor).times(lowestRate)
+    const livingAloneCredit = livingAloneAmount.times(reductionFactor).times(lowestRate)
+
+    const totalCredits = basicCredit.plus(combinedCredit)
 
     return {
       basic: this.quantize(basicCredit),
@@ -246,6 +317,19 @@ export class QcTaxCalculator extends BaseCalculator {
       living_alone: this.quantize(livingAloneCredit),
       total: this.quantize(totalCredits)
     }
+  }
+
+  /**
+   * Get reduction threshold based on tax year
+   * 38945$ (2023), 40925$ (2024), 42090$ (2025)
+   */
+  private getReductionThreshold(): Decimal {
+    const thresholds: Record<number, number> = {
+      2023: 38945,
+      2024: 40925,
+      2025: 42090
+    }
+    return new Decimal(thresholds[this.taxYear] || 40925)
   }
 
   /**
@@ -288,90 +372,6 @@ export class QcTaxCalculator extends BaseCalculator {
     return grossIncome.minus(totalDeductions)
   }
 
-  /**
-   * Calculate age credit (65+) with income-based reduction
-   */
-  private calculateAgeCredit(person: Person, household: Household, familyNetIncome: Decimal, creditAmounts: any, lowestRate: Decimal): Decimal {
-    if (person.age < 65) return new Decimal(0)
-
-    const ageConfig = creditAmounts.age_credit || { base_amount: creditAmounts.age_65_amount || 3798 }
-    const baseAmount = this.toDecimal(ageConfig.base_amount || 3798)
-
-    // Income threshold depends on marital status
-    const reductionThreshold = household.spouse ?
-      this.toDecimal(ageConfig.reduction_threshold_couple || 70125) :
-      this.toDecimal(ageConfig.reduction_threshold_single || 43250)
-
-    const reductionRate = this.toDecimal(ageConfig.reduction_rate || 0.15)
-
-    // Calculate reduced amount
-    const reducedAmount = this.applyIncomeReduction(baseAmount, familyNetIncome, reductionThreshold, reductionRate)
-
-    return reducedAmount.times(lowestRate)
-  }
-
-  /**
-   * Calculate pension credit with income-based reduction
-   */
-  private calculatePensionCredit(person: Person, household: Household, familyNetIncome: Decimal, creditAmounts: any, lowestRate: Decimal): Decimal {
-    if (!person.isRetired || person.grossRetirementIncome.lessThanOrEqualTo(0)) {
-      return new Decimal(0)
-    }
-
-    const pensionConfig = creditAmounts.pension_credit || { max_amount: creditAmounts.pension_amount || 3374 }
-    const maxAmount = this.toDecimal(pensionConfig.max_amount || 3374)
-
-    // Eligible amount is minimum of retirement income and max credit amount
-    const eligibleAmount = Decimal.min(person.grossRetirementIncome, maxAmount)
-
-    // Income threshold depends on marital status
-    const reductionThreshold = household.spouse ?
-      this.toDecimal(pensionConfig.reduction_threshold_couple || 70125) :
-      this.toDecimal(pensionConfig.reduction_threshold_single || 43250)
-
-    const reductionRate = this.toDecimal(pensionConfig.reduction_rate || 0.15)
-
-    // Calculate reduced amount
-    const reducedAmount = this.applyIncomeReduction(eligibleAmount, familyNetIncome, reductionThreshold, reductionRate)
-
-    return reducedAmount.times(lowestRate)
-  }
-
-  /**
-   * Calculate living alone credit with income-based reduction and single-parent supplement
-   */
-  private calculateLivingAloneCredit(person: Person, household: Household, familyNetIncome: Decimal, creditAmounts: any, lowestRate: Decimal): Decimal {
-    // Only for single persons without spouse
-    if (household.spouse) return new Decimal(0)
-
-    const livingConfig = creditAmounts.living_alone || {
-      base_amount: creditAmounts.living_alone_amount || 2069,
-      single_parent_supplement: 2554,
-      reduction_threshold: 40925,
-      reduction_rate: 0.1875
-    }
-
-    let baseAmount = this.toDecimal(livingConfig.base_amount || 2069)
-
-    // Add single-parent supplement if applicable
-    const hasEligibleChildren = (household.children?.length ?? 0) > 0
-    if (hasEligibleChildren) {
-      const supplement = this.toDecimal(livingConfig.single_parent_supplement || 2554)
-      baseAmount = baseAmount.plus(supplement)
-    }
-
-    const reductionThreshold = this.toDecimal(livingConfig.reduction_threshold || 40925)
-    const reductionRate = this.toDecimal(livingConfig.reduction_rate || 0.1875)
-
-    // TEMPORAIRE: Pour tester si la réduction est le problème
-    // Calculate reduced amount
-    // const reducedAmount = this.applyIncomeReduction(baseAmount, familyNetIncome, reductionThreshold, reductionRate)
-
-    // Pour le moment, appliquons le montant de base sans réduction pour voir si ça correspond
-    const reducedAmount = baseAmount
-
-    return reducedAmount.times(lowestRate)
-  }
 
   /**
    * Apply income-based reduction to a credit amount
@@ -399,6 +399,40 @@ export class QcTaxCalculator extends BaseCalculator {
   private getLowestTaxRate(): Decimal {
     const brackets = this.getTaxBrackets()
     return this.toDecimal(brackets[0].rate)
+  }
+
+  /**
+   * Calculate RRQ contribution components (first and second)
+   * Used for Quebec tax deduction calculation
+   */
+  private calculateRrqComponents(person: Person): { first: Decimal; second: Decimal } {
+    const income = person.grossWorkIncome
+    const qppConfig = (this.config as any).qpp
+
+    const basicExemption = this.toDecimal(qppConfig.basic_exemption)
+    const maxPensionableEarnings = this.toDecimal(qppConfig.max_pensionable_earnings)
+    const maxAdditionalEarnings = this.toDecimal(qppConfig.max_additional_earnings)
+    const firstRate = this.toDecimal(qppConfig.first_contribution_rate)
+    const secondRate = this.toDecimal(qppConfig.second_contribution_rate)
+
+    let firstContrib = new Decimal(0)
+    let secondContrib = new Decimal(0)
+
+    if (income.greaterThan(basicExemption)) {
+      // Première cotisation
+      const firstBracketIncome = Decimal.min(income, maxPensionableEarnings).minus(basicExemption)
+      firstContrib = firstBracketIncome.times(firstRate)
+
+      // Deuxième cotisation (si applicable)
+      if (income.greaterThan(maxPensionableEarnings) && maxAdditionalEarnings.greaterThan(maxPensionableEarnings)) {
+        const secondBracketIncome = Decimal.min(income, maxAdditionalEarnings).minus(maxPensionableEarnings)
+        if (secondBracketIncome.greaterThan(0)) {
+          secondContrib = secondBracketIncome.times(secondRate)
+        }
+      }
+    }
+
+    return { first: firstContrib, second: secondContrib }
   }
 
   // Legacy method for compatibility with RAMQ calculator

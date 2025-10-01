@@ -24,31 +24,49 @@ export class QppCalculator extends BaseCalculator {
       return {
         employment: new Decimal(0),
         self_employed: new Decimal(0),
-        total: new Decimal(0)
+        total: new Decimal(0),
+        first_contribution: new Decimal(0),
+        second_contribution: new Decimal(0)
       }
     }
 
-    // Calcul des cotisations selon le type de revenu
-    const employmentContrib = this.calculateContribution(this.toDecimal(person.grossWorkIncome))
-    const selfEmployedContrib = this.calculateContribution(
+    // Calcul des cotisations selon le type de revenu avec composantes séparées
+    const employmentResult = this.calculateContributionDetailed(this.toDecimal(person.grossWorkIncome))
+    const selfEmployedResult = this.calculateContributionDetailed(
       this.toDecimal(person.selfEmployedIncome),
       true
     )
 
-    const total = employmentContrib.plus(selfEmployedContrib)
+    const total = employmentResult.total.plus(selfEmployedResult.total)
+    const firstContribution = employmentResult.first.plus(selfEmployedResult.first)
+    const secondContribution = employmentResult.second.plus(selfEmployedResult.second)
 
     return {
-      employment: this.quantize(employmentContrib),
-      self_employed: this.quantize(selfEmployedContrib),
-      total: this.quantize(total)
+      employment: this.quantize(employmentResult.total),
+      self_employed: this.quantize(selfEmployedResult.total),
+      total: this.quantize(total),
+      first_contribution: this.quantize(firstContribution),
+      second_contribution: this.quantize(secondContribution)
     }
   }
 
-  private calculateContribution(income: Decimal, isSelfEmployed: boolean = false): Decimal {
+  /**
+   * Calcule la cotisation avec détails des deux composantes (première et deuxième cotisation)
+   * Nécessaire pour le calcul de la déduction à l'impôt du Québec
+   */
+  private calculateContributionDetailed(income: Decimal, isSelfEmployed: boolean = false): {
+    first: Decimal
+    second: Decimal
+    total: Decimal
+  } {
     const basicExemption = this.toDecimal(this.getConfigValue('basic_exemption'))
 
     if (income.lessThanOrEqualTo(basicExemption)) {
-      return new Decimal(0)
+      return {
+        first: new Decimal(0),
+        second: new Decimal(0),
+        total: new Decimal(0)
+      }
     }
 
     // Paramètres RRQ 2024+
@@ -57,18 +75,17 @@ export class QppCalculator extends BaseCalculator {
     const firstRate = this.toDecimal(this.getConfigValue('first_contribution_rate'))                // 6.40%
     const secondRate = this.toDecimal(this.getConfigValue('second_contribution_rate'))              // 4.00%
 
-    let totalContribution = new Decimal(0)
+    let firstContrib = new Decimal(0)
+    let secondContrib = new Decimal(0)
 
     // Première cotisation : de 3500$ à 68500$ à 6.40%
     if (income.greaterThan(basicExemption)) {
       const firstBracketIncome = Decimal.min(income, maxPensionableEarnings).minus(basicExemption)
-      let firstContrib = firstBracketIncome.times(firstRate)
+      firstContrib = firstBracketIncome.times(firstRate)
 
       if (isSelfEmployed) {
         firstContrib = firstContrib.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
       }
-
-      totalContribution = totalContribution.plus(firstContrib)
     }
 
     // Deuxième cotisation : revenus au-dessus du maximum de la première cotisation (si applicable)
@@ -77,17 +94,23 @@ export class QppCalculator extends BaseCalculator {
 
       // Seulement si le revenu dépasse effectivement le seuil de la première cotisation
       if (secondBracketIncome.greaterThan(0)) {
-        let secondContrib = secondBracketIncome.times(secondRate)
+        secondContrib = secondBracketIncome.times(secondRate)
 
         if (isSelfEmployed) {
           secondContrib = secondContrib.times(this.toDecimal(this.getConfigValue('self_employed_multiplier')))
         }
-
-        totalContribution = totalContribution.plus(secondContrib)
       }
     }
 
-    return totalContribution
+    return {
+      first: firstContrib,
+      second: secondContrib,
+      total: firstContrib.plus(secondContrib)
+    }
+  }
+
+  private calculateContribution(income: Decimal, isSelfEmployed: boolean = false): Decimal {
+    return this.calculateContributionDetailed(income, isSelfEmployed).total
   }
 
 }

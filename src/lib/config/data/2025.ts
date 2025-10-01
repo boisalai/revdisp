@@ -46,8 +46,10 @@ export const config2025: TaxYearConfig = {
       basic_amount: 18571, // Montant officiel 2025
       age_65_amount: 3395, // À confirmer avec sources officielles
       pension_amount: 3017, // À confirmer avec sources officielles
-      living_alone_amount: 1890, // À confirmer avec sources officielles
-      // single_parent_supplement: 2627 // Supplément famille monoparentale 2025 (indexé depuis 2554$ en 2024) - Temporairement commenté pour TypeScript
+      living_alone: {
+        base_amount: 2128,           // Montant de base pour personne seule 2025
+        single_parent_supplement: 2627 // Supplément famille monoparentale 2025
+      }
     },
     deduction_rates: {
       cpp: 1.0, // 100% déductible
