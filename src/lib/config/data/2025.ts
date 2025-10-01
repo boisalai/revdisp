@@ -32,17 +32,18 @@ export const config2025: TaxYearConfig = {
   },
   
   /**
-   * Impôt du Québec - paramètres provisoires (indexation estimée)
+   * Impôt du Québec - paramètres officiels 2025
+   * Source: https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf
    */
   quebec_tax: {
     tax_brackets: [
-      { min: 0, max: 52355, rate: 0.12 },
-      { min: 52356, max: 104700, rate: 0.16 },
-      { min: 104701, max: 127430, rate: 0.24 },
-      { min: 127431, max: Infinity, rate: 0.2575 }
+      { min: 0, max: 53255, rate: 0.14 },
+      { min: 53255, max: 106495, rate: 0.19 },
+      { min: 106495, max: 129590, rate: 0.24 },
+      { min: 129590, max: Infinity, rate: 0.2575 }
     ],
     credits: {
-      basic_amount: 18571, // Montant officiel CFFP 2025
+      basic_amount: 18571, // Montant officiel 2025
       age_65_amount: 3395, // À confirmer avec sources officielles
       pension_amount: 3017, // À confirmer avec sources officielles
       living_alone_amount: 1890, // À confirmer avec sources officielles
@@ -166,9 +167,10 @@ export const config2025: TaxYearConfig = {
 
   /**
    * Déduction pour travailleur (Ligne 201 TP-1)
+   * Source: https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf
    */
   worker_deduction: {
-    amount: 1400  // Déduction pour travailleur 2025 (estimation indexée)
+    amount: 1420  // Déduction pour travailleur 2025 (montant officiel)
   },
 
   /**

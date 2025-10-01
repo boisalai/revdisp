@@ -23,10 +23,10 @@ export const config2024: TaxYearConfig = {
   },
   quebec_tax: {
     tax_brackets: [
-      { min: 0, max: 51780, rate: 0.14 },
-      { min: 51780, max: 103545, rate: 0.19 },
-      { min: 103545, max: 126000, rate: 0.24 },
-      { min: 126000, max: 999999999, rate: 0.2575 }
+      { min: 0, max: 49275, rate: 0.14 },
+      { min: 49275, max: 98540, rate: 0.19 },
+      { min: 98540, max: 119910, rate: 0.24 },
+      { min: 119910, max: 999999999, rate: 0.2575 }
     ],
     credits: {
       basic_amount: 18056, // Montant personnel de base officiel 2024

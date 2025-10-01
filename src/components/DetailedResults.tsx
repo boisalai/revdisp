@@ -1575,10 +1575,12 @@ const PROGRAM_DETAILS = (taxYear: number = 2024) => ({
     impot_quebec: {
       name: 'Quebec Income Tax',
       description: 'Tax levied by the Quebec government on the income of individuals residing in the province.',
-      formula: 'Taxable Income × Marginal Rate - Tax Credits',
+      formula: '(Gross Income - Worker Deduction) × Marginal Rate - Tax Credits',
       parameters: [
-        { label: '2024 Rates', value: '12% to 25.75%' },
-        { label: 'Basic Exemption', value: '$18,056' }
+        { label: '2024 Tax Rates', value: '14% to 25.75%' },
+        { label: 'Basic Personal Amount', value: '$17,183 (2023) / $18,056 (2024) / $18,571 (2025)' },
+        { label: 'Worker Deduction (Line 201)', value: 'min(6% × income, $1,315 in 2023 / $1,380 in 2024 / $1,420 in 2025)' },
+        { label: 'Note', value: 'Social contributions (RRQ, AE, RQAP) are NOT deductible from income in Quebec' }
       ]
     },
     impot_federal: {
@@ -2512,33 +2514,48 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         { min: 119910, max: 999999999, rate: 0.2575 }
       ],
       credits: {
-        basic: 17183,
+        basic: 18056,
         age65: 3395,
         pension: 3017,
         livingAlone: 1890
       }
     }
-    
+
     const params2025 = {
       brackets: [
-        { min: 0, max: 51780, rate: 0.14 },
-        { min: 51780, max: 103545, rate: 0.19 },
-        { min: 103545, max: 126000, rate: 0.24 },
-        { min: 126000, max: 999999999, rate: 0.2575 }
+        { min: 0, max: 53255, rate: 0.14 },
+        { min: 53255, max: 106495, rate: 0.19 },
+        { min: 106495, max: 129590, rate: 0.24 },
+        { min: 129590, max: 999999999, rate: 0.2575 }
       ],
       credits: {
-        basic: 18056,
+        basic: 18571,
         age65: 3569,
         pension: 3172,
         livingAlone: 1985
       }
     }
-    
-    const params = taxYear === 2025 ? params2025 : params2024
+
+    const params2023 = {
+      brackets: [
+        { min: 0, max: 49275, rate: 0.14 },
+        { min: 49275, max: 98540, rate: 0.19 },
+        { min: 98540, max: 119910, rate: 0.24 },
+        { min: 119910, max: 999999999, rate: 0.2575 }
+      ],
+      credits: {
+        basic: 17183,
+        age65: 3211,
+        pension: 3017,
+        livingAlone: 1890
+      }
+    }
+
+    const params = taxYear === 2023 ? params2023 : (taxYear === 2025 ? params2025 : params2024)
 
     // Fonction pour calculer les détails d'une personne
     const calculatePersonDetails = (person: any, label: string, contributions?: { rrq?: number, ei?: number, rqap?: number }) => {
-      const grossIncome = person.isRetired 
+      const grossIncome = person.isRetired
         ? (typeof person.grossRetirementIncome === 'number' ? person.grossRetirementIncome : person.grossRetirementIncome.toNumber())
         : (typeof person.grossWorkIncome === 'number' ? person.grossWorkIncome : person.grossWorkIncome.toNumber())
 
@@ -2566,33 +2583,21 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         value: formatAmount(grossIncome)
       })
 
-      // 2. Déductions (cotisations sociales)
+      // 2. Déduction pour travailleur seulement (ligne 201)
+      // Note: Les cotisations (RRQ, AE, RQAP) ne sont PAS déductibles selon le calculateur officiel
       let totalDeductions = 0
-      if (contributions) {
-        const deductions = []
-        if (contributions.rrq && contributions.rrq > 0) {
-          deductions.push({ name: 'RRQ', amount: contributions.rrq })
-          totalDeductions += contributions.rrq
-        }
-        if (contributions.ei && contributions.ei > 0) {
-          deductions.push({ name: 'AE', amount: contributions.ei })
-          totalDeductions += contributions.ei
-        }
-        if (contributions.rqap && contributions.rqap > 0) {
-          deductions.push({ name: 'RQAP', amount: contributions.rqap })
-          totalDeductions += contributions.rqap
-        }
-        
-        if (deductions.length > 0) {
-          steps.push({ 
-            label: `${language === 'fr' ? 'Déductions (cotisations sociales)' : 'Deductions (social contributions)'}`, 
-            value: `-${formatAmount(totalDeductions)}`
+      if (!person.isRetired && grossIncome > 0) {
+        const maxWorkerDeduction = taxYear === 2023 ? 1315 : (taxYear === 2025 ? 1420 : 1380)
+        const workerDeduction = Math.min(grossIncome * 0.06, maxWorkerDeduction)
+        if (workerDeduction > 0) {
+          totalDeductions = workerDeduction
+          steps.push({
+            label: `${language === 'fr' ? 'Déduction pour travailleur (ligne 201)' : 'Worker deduction (line 201)'}`,
+            value: `-${formatAmount(workerDeduction)}`
           })
-          deductions.forEach(ded => {
-            steps.push({ 
-              label: `  • ${ded.name}`, 
-              value: `-${formatAmount(ded.amount)}`
-            })
+          steps.push({
+            label: `  • ${language === 'fr' ? 'Formule: min(6% × revenu, ' + maxWorkerDeduction + ' $)' : 'Formula: min(6% × income, $' + maxWorkerDeduction + ')'}`,
+            value: `${formatAmount(grossIncome)} × 6% = ${formatAmount(workerDeduction)}`
           })
         }
       }
@@ -2736,9 +2741,9 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
 
     return {
       name: language === 'fr' ? 'Impôt du Québec' : 'Quebec Income Tax',
-      description: language === 'fr' 
-        ? 'Impôt sur le revenu provincial calculé selon les paliers fiscaux du Québec. Inclut les crédits d\'impôt non remboursables et les déductions pour cotisations sociales.'
-        : 'Provincial income tax calculated according to Quebec tax brackets. Includes non-refundable tax credits and deductions for social contributions.',
+      description: language === 'fr'
+        ? 'Impôt sur le revenu provincial calculé selon les paliers fiscaux du Québec. Inclut les crédits d\'impôt non remboursables et la déduction pour travailleur. Les cotisations sociales (RRQ, AE, RQAP) ne sont PAS déductibles du revenu.'
+        : 'Provincial income tax calculated according to Quebec tax brackets. Includes non-refundable tax credits and worker deduction. Social contributions (RRQ, AE, RQAP) are NOT deductible from income.',
       formula: '',
       currentValue: actualTax,
       parameters: calculationSteps

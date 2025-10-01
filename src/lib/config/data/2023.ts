@@ -23,13 +23,13 @@ export const config2023: TaxYearConfig = {
   },
   quebec_tax: {
     tax_brackets: [
-      { min: 0, max: 46295, rate: 0.14 },
-      { min: 46295, max: 92580, rate: 0.19 },
-      { min: 92580, max: 112655, rate: 0.24 },
-      { min: 112655, max: 999999999, rate: 0.2575 }
+      { min: 0, max: 49275, rate: 0.14 },
+      { min: 49275, max: 98540, rate: 0.19 },
+      { min: 98540, max: 119910, rate: 0.24 },
+      { min: 119910, max: 999999999, rate: 0.2575 }
     ],
     credits: {
-      basic_amount: 16495,
+      basic_amount: 17183, // Montant personnel de base officiel 2023
       age_65_amount: 3211,
       pension_amount: 3017,
       living_alone_amount: 1890
@@ -107,9 +107,10 @@ export const config2023: TaxYearConfig = {
 
   /**
    * Déduction pour travailleur (Ligne 201 TP-1)
+   * Source: https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2024.pdf
    */
   worker_deduction: {
-    amount: 1300  // Déduction pour travailleur 2023
+    amount: 1315  // Déduction pour travailleur 2023 (montant officiel)
   },
 
   /**

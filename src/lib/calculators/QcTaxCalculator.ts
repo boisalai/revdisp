@@ -112,28 +112,19 @@ export class QcTaxCalculator extends BaseCalculator {
     // 2. Calculate deductions for ligne 275 (net income)
     let totalDeductions = new Decimal(0)
 
-    // 2a. Déduction pour travailleur (ligne 201) - NOUVEAU
-    // Source: https://www.budget.finances.gouv.qc.ca/budget/outils/depenses-fiscales/fiches/fiche-110906.asp
-    // Formule: min(6% × revenu d'emploi, 1 380$ en 2024)
+    // 2a. Déduction pour travailleur (ligne 201)
+    // Source: https://cdn-contenu.quebec.ca/cdn-contenu/adm/min/finances/publications-adm/parametres/AUTFR_RegimeImpot2025.pdf
+    // Formule: min(6% × revenu d'emploi, montant maximal selon l'année)
+    // Montants officiels: 1 315$ (2023), 1 380$ (2024), 1 420$ (2025)
     if (!person.isRetired && person.grossWorkIncome.greaterThan(0)) {
-      const maxWorkerDeduction = new Decimal((this.config as any).worker_deduction.amount) // 1380$ en 2024
+      const maxWorkerDeduction = new Decimal((this.config as any).worker_deduction.amount)
       const sixPercentOfIncome = person.grossWorkIncome.times(0.06)
       const workerDeduction = Decimal.min(sixPercentOfIncome, maxWorkerDeduction)
       totalDeductions = totalDeductions.plus(workerDeduction)
     }
 
-    // 2b. Déduction pour cotisation RRQ (ligne 248) - CORRIGÉ
-    // Source: Formulaire TP-1.D.U annexe U, lignes 19-38
-    // Formule: (Cotisation base × 15.625%) + (Cotisation supplémentaire × 15.625%)
-    // Le taux 15.625% = 1/6.4 (inverse du taux cotisation RRQ base)
-    if (contributions?.rrq) {
-      const rrqDeductionRate = new Decimal(0.15625) // 15.625% - taux officiel
-      const rrqDeduction = contributions.rrq.times(rrqDeductionRate)
-      totalDeductions = totalDeductions.plus(rrqDeduction)
-    }
-
-    // 2c. Note: AE et RQAP ne sont PAS déductibles du revenu au Québec
-    // Ils sont utilisés pour réduire l'impôt payable via des crédits d'impôt
+    // 2b. Note: Les cotisations (RRQ, AE, RQAP) ne sont PAS déductibles du revenu au Québec
+    // selon la méthodologie du calculateur officiel du Ministère des Finances
 
     // 3. Calculate taxable income
     const taxableIncome = Decimal.max(0, grossIncome.minus(totalDeductions))
@@ -282,29 +273,16 @@ export class QcTaxCalculator extends BaseCalculator {
    * Calculate net income for a person (ligne 275 equivalent)
    */
   private calculateNetIncomeForPerson(person: Person, grossIncome: Decimal): Decimal {
-    // Standard deductions for employment/contributions
-    // This should match the deductions used in the main tax calculation
-    // For a 50k income, deductions are: RRQ 2976 + AE 655 + RQAP 247 = 3878
-
-    // We approximate using the standard rates
+    // Déduction pour travailleur (ligne 201) seulement
+    // Les cotisations (RRQ, AE, RQAP) ne sont PAS déductibles selon le calculateur officiel
     let totalDeductions = new Decimal(0)
 
-    // RRQ: 5.9% on income above 3500 up to max
-    if (grossIncome.greaterThan(3500)) {
-      const rrqIncome = Decimal.min(grossIncome.minus(3500), new Decimal(68500))
-      totalDeductions = totalDeductions.plus(rrqIncome.times(0.059))
-    }
-
-    // AE: 1.31% up to max
-    if (grossIncome.greaterThan(0)) {
-      const eiIncome = Decimal.min(grossIncome, new Decimal(63300))
-      totalDeductions = totalDeductions.plus(eiIncome.times(0.0131))
-    }
-
-    // RQAP: 0.494% up to max
-    if (grossIncome.greaterThan(0)) {
-      const rqapIncome = Decimal.min(grossIncome, new Decimal(63300))
-      totalDeductions = totalDeductions.plus(rqapIncome.times(0.00494))
+    // Déduction pour travailleur: min(6% × revenu d'emploi, 1 380$ en 2024)
+    if (!person.isRetired && grossIncome.greaterThan(0)) {
+      const maxWorkerDeduction = new Decimal((this.config as any).worker_deduction?.amount || 1380)
+      const sixPercentOfIncome = grossIncome.times(0.06)
+      const workerDeduction = Decimal.min(sixPercentOfIncome, maxWorkerDeduction)
+      totalDeductions = totalDeductions.plus(workerDeduction)
     }
 
     return grossIncome.minus(totalDeductions)
