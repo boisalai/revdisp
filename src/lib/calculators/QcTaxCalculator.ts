@@ -39,14 +39,35 @@ export class QcTaxCalculator extends BaseCalculator {
     ei?: Decimal
     rqap?: Decimal
   }): { primary: QcTaxResult, spouse?: QcTaxResult, combined: QcTaxResult } {
-    // Calculate for primary person
-    const primaryResult = this.calculateForPerson(household.primaryPerson, household, contributions)
-    
-    // Calculate for spouse if applicable
+    // Calculate for primary person (allow negative tax for transfer)
+    const primaryResult = this.calculateForPerson(household.primaryPerson, household, contributions, false)
+
+    // Calculate for spouse if applicable (allow negative tax for transfer)
     let spouseResult: QcTaxResult | undefined
     if (household.spouse) {
-      spouseResult = this.calculateForPerson(household.spouse, household, contributions)
+      spouseResult = this.calculateForPerson(household.spouse, household, contributions, false)
     }
+
+    // Handle credit transfer between spouses (si applicable)
+    let finalPrimaryTax = primaryResult.net_tax
+    let finalSpouseTax = spouseResult?.net_tax || new Decimal(0)
+
+    if (spouseResult) {
+      // Si un conjoint a un impôt négatif (crédits excédentaires), transférer à l'autre
+      if (spouseResult.net_tax.lessThan(0)) {
+        const unusedCredits = spouseResult.net_tax.abs()
+        finalPrimaryTax = primaryResult.net_tax.minus(unusedCredits)
+        finalSpouseTax = new Decimal(0)
+      } else if (primaryResult.net_tax.lessThan(0)) {
+        const unusedCredits = primaryResult.net_tax.abs()
+        finalSpouseTax = spouseResult.net_tax.minus(unusedCredits)
+        finalPrimaryTax = new Decimal(0)
+      }
+    }
+
+    // Ensure no negative taxes after transfer
+    finalPrimaryTax = Decimal.max(0, finalPrimaryTax)
+    finalSpouseTax = Decimal.max(0, finalSpouseTax)
 
     // Combine results for family income
     const combined: QcTaxResult = {
@@ -60,42 +81,59 @@ export class QcTaxCalculator extends BaseCalculator {
         living_alone: primaryResult.credits.living_alone.plus(spouseResult?.credits.living_alone || 0),
         total: primaryResult.credits.total.plus(spouseResult?.credits.total || 0)
       },
-      net_tax: primaryResult.net_tax.plus(spouseResult?.net_tax || 0),
+      net_tax: finalPrimaryTax.plus(finalSpouseTax),
       net_income: {
         individual: primaryResult.net_income.individual,
         family: primaryResult.net_income.individual.plus(spouseResult?.net_income.individual || 0)
       }
     }
 
-    return { primary: primaryResult, spouse: spouseResult, combined }
+    // Update individual results with final taxes after transfer
+    const finalPrimaryResult = { ...primaryResult, net_tax: this.quantize(finalPrimaryTax) }
+    const finalSpouseResult = spouseResult ? { ...spouseResult, net_tax: this.quantize(finalSpouseTax) } : undefined
+
+    return { primary: finalPrimaryResult, spouse: finalSpouseResult, combined }
   }
 
   /**
    * Calculate Quebec tax for an individual
+   * @param allowNegative If true, allows negative net tax (for credit transfer between spouses)
    */
   private calculateForPerson(person: Person, household: Household, contributions?: {
     rrq?: Decimal
     ei?: Decimal
     rqap?: Decimal
-  }): QcTaxResult {
+  }, allowNegative: boolean = true): QcTaxResult {
     // 1. Determine gross income
-    const grossIncome = person.isRetired 
-      ? person.grossRetirementIncome 
+    const grossIncome = person.isRetired
+      ? person.grossRetirementIncome
       : person.grossWorkIncome
 
-    // 2. Calculate deductions (social contributions are fully deductible)
+    // 2. Calculate deductions for ligne 275 (net income)
     let totalDeductions = new Decimal(0)
-    if (contributions) {
-      if (contributions.rrq) {
-        totalDeductions = totalDeductions.plus(contributions.rrq)
-      }
-      if (contributions.ei) {
-        totalDeductions = totalDeductions.plus(contributions.ei)
-      }
-      if (contributions.rqap) {
-        totalDeductions = totalDeductions.plus(contributions.rqap)
-      }
+
+    // 2a. Déduction pour travailleur (ligne 201) - NOUVEAU
+    // Source: https://www.budget.finances.gouv.qc.ca/budget/outils/depenses-fiscales/fiches/fiche-110906.asp
+    // Formule: min(6% × revenu d'emploi, 1 380$ en 2024)
+    if (!person.isRetired && person.grossWorkIncome.greaterThan(0)) {
+      const maxWorkerDeduction = new Decimal((this.config as any).worker_deduction.amount) // 1380$ en 2024
+      const sixPercentOfIncome = person.grossWorkIncome.times(0.06)
+      const workerDeduction = Decimal.min(sixPercentOfIncome, maxWorkerDeduction)
+      totalDeductions = totalDeductions.plus(workerDeduction)
     }
+
+    // 2b. Déduction pour cotisation RRQ (ligne 248) - CORRIGÉ
+    // Source: Formulaire TP-1.D.U annexe U, lignes 19-38
+    // Formule: (Cotisation base × 15.625%) + (Cotisation supplémentaire × 15.625%)
+    // Le taux 15.625% = 1/6.4 (inverse du taux cotisation RRQ base)
+    if (contributions?.rrq) {
+      const rrqDeductionRate = new Decimal(0.15625) // 15.625% - taux officiel
+      const rrqDeduction = contributions.rrq.times(rrqDeductionRate)
+      totalDeductions = totalDeductions.plus(rrqDeduction)
+    }
+
+    // 2c. Note: AE et RQAP ne sont PAS déductibles du revenu au Québec
+    // Ils sont utilisés pour réduire l'impôt payable via des crédits d'impôt
 
     // 3. Calculate taxable income
     const taxableIncome = Decimal.max(0, grossIncome.minus(totalDeductions))
@@ -106,8 +144,13 @@ export class QcTaxCalculator extends BaseCalculator {
     // 5. Calculate non-refundable tax credits
     const credits = this.calculateCredits(person, household, taxableIncome)
 
-    // 6. Calculate net tax (cannot be negative)
-    const netTax = Decimal.max(0, taxBeforeCredits.minus(credits.total))
+    // 6. Calculate net tax
+    // Si allowNegative = true, permet impôt négatif pour transfert entre conjoints
+    // Sinon, ramène à 0 minimum
+    let netTax = taxBeforeCredits.minus(credits.total)
+    if (!allowNegative) {
+      netTax = Decimal.max(0, netTax)
+    }
 
     // 7. Calculate net income (ligne 275) - revenu total moins déductions AVANT impôt
     const netIncome = grossIncome.minus(totalDeductions)

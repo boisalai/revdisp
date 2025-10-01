@@ -146,11 +146,16 @@ export const config2024: TaxYearConfig = {
   /**
    * Déduction pour travailleur (Ligne 201 TP-1)
    *
-   * Source: Formulaire TP-1 2024
-   * https://www.revenuquebec.ca/documents/fr/formulaires/tp/2024-12/TP-1.D(2024-12).pdf
+   * Formule: min(6% × revenu d'emploi admissible, montant maximum)
+   *
+   * Sources officielles:
+   * - Ministère des Finances du Québec (2024)
+   *   https://www.budget.finances.gouv.qc.ca/budget/outils/depenses-fiscales/fiches/fiche-110906.asp
+   * - Chaire en fiscalité et en finances publiques
+   *   https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/deduction-travailleurs/
    */
   worker_deduction: {
-    amount: 1350  // Déduction pour travailleur 2024
+    amount: 1380  // Montant maximum 2024 (officiellement confirmé)
   },
 
   /**
