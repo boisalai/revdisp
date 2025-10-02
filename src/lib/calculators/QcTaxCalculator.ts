@@ -40,35 +40,20 @@ export class QcTaxCalculator extends BaseCalculator {
     ei?: Decimal
     rqap?: Decimal
   }): { primary: QcTaxResult, spouse?: QcTaxResult, combined: QcTaxResult } {
-    // Calculate for primary person (allow negative tax for transfer)
-    const primaryResult = this.calculateForPerson(household.primaryPerson, household, contributions, false)
+    // Calculate for primary person (allow negative tax - remboursement)
+    const primaryResult = this.calculateForPerson(household.primaryPerson, household, contributions, true)
 
-    // Calculate for spouse if applicable (allow negative tax for transfer)
+    // Calculate for spouse if applicable (allow negative tax - remboursement)
     let spouseResult: QcTaxResult | undefined
     if (household.spouse) {
-      spouseResult = this.calculateForPerson(household.spouse, household, contributions, false)
+      spouseResult = this.calculateForPerson(household.spouse, household, contributions, true)
     }
 
-    // Handle credit transfer between spouses (si applicable)
-    let finalPrimaryTax = primaryResult.net_tax
-    let finalSpouseTax = spouseResult?.net_tax || new Decimal(0)
-
-    if (spouseResult) {
-      // Si un conjoint a un impôt négatif (crédits excédentaires), transférer à l'autre
-      if (spouseResult.net_tax.lessThan(0)) {
-        const unusedCredits = spouseResult.net_tax.abs()
-        finalPrimaryTax = primaryResult.net_tax.minus(unusedCredits)
-        finalSpouseTax = new Decimal(0)
-      } else if (primaryResult.net_tax.lessThan(0)) {
-        const unusedCredits = primaryResult.net_tax.abs()
-        finalSpouseTax = spouseResult.net_tax.minus(unusedCredits)
-        finalPrimaryTax = new Decimal(0)
-      }
-    }
-
-    // Ensure no negative taxes after transfer
-    finalPrimaryTax = Decimal.max(0, finalPrimaryTax)
-    finalSpouseTax = Decimal.max(0, finalSpouseTax)
+    // RÈGLE OFFICIELLE: Impôt du ménage = somme algébrique des impôts individuels
+    // Si l'impôt avant crédits moins le total des crédits est négatif,
+    // la personne a droit à un remboursement (impôt négatif)
+    // Exemple: 7289.94$ + (-2330.70$) = 4949.23$
+    const householdNetTax = primaryResult.net_tax.plus(spouseResult?.net_tax || 0)
 
     // Combine results for family income
     const combined: QcTaxResult = {
@@ -82,18 +67,14 @@ export class QcTaxCalculator extends BaseCalculator {
         living_alone: primaryResult.credits.living_alone.plus(spouseResult?.credits.living_alone || 0),
         total: primaryResult.credits.total.plus(spouseResult?.credits.total || 0)
       },
-      net_tax: finalPrimaryTax.plus(finalSpouseTax),
+      net_tax: this.quantize(householdNetTax),
       net_income: {
         individual: primaryResult.net_income.individual,
         family: primaryResult.net_income.individual.plus(spouseResult?.net_income.individual || 0)
       }
     }
 
-    // Update individual results with final taxes after transfer
-    const finalPrimaryResult = { ...primaryResult, net_tax: this.quantize(finalPrimaryTax) }
-    const finalSpouseResult = spouseResult ? { ...spouseResult, net_tax: this.quantize(finalSpouseTax) } : undefined
-
-    return { primary: finalPrimaryResult, spouse: finalSpouseResult, combined }
+    return { primary: primaryResult, spouse: spouseResult, combined }
   }
 
   /**

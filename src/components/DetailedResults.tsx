@@ -2876,15 +2876,18 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         }
       }
 
-      steps.push({ 
-        label: `${language === 'fr' ? 'Total des crédits d\'impôt' : 'Total tax credits'}`, 
+      steps.push({
+        label: `${language === 'fr' ? 'Total des crédits d\'impôt' : 'Total tax credits'}`,
         value: formatAmount(totalCredits)
       })
 
-      // 6. Impôt net
-      const netTax = Math.max(0, taxBeforeCredits - totalCredits)
-      steps.push({ 
-        label: `${language === 'fr' ? 'Impôt à payer' : 'Tax payable'}`, 
+      // 6. Impôt net (peut être négatif = remboursement)
+      // RÈGLE: Si impôt avant crédits - crédits < 0, c'est un remboursement
+      const netTax = taxBeforeCredits - totalCredits
+      const isRefund = netTax < 0
+
+      steps.push({
+        label: `${language === 'fr' ? (isRefund ? 'Remboursement d\'impôt' : 'Impôt à payer') : (isRefund ? 'Tax refund' : 'Tax payable')}`,
         value: formatAmount(netTax)
       })
 
@@ -2910,17 +2913,36 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
     // Calculer pour le conjoint si applicable
     if (household.spouse) {
       const spouseResult = calculatePersonDetails(
-        household.spouse, 
+        household.spouse,
         language === 'fr' ? 'Conjoint(e)' : 'Spouse',
         primaryContributions // Simplification: mêmes cotisations pour les deux
       )
       calculationSteps.push(...spouseResult.steps)
-      totalTax += spouseResult.tax
+      totalTax += spouseResult.tax // Somme algébrique (peut inclure remboursements négatifs)
     }
 
-    // Utiliser la somme des calculs individuels pour cohérence avec le détail affiché
+    // RÈGLE OFFICIELLE: Impôt ménage = somme algébrique des impôts individuels
+    // Exemple: 7289.94$ + (-2330.70$) = 4959.24$
     const actualTax = totalTax
-    
+
+    // Ajouter ligne séparatrice pour clarifier le calcul
+    if (household.spouse) {
+      calculationSteps.push({
+        label: '',
+        value: '',
+        isReference: true
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? '═══ Calcul du total du ménage ═══' : '═══ Household Total Calculation ═══',
+        value: '',
+        isReference: true
+      })
+      calculationSteps.push({
+        label: language === 'fr' ? 'Formule: Impôt personne principale + Impôt conjoint(e)' : 'Formula: Primary tax + Spouse tax',
+        value: formatAmount(actualTax)
+      })
+    }
+
     // Ajouter le total
     calculationSteps.push({
       label: language === 'fr' ? 'TOTAL - Impôt du Québec (ménage)' : 'TOTAL - Quebec Tax (household)',
