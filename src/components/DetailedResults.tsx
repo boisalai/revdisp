@@ -123,12 +123,17 @@ function getOfficialParameters(programKey: string, taxYear: number, language: 'f
             return language === 'fr' ? percentage.replace('.', ',') : percentage
           }
 
+          // Séparer le taux de la première cotisation en régime de base et régime supplémentaire
+          const baseRate = 0.054 // 5.40%
+          const supplementaryRate1 = 0.01 // 1.00%
+
           parameters.push(
             { label: language === 'fr' ? 'Exemption de base' : 'Basic exemption', value: `${qpp.basic_exemption.toLocaleString()} $` },
             { label: language === 'fr' ? 'Maximum gains assurables (1ère)' : 'Maximum pensionable earnings (1st)', value: `${qpp.max_pensionable_earnings.toLocaleString()} $` },
-            { label: language === 'fr' ? 'Taux employé (1ère cotisation)' : 'Employee rate (1st contribution)', value: `${formatPercentage(qpp.first_contribution_rate)}%` },
-            { label: language === 'fr' ? 'Maximum gains admissibles (2ème)' : 'Maximum additional earnings (2nd)', value: `${qpp.max_additional_earnings.toLocaleString()} $` },
-            { label: language === 'fr' ? 'Taux employé (2ème cotisation)' : 'Employee rate (2nd contribution)', value: `${formatPercentage(qpp.second_contribution_rate)}%` },
+            { label: language === 'fr' ? 'Taux du régime de base' : 'Base plan rate', value: `${formatPercentage(baseRate)}%` },
+            { label: language === 'fr' ? 'Taux du régime supplémentaire (1er volet)' : 'Additional plan rate (1st tier)', value: `${formatPercentage(supplementaryRate1)}%` },
+            { label: language === 'fr' ? 'Maximum gains admissibles (2ème volet)' : 'Maximum additional earnings (2nd tier)', value: `${qpp.max_additional_earnings.toLocaleString()} $` },
+            { label: language === 'fr' ? 'Taux du régime supplémentaire (2ème volet)' : 'Additional plan rate (2nd tier)', value: `${formatPercentage(qpp.second_contribution_rate)}%` },
             { label: language === 'fr' ? 'Cotisation maximale totale' : 'Maximum total contribution', value: `${qpp.max_total_contribution.toLocaleString()} $` }
           )
         }
@@ -1928,15 +1933,17 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       basicExemption: 3500,
       maxPensionable: 68500,
       maxAdditional: 73200,
-      firstRate: 0.064, // 6.40% première cotisation
-      secondRate: 0.04  // 4.00% deuxième cotisation
+      baseRate: 0.054,      // 5.40% régime de base
+      supplementaryRate1: 0.01, // 1.00% premier volet régime supplémentaire
+      secondRate: 0.04      // 4.00% deuxième cotisation
     }
     const params2025 = {
       basicExemption: 3500,
       maxPensionable: 71300,
       maxAdditional: 81200,
-      firstRate: 0.064, // 6.40% première cotisation
-      secondRate: 0.04  // 4.00% deuxième cotisation
+      baseRate: 0.054,      // 5.40% régime de base
+      supplementaryRate1: 0.01, // 1.00% premier volet régime supplémentaire
+      secondRate: 0.04      // 4.00% deuxième cotisation
     }
     const params = taxYear === 2025 ? params2025 : params2024
 
@@ -1973,9 +1980,14 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
       // Calcul RRQ complet avec deux cotisations
       let totalContribution = 0
 
-      // Première cotisation (de 3500$ au maximum des gains assurables)
+      // Première cotisation - Régime de base (5.4%)
       const firstBracketIncome = Math.min(workIncomeNum, params.maxPensionable) - params.basicExemption
-      const firstContribution = Math.max(0, firstBracketIncome * params.firstRate)
+      const baseContribution = Math.max(0, firstBracketIncome * params.baseRate)
+
+      // Première cotisation - Premier volet régime supplémentaire (1.0%)
+      const supplementaryContribution1 = Math.max(0, firstBracketIncome * params.supplementaryRate1)
+
+      const firstContribution = baseContribution + supplementaryContribution1
       totalContribution += firstContribution
 
       // Deuxième cotisation (au-dessus du maximum des gains assurables, si applicable)
@@ -2001,10 +2013,28 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         label: `${label} - ${language === 'fr' ? 'Gains ouvrant droit à pension' : 'Pensionable earnings'}`,
         value: formatAmount(firstBracketIncome) + (isFirstAtMax ? (language === 'fr' ? ' (plafonné)' : ' (capped)') : '')
       })
+
+      // Étape 1: Cotisation au régime de base (5.4%)
       steps.push({
-        label: `${label} - ${language === 'fr' ? 'Taux employé RRQ (' + taxYear + ')' : 'RRQ employee rate (' + taxYear + ')'}`,
-        value: formatPercent(params.firstRate)
+        label: `${label} - ${language === 'fr' ? 'Taux du régime de base' : 'Base plan rate'}`,
+        value: formatPercent(params.baseRate)
       })
+      steps.push({
+        label: `${label} - ${language === 'fr' ? 'Cotisation au régime de base' : 'Base plan contribution'}`,
+        value: formatAmount(baseContribution)
+      })
+
+      // Étape 2: Cotisation du premier volet du régime supplémentaire (1.0%)
+      steps.push({
+        label: `${label} - ${language === 'fr' ? 'Taux du régime supplémentaire (1er volet)' : 'Additional plan rate (1st tier)'}`,
+        value: formatPercent(params.supplementaryRate1)
+      })
+      steps.push({
+        label: `${label} - ${language === 'fr' ? 'Cotisation régime supplémentaire (1er volet)' : 'Additional plan contribution (1st tier)'}`,
+        value: formatAmount(supplementaryContribution1)
+      })
+
+      // Étape 3: Total de la première cotisation (régime de base + premier volet)
       steps.push({
         label: `${label} - ${language === 'fr' ? 'Cotisation RRQ' : 'RRQ contribution'}`,
         value: formatAmount(firstContribution)
@@ -2016,15 +2046,15 @@ export default function DetailedResults({ results, household, taxYear = 2024, la
         const isSecondAtMax = workIncomeNum >= params.maxAdditional
 
         steps.push({
-          label: `${label} - ${language === 'fr' ? 'Gains admissibles (2ème cotisation)' : 'Additional pensionable earnings'}`,
+          label: `${label} - ${language === 'fr' ? 'Gains admissibles (2e volet)' : 'Additional pensionable earnings (2nd tier)'}`,
           value: formatAmount(secondBracketIncome) + (isSecondAtMax ? (language === 'fr' ? ' (plafonné)' : ' (capped)') : '')
         })
         steps.push({
-          label: `${label} - ${language === 'fr' ? 'Taux supplémentaire RRQ (' + taxYear + ')' : 'Additional RRQ rate (' + taxYear + ')'}`,
+          label: `${label} - ${language === 'fr' ? 'Taux du régime supplémentaire (2e volet)' : 'Additional plan rate (2nd tier)'}`,
           value: formatPercent(params.secondRate)
         })
         steps.push({
-          label: `${label} - ${language === 'fr' ? 'Deuxième cotisation' : 'Second contribution'}`,
+          label: `${label} - ${language === 'fr' ? 'Cotisation régime supplémentaire (2e volet)' : 'Additional plan contribution (2nd tier)'}`,
           value: formatAmount(secondContribution)
         })
 
