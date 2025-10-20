@@ -75,9 +75,9 @@ class QuebecCalculatorScraper:
             
             # Attendre que les calculs se stabilisent
             time.sleep(3)
-            
+
             # Extraire les résultats
-            results = self._extract_results()
+            results = self._extract_results(household_data)
             
             print(f"✅ Résultats extraits: RD={results.get('revenu_disponible', 'N/A')}")
             return results
@@ -227,7 +227,7 @@ class QuebecCalculatorScraper:
         except Exception as e:
             print(f"   ❌ Erreur remplissage {selector}: {e}")
     
-    def _extract_results(self) -> Dict[str, Any]:
+    def _extract_results(self, household_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extraire les résultats du calculateur"""
         print("📊 Extraction des résultats...")
         
@@ -274,11 +274,11 @@ class QuebecCalculatorScraper:
                             print(f"   💰 Revenu disponible: {number}")
                             results_found = True
                         elif "québec" in parent_text.lower() and "régime" in parent_text.lower():
-                            results['qc_impot_total'] = number
+                            results['qc_regime_fiscal_total'] = number
                             print(f"   🏛️  Régime fiscal QC: {number}")
                             results_found = True
                         elif "fédéral" in parent_text.lower() and "régime" in parent_text.lower():
-                            results['ca_impot_total'] = number
+                            results['ca_regime_fiscal_total'] = number
                             print(f"   🍁 Régime fiscal fédéral: {number}")
                             results_found = True
                         elif "cotisations" in parent_text.lower():
@@ -308,76 +308,85 @@ class QuebecCalculatorScraper:
                 
         except Exception as e:
             print(f"   ❌ Erreur recherche automatique: {e}")
-        
-        # Si pas de candidats trouvés, essayer les sélecteurs CSS corrects
+
+        # TOUJOURS utiliser les sélecteurs CSS pour garantir que tous les champs sont capturés
         # Utiliser *_old pour 2024 et *_new pour 2025
-        if not results:
-            # Pour 2024, utiliser les sélecteurs _old
-            selectors_2024 = {
-                'revenu_disponible': '#RD_old',
-                'ae_total': '#CA_ae_old', 
-                'rrq_total': '#CA_rrq_old',
-                'rqap_total': '#QC_rqap_old',
-                'qc_impot_total': '#QC_total_old',
-                'ca_impot_total': '#CA_total_old',
-                'qc_solidarite': '#QC_sol_old',
-                'ca_tps': '#CA_tps_old',
-                'ca_pfrt': '#CA_pfrt_old',
-                'qc_prime_travail': '#QC_pt_old',
-                'ramq': '#QC_ramq_old',
-                'fss': '#QC_fss_old',
-                'qc_allocation_famille': '#QC_sae_old',
-                'qc_fournitures_scolaires': '#SFS_old',
-                'qc_garde_enfants': '#QC_garde_old',
-                'qc_allocation_logement': '#QC_al_old',
-                'qc_soutien_aines': '#QC_aines_old',
-                'ca_allocation_enfants': '#CA_ace_old',
-                'ca_pension_securite': '#CA_psv_old',
-                'qc_aide_sociale': '#QC_adr_old',
-                'qc_frais_medicaux': '#QC_medic_old',
-                'ca_frais_medicaux': '#CA_medic_old',
-                'cotisations_total': '#Cotisation_old'
-            }
-            
-            # Pour 2025, utiliser les sélecteurs _new  
-            selectors_2025 = {
-                'revenu_disponible': '#RD_new',
-                'ae_total': '#CA_ae_new', 
-                'rrq_total': '#CA_rrq_new',
-                'rqap_total': '#QC_rqap_new',
-                'qc_impot_total': '#QC_total_new',
-                'ca_impot_total': '#CA_total_new',
-                'qc_solidarite': '#QC_sol_new',
-                'ca_tps': '#CA_tps_new',
-                'ca_pfrt': '#CA_pfrt_new',
-                'qc_prime_travail': '#QC_pt_new',
-                'ramq': '#QC_ramq_new',
-                'fss': '#QC_fss_new',
-                'qc_allocation_famille': '#QC_sae_new',
-                'qc_fournitures_scolaires': '#SFS_new',
-                'qc_garde_enfants': '#QC_garde_new',
-                'qc_allocation_logement': '#QC_al_new',
-                'qc_soutien_aines': '#QC_aines_new',
-                'ca_allocation_enfants': '#CA_ace_new',
-                'ca_pension_securite': '#CA_psv_new',
-                'qc_aide_sociale': '#QC_adr_new',
-                'qc_frais_medicaux': '#QC_medic_new',
-                'ca_frais_medicaux': '#CA_medic_new',
-                'cotisations_total': '#Cotisation_new'
-            }
-            
-            # Utiliser les sélecteurs appropriés (on utilise 2024 par défaut)
-            selectors = selectors_2024
-            
-            for key, selector in selectors.items():
-                try:
-                    value = self._extract_numeric_value(selector)
-                    if value is not None:
-                        results[key] = value
-                        print(f"   📋 {key}: {value} (CSS: {selector})")
-                except Exception as e:
-                    print(f"   ⚠️  {key}: {e}")
-                    results[key] = None
+        # La recherche automatique peut manquer des champs, donc on complète avec CSS
+        print("   🎯 Extraction via sélecteurs CSS...")
+
+        # Pour 2024, utiliser les sélecteurs _old
+        selectors_2024 = {
+            'revenu_disponible': '#RD_old',
+            'ae_total': '#CA_ae_old',
+            'rrq_total': '#CA_rrq_old',
+            'rqap_total': '#QC_rqap_old',
+            'qc_regime_fiscal_total': '#QC_total_old',
+            'ca_regime_fiscal_total': '#CA_total_old',
+            'qc_impot': '#QC_impot_old',  # Impôt QC individuel
+            'ca_impot': '#CA_impot_old',  # Impôt fédéral individuel
+            'qc_solidarite': '#QC_sol_old',
+            'ca_tps': '#CA_tps_old',
+            'ca_pfrt': '#CA_pfrt_old',
+            'qc_prime_travail': '#QC_pt_old',
+            'ramq': '#QC_ramq_old',
+            'fss': '#QC_fss_old',
+            'qc_allocation_famille': '#QC_sae_old',
+            'qc_fournitures_scolaires': '#SFS_old',
+            'qc_garde_enfants': '#QC_garde_old',
+            'qc_allocation_logement': '#QC_al_old',
+            'qc_soutien_aines': '#QC_aines_old',
+            'ca_allocation_enfants': '#CA_ace_old',
+            'ca_pension_securite': '#CA_psv_old',
+            'qc_aide_sociale': '#QC_adr_old',
+            'qc_frais_medicaux': '#QC_medic_old',
+            'ca_frais_medicaux': '#CA_medic_old',
+            'cotisations_total': '#Cotisation_old'
+        }
+
+        # Pour 2025, utiliser les sélecteurs _new
+        selectors_2025 = {
+            'revenu_disponible': '#RD_new',
+            'ae_total': '#CA_ae_new',
+            'rrq_total': '#CA_rrq_new',
+            'rqap_total': '#QC_rqap_new',
+            'qc_regime_fiscal_total': '#QC_total_new',
+            'ca_regime_fiscal_total': '#CA_total_new',
+            'qc_impot': '#QC_impot_new',  # Impôt QC individuel
+            'ca_impot': '#CA_impot_new',  # Impôt fédéral individuel
+            'qc_solidarite': '#QC_sol_new',
+            'ca_tps': '#CA_tps_new',
+            'ca_pfrt': '#CA_pfrt_new',
+            'qc_prime_travail': '#QC_pt_new',
+            'ramq': '#QC_ramq_new',
+            'fss': '#QC_fss_new',
+            'qc_allocation_famille': '#QC_sae_new',
+            'qc_fournitures_scolaires': '#SFS_new',
+            'qc_garde_enfants': '#QC_garde_new',
+            'qc_allocation_logement': '#QC_al_new',
+            'qc_soutien_aines': '#QC_aines_new',
+            'ca_allocation_enfants': '#CA_ace_new',
+            'ca_pension_securite': '#CA_psv_new',
+            'qc_aide_sociale': '#QC_adr_new',
+            'qc_frais_medicaux': '#QC_medic_new',
+            'ca_frais_medicaux': '#CA_medic_new',
+            'cotisations_total': '#Cotisation_new'
+        }
+
+        # Utiliser les sélecteurs appropriés selon l'année fiscale
+        tax_year = household_data.get('taxYear', 2024)
+        selectors = selectors_2025 if tax_year >= 2025 else selectors_2024
+
+        print(f"   📅 Année fiscale: {tax_year}, sélecteurs: {'2025 (_new)' if tax_year >= 2025 else '2024 (_old)'}")
+
+        for key, selector in selectors.items():
+            try:
+                value = self._extract_numeric_value(selector)
+                if value is not None:
+                    results[key] = value
+                    print(f"   📋 {key}: {value} (CSS: {selector})")
+            except Exception as e:
+                print(f"   ⚠️  {key}: {e}")
+                results[key] = None
         
         print(f"   📊 Résultats finaux: {results}")
         return results

@@ -90,6 +90,40 @@ class SimpleUnifiedValidator {
   }
 
   /**
+   * Calculate Quebec fiscal regime (tax + all QC programs)
+   * Régime fiscal QC = Impôt QC + Crédit solidarité + Prime travail + Aide sociale + autres programmes QC
+   */
+  private calculateQcFiscalRegime(results: any): number {
+    return (
+      -(results.taxes?.quebec?.toNumber() || 0) +  // Impôt QC (négatif car c'est un coût)
+      (results.quebec?.solidarity?.net_credit?.toNumber() || 0) +  // Crédit solidarité
+      (results.quebec?.work_premium?.net_premium?.toNumber() || 0) +  // Prime au travail
+      (results.quebec?.social_assistance?.net_benefit?.toNumber() || 0) +  // Aide sociale
+      (results.quebec?.family_allowance?.net_benefit?.toNumber() || 0) +  // Allocation famille
+      (results.quebec?.school_supplies?.amount?.toNumber() || 0) +  // Fournitures scolaires
+      (results.quebec?.childcare_credit?.amount?.toNumber() || 0) +  // Garde d'enfants
+      (results.quebec?.housing_allowance?.annual_allowance?.toNumber() || 0) +  // Allocation-logement
+      (results.quebec?.senior_support?.amount?.toNumber() || 0) +  // Soutien aînés
+      (results.quebec?.medical_expense?.amount?.toNumber() || 0)  // Frais médicaux QC
+    )
+  }
+
+  /**
+   * Calculate Federal fiscal regime (tax + all federal programs)
+   * Régime fiscal fédéral = Impôt fédéral + Crédit TPS + ACT + ACE + PSV + autres programmes fédéraux
+   */
+  private calculateFederalFiscalRegime(results: any): number {
+    return (
+      -(results.taxes?.canada?.toNumber() || 0) +  // Impôt fédéral (négatif car c'est un coût)
+      (results.canada?.gst_credit?.amount?.toNumber() || 0) +  // Crédit TPS
+      (results.canada?.canada_workers?.amount?.toNumber() || 0) +  // ACT (Allocation canadienne pour les travailleurs)
+      (results.canada?.child_benefit?.net_benefit?.toNumber() || 0) +  // ACE (Allocation canadienne pour enfants)
+      (results.canada?.old_age_security?.total_benefit?.toNumber() || 0) +  // PSV + SRG
+      (results.canada?.medical_expense?.amount?.toNumber() || 0)  // Frais médicaux fédéral
+    )
+  }
+
+  /**
    * Get our calculator results directly
    */
   private async getOurResults(household: any, year: number): Promise<any> {
@@ -137,15 +171,15 @@ class SimpleUnifiedValidator {
         rqap_total: calculationResults.rqap_total,
         fss_total: calculationResults.fss_total,
         ramq_total: calculationResults.ramq_total,
-        qc_impot_total: -(calculationResults.impot_quebec || 0),
-        ca_impot_total: -(calculationResults.impot_federal || 0),
-        qc_solidarite: results.quebec?.solidarity?.net_credit || 0,
-        qc_prime_travail: results.quebec?.work_premium?.net_premium || 0,
-        ca_tps: results.canada?.gst_credit?.amount || 0,
-        ca_pfrt: results.canada?.canada_workers?.amount || 0,
-        ca_allocation_enfants: results.canada?.child_benefit?.net_benefit || 0,
-        qc_allocation_logement: results.quebec?.housing_allowance?.annual_allowance || 0,
-        qc_aide_sociale: results.quebec?.social_assistance?.net_benefit || 0
+        qc_regime_fiscal_total: this.calculateQcFiscalRegime(results),
+        ca_regime_fiscal_total: this.calculateFederalFiscalRegime(results),
+        qc_solidarite: results.quebec?.solidarity?.net_credit?.toNumber() || 0,
+        qc_prime_travail: results.quebec?.work_premium?.net_premium?.toNumber() || 0,
+        ca_tps: results.canada?.gst_credit?.amount?.toNumber() || 0,
+        ca_pfrt: results.canada?.canada_workers?.amount?.toNumber() || 0,
+        ca_allocation_enfants: results.canada?.child_benefit?.net_benefit?.toNumber() || 0,
+        qc_allocation_logement: results.quebec?.housing_allowance?.annual_allowance?.toNumber() || 0,
+        qc_aide_sociale: results.quebec?.social_assistance?.net_benefit?.toNumber() || 0
       }
     } catch (error) {
       console.error('❌ Erreur API locale:', error)
@@ -153,7 +187,7 @@ class SimpleUnifiedValidator {
       return {
         revenu_disponible: 0,
         ae_total: 0, rrq_total: 0, rqap_total: 0, fss_total: 0, ramq_total: 0,
-        qc_impot_total: 0, ca_impot_total: 0, qc_solidarite: 0, qc_prime_travail: 0,
+        qc_regime_fiscal_total: 0, ca_regime_fiscal_total: 0, qc_solidarite: 0, qc_prime_travail: 0,
         ca_tps: 0, ca_pfrt: 0
       }
     }
@@ -165,7 +199,7 @@ class SimpleUnifiedValidator {
   private async getOfficialResults(household: any, year: number): Promise<any> {
     try {
       console.log('🐍 Lancement scraper officiel Python...')
-      const result = await this.scraper.scrapeOfficialCalculator(household)
+      const result = await this.scraper.scrapeOfficialCalculator(household, year)
       
       if (!result.success) {
         throw new Error(result.error || 'Scraper failed')
@@ -178,8 +212,8 @@ class SimpleUnifiedValidator {
         rqap_total: Math.abs(result.rqap_total || 0),
         fss_total: Math.abs(result.fss || 0),
         ramq_total: Math.abs(result.ramq || 0),
-        qc_impot_total: result.qc_impot_total || 0,
-        ca_impot_total: result.ca_impot_total || 0,
+        qc_regime_fiscal_total: result.qc_regime_fiscal_total || 0,
+        ca_regime_fiscal_total: result.ca_regime_fiscal_total || 0,
         qc_solidarite: result.qc_solidarite || 0,
         qc_prime_travail: result.qc_prime_travail || 0,
         ca_tps: result.ca_tps || 0,
@@ -201,7 +235,7 @@ class SimpleUnifiedValidator {
     const programs = [
       'revenu_disponible',
       'ae_total', 'rrq_total', 'rqap_total', 'fss_total', 'ramq_total',
-      'qc_impot_total', 'ca_impot_total', 'qc_solidarite', 'qc_prime_travail',
+      'qc_regime_fiscal_total', 'ca_regime_fiscal_total', 'qc_solidarite', 'qc_prime_travail',
       'ca_tps', 'ca_pfrt', 'cotisations_total',
       'qc_allocation_famille', 'qc_fournitures_scolaires', 'qc_garde_enfants',
       'qc_allocation_logement', 'qc_soutien_aines', 'ca_allocation_enfants',
@@ -399,7 +433,7 @@ class SimpleUnifiedValidator {
       
       programGroups.quebec.forEach((comp: ProgramComparison) => {
         const name = this.getStructuredProgramName(comp.program)
-        const emphasis = comp.program === 'qc_impot_total' || comp.program === 'qc_solidarite' ? '**' : ''
+        const emphasis = comp.program === 'qc_regime_fiscal_total' || comp.program === 'qc_solidarite' ? '**' : ''
         console.log(`| ${emphasis}${name}${emphasis} | ${emphasis}${this.formatCurrency(comp.ourResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.officialResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.gap, true)}${emphasis} |`)
       })
       console.log()
@@ -413,7 +447,7 @@ class SimpleUnifiedValidator {
       
       programGroups.federal.forEach((comp: ProgramComparison) => {
         const name = this.getStructuredProgramName(comp.program)
-        const emphasis = comp.program === 'ca_impot_total' || comp.program === 'ca_tps' ? '**' : ''
+        const emphasis = comp.program === 'ca_regime_fiscal_total' || comp.program === 'ca_tps' ? '**' : ''
         console.log(`| ${emphasis}${name}${emphasis} | ${emphasis}${this.formatCurrency(comp.ourResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.officialResult)}${emphasis} | ${emphasis}${this.formatCurrency(comp.gap, true)}${emphasis} |`)
       })
       console.log()
@@ -462,9 +496,9 @@ class SimpleUnifiedValidator {
    */
   private getStructuredProgramName(program: string): string {
     const names: Record<string, string> = {
-      'qc_impot_total': 'Régime fiscal QC (net)',
+      'qc_regime_fiscal_total': 'Régime fiscal QC (net)',
       'qc_solidarite': 'Crédit pour la solidarité',
-      'ca_impot_total': 'Régime fiscal fédéral (net)', 
+      'ca_regime_fiscal_total': 'Régime fiscal fédéral (net)', 
       'ca_tps': 'Crédit pour la TPS',
       'ca_pfrt': 'Allocation canadienne pour les travailleurs',
       'ae_total': 'Assurance-emploi',
@@ -542,8 +576,8 @@ class SimpleUnifiedValidator {
       'rqap_total': 'RQAP',
       'fss_total': 'FSS',
       'ramq_total': 'RAMQ',
-      'qc_impot_total': 'Impôt Québec',
-      'ca_impot_total': 'Impôt Fédéral',
+      'qc_regime_fiscal_total': 'Régime fiscal Québec',
+      'ca_regime_fiscal_total': 'Régime fiscal Fédéral',
       'qc_solidarite': 'Crédit solidarité',
       'qc_prime_travail': 'Prime au travail',
       'ca_tps': 'Crédit TPS',
@@ -567,8 +601,8 @@ class SimpleUnifiedValidator {
       'qc_prime_travail': 'Revoir le calcul de la prime au travail du Québec',
       'ca_tps': 'Corriger le crédit TPS/TVH fédéral',
       'ca_pfrt': 'Vérifier l\'ACE (Allocation canadienne pour enfants)',
-      'qc_impot_total': 'Revoir le calcul des impôts du Québec',
-      'ca_impot_total': 'Corriger le calcul des impôts fédéraux',
+      'qc_regime_fiscal_total': 'Revoir le calcul du régime fiscal du Québec',
+      'ca_regime_fiscal_total': 'Corriger le calcul du régime fiscal fédéral',
       'ae_total': 'Ajuster les cotisations d\'assurance-emploi',
       'rrq_total': 'Vérifier les cotisations RRQ',
       'rqap_total': 'Corriger les cotisations RQAP',

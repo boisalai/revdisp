@@ -54,6 +54,10 @@ export class FederalTaxCalculator extends BaseCalculator {
     }
 
     // Combine results for family income
+    // RÈGLE: Les crédits d'impôt NON REMBOURSABLES ne peuvent jamais créer de remboursement
+    // Impôt minimum du ménage = max(0, somme des impôts individuels)
+    const householdNetTax = Decimal.max(0, primaryResult.net_tax.plus(spouseResult?.net_tax || 0))
+
     const combined: FederalTaxResult = {
       gross_income: primaryResult.gross_income.plus(spouseResult?.gross_income || 0),
       taxable_income: primaryResult.taxable_income.plus(spouseResult?.taxable_income || 0),
@@ -69,7 +73,7 @@ export class FederalTaxCalculator extends BaseCalculator {
         qpip: primaryResult.credits.qpip.plus(spouseResult?.credits.qpip || 0),
         total: primaryResult.credits.total.plus(spouseResult?.credits.total || 0)
       },
-      net_tax: primaryResult.net_tax.plus(spouseResult?.net_tax || 0),
+      net_tax: this.quantize(householdNetTax),
       net_income: {
         individual: primaryResult.net_income.individual,
         family: primaryResult.net_income.individual.plus(spouseResult?.net_income.individual || 0)

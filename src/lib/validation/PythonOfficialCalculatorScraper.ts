@@ -12,8 +12,10 @@ export interface PythonOfficialCalculatorResult {
   ae_total?: number
   rrq_total?: number
   rqap_total?: number
-  qc_impot_total?: number
-  ca_impot_total?: number
+  qc_regime_fiscal_total?: number
+  ca_regime_fiscal_total?: number
+  qc_impot?: number  // Impôt sur le revenu des particuliers du Québec
+  ca_impot?: number  // Impôt sur le revenu des particuliers du Canada
   qc_solidarite?: number
   ca_tps?: number
   ca_pfrt?: number
@@ -45,13 +47,13 @@ export class PythonOfficialCalculatorScraper {
   constructor(options: { timeout?: number } = {}) {
     this.timeout = options.timeout ?? 60000
     // Le script Python est dans le dossier python-scraper à la racine
-    this.pythonScriptPath = path.join(process.cwd(), 'python-scraper', 'mfq_scraper_simple.py')
+    this.pythonScriptPath = path.join(process.cwd(), 'python-scraper', 'calculator_scraper.py')
   }
   
   /**
    * Scrape le calculateur officiel en utilisant Python/Selenium
    */
-  async scrapeOfficialCalculator(household: Household): Promise<PythonOfficialCalculatorResult> {
+  async scrapeOfficialCalculator(household: Household, year: number = 2024): Promise<PythonOfficialCalculatorResult> {
     const result: PythonOfficialCalculatorResult = {
       timestamp: new Date(),
       success: false
@@ -61,7 +63,7 @@ export class PythonOfficialCalculatorScraper {
       console.log('🐍 Lancement du scraper Python/Selenium...')
       
       // Préparer les données au format attendu par le script Python
-      const householdData = this.mapHouseholdToPythonFormat(household)
+      const householdData = this.mapHouseholdToPythonFormat(household, year)
       const jsonData = JSON.stringify(householdData)
       
       console.log(`📊 Données envoyées: ${household.householdType}, âge ${household.primaryPerson.age}`)
@@ -97,7 +99,7 @@ export class PythonOfficialCalculatorScraper {
   /**
    * Mapper notre modèle Household vers le format attendu par Python
    */
-  private mapHouseholdToPythonFormat(household: Household) {
+  private mapHouseholdToPythonFormat(household: Household, year: number) {
     return {
       householdType: this.mapHouseholdType(household.householdType),
       primaryPerson: {
@@ -113,7 +115,7 @@ export class PythonOfficialCalculatorScraper {
         isRetired: household.spouse.isRetired
       } : null,
       numChildren: household.numChildren,
-      taxYear: 2024  // Par défaut, à ajuster selon le contexte
+      taxYear: year
     }
   }
   
@@ -259,7 +261,7 @@ export class PythonValidationComparer {
     officialResult: PythonOfficialCalculatorResult,
     tolerance: number = 5.0
   ) {
-    return this.compareProgram(ourValue, officialResult.qc_impot_total, 'Impôt Québec', tolerance)
+    return this.compareProgram(ourValue, officialResult.qc_regime_fiscal_total, 'Régime fiscal Québec', tolerance)
   }
   
   static compareCanadaTax(
@@ -267,7 +269,7 @@ export class PythonValidationComparer {
     officialResult: PythonOfficialCalculatorResult,
     tolerance: number = 5.0
   ) {
-    return this.compareProgram(ourValue, officialResult.ca_impot_total, 'Impôt fédéral', tolerance)
+    return this.compareProgram(ourValue, officialResult.ca_regime_fiscal_total, 'Régime fiscal fédéral', tolerance)
   }
   
   static compareSolidarityCredit(

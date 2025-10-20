@@ -40,20 +40,29 @@ export class QcTaxCalculator extends BaseCalculator {
     ei?: Decimal
     rqap?: Decimal
   }): { primary: QcTaxResult, spouse?: QcTaxResult, combined: QcTaxResult } {
-    // Calculate for primary person (allow negative tax - remboursement)
-    const primaryResult = this.calculateForPerson(household.primaryPerson, household, contributions, true)
+    // RÈGLE OFFICIELLE: Les crédits d'impôt NON REMBOURSABLES ne peuvent PAS créer de remboursement
+    // L'impôt minimum est toujours 0$ (max(0, impôt brut - crédits))
 
-    // Calculate for spouse if applicable (allow negative tax - remboursement)
+    // Pour personnes seules: pas d'impôt négatif possible
+    // Pour couples: permettre temporairement impôt négatif pour transfert de crédits entre conjoints,
+    // mais appliquer max(0) sur le total du ménage
+    const allowNegativeForTransfer = household.spouse !== undefined
+
+    // Calculate for primary person
+    const primaryResult = this.calculateForPerson(household.primaryPerson, household, contributions, allowNegativeForTransfer)
+
+    // Calculate for spouse if applicable
     let spouseResult: QcTaxResult | undefined
     if (household.spouse) {
-      spouseResult = this.calculateForPerson(household.spouse, household, contributions, true)
+      spouseResult = this.calculateForPerson(household.spouse, household, contributions, allowNegativeForTransfer)
     }
 
-    // RÈGLE OFFICIELLE: Impôt du ménage = somme algébrique des impôts individuels
-    // Si l'impôt avant crédits moins le total des crédits est négatif,
-    // la personne a droit à un remboursement (impôt négatif)
-    // Exemple: 7289.94$ + (-2330.70$) = 4949.23$
-    const householdNetTax = primaryResult.net_tax.plus(spouseResult?.net_tax || 0)
+    // Somme algébrique des impôts individuels (peut être négatif pour transfert entre conjoints)
+    let householdNetTax = primaryResult.net_tax.plus(spouseResult?.net_tax || 0)
+
+    // IMPORTANT: Appliquer max(0) sur l'impôt du ménage - les crédits NON REMBOURSABLES
+    // ne peuvent jamais créer un remboursement
+    householdNetTax = Decimal.max(0, householdNetTax)
 
     // Combine results for family income
     const combined: QcTaxResult = {
