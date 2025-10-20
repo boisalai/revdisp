@@ -111,17 +111,21 @@ export class FederalTaxCalculator extends BaseCalculator {
     // 4. Calculate tax before credits
     const taxBeforeCredits = this.calculateTaxOnIncome(taxableIncome)
 
-    // 5. Calculate non-refundable tax credits (including contribution credits)
-    const credits = this.calculateCredits(person, household, taxableIncome, contributions)
-
-    // 6. Calculate Quebec abatement (16.5% of non-refundable credits)
-    const quebecAbatement = credits.total.times(0.165)
-
-    // 7. Calculate net tax (cannot be negative)
-    const netTax = Decimal.max(0, taxBeforeCredits.minus(credits.total))
-
-    // 8. Calculate net income (ligne 23600) - revenu total moins déductions AVANT impôt
+    // 5. Calculate net income (ligne 23600) - used for credit calculations
     const netIncome = grossIncome.minus(totalDeductions)
+
+    // 6. Calculate non-refundable tax credits (including contribution credits)
+    const credits = this.calculateCredits(person, household, netIncome, contributions)
+
+    // 7. Calculate base tax (impôt de base) - tax after credits but before Quebec abatement
+    const baseTax = Decimal.max(0, taxBeforeCredits.minus(credits.total))
+
+    // 8. Calculate Quebec abatement (16.5% of BASE TAX, not credits)
+    // L'abattement du Québec représente 16.5% de l'impôt de base
+    const quebecAbatement = baseTax.times(0.165)
+
+    // 9. Calculate net tax (impôt à payer) - base tax minus Quebec abatement
+    const netTax = Decimal.max(0, baseTax.minus(quebecAbatement))
 
     return {
       gross_income: this.quantize(grossIncome),
@@ -184,13 +188,91 @@ export class FederalTaxCalculator extends BaseCalculator {
   }
 
   /**
+   * Calculate variable Basic Personal Amount (BPA) based on net income
+   *
+   * The BPA varies based on net income:
+   * - 2023: Increases from 13,520 to 15,000 as income goes from 165,430 to 235,675
+   * - 2024: Decreases from 15,705 to 14,156 as income goes from 173,205 to 246,752
+   * - 2025: Decreases from 16,129 to 14,539 as income goes from 177,882 to 253,414
+   */
+  private calculateBasicPersonalAmount(netIncome: Decimal): Decimal {
+    const creditAmounts = this.getCreditAmounts()
+
+    // Check if we have the variable BPA parameters
+    if (!creditAmounts.basic_amount_min || !creditAmounts.basic_amount_max ||
+        !creditAmounts.basic_amount_threshold_low || !creditAmounts.basic_amount_threshold_high) {
+      // Fallback to fixed amount if parameters not available
+      return this.toDecimal(creditAmounts.basic_amount)
+    }
+
+    const minAmount = this.toDecimal(creditAmounts.basic_amount_min)
+    const maxAmount = this.toDecimal(creditAmounts.basic_amount_max)
+    const thresholdLow = this.toDecimal(creditAmounts.basic_amount_threshold_low)
+    const thresholdHigh = this.toDecimal(creditAmounts.basic_amount_threshold_high)
+
+    // If income is below low threshold, use min amount
+    if (netIncome.lessThanOrEqualTo(thresholdLow)) {
+      return minAmount
+    }
+
+    // If income is above high threshold, use max amount
+    if (netIncome.greaterThanOrEqualTo(thresholdHigh)) {
+      return maxAmount
+    }
+
+    // Linear interpolation between thresholds
+    const incomeAboveThreshold = netIncome.minus(thresholdLow)
+    const thresholdRange = thresholdHigh.minus(thresholdLow)
+    const amountDifference = maxAmount.minus(minAmount)
+    const proportion = incomeAboveThreshold.dividedBy(thresholdRange)
+    const adjustment = amountDifference.times(proportion)
+
+    return minAmount.plus(adjustment)
+  }
+
+  /**
+   * Calculate Age Amount (65+) with income-based reduction
+   *
+   * The age amount is reduced when net income exceeds a threshold:
+   * Reduction = 15% × (net income - threshold)
+   * Credit is eliminated when: age_amount - reduction ≤ 0
+   */
+  private calculateAgeAmount(person: Person, netIncome: Decimal): Decimal {
+    if (person.age < 65) {
+      return new Decimal(0)
+    }
+
+    const creditAmounts = this.getCreditAmounts()
+    const baseAmount = this.toDecimal(creditAmounts.age_65_amount)
+
+    // Check if we have reduction parameters
+    if (!creditAmounts.age_65_threshold || !creditAmounts.age_65_reduction_rate) {
+      return baseAmount
+    }
+
+    const threshold = this.toDecimal(creditAmounts.age_65_threshold)
+    const reductionRate = this.toDecimal(creditAmounts.age_65_reduction_rate)
+
+    // No reduction if income is below threshold
+    if (netIncome.lessThanOrEqualTo(threshold)) {
+      return baseAmount
+    }
+
+    // Calculate reduction
+    const excessIncome = netIncome.minus(threshold)
+    const reduction = excessIncome.times(reductionRate)
+
+    // Age amount cannot be negative
+    return Decimal.max(0, baseAmount.minus(reduction))
+  }
+
+  /**
    * Calculate non-refundable tax credits
    *
-   * IMPORTANT: Quebec residents benefit from a 16.5% abatement
-   * Credits are calculated BEFORE abatement, which is applied separately
-   * Effective credit rate = 15% × (1 - 0.165) = 12.525%
+   * IMPORTANT: Credits are calculated at 15% rate WITHOUT Quebec abatement
+   * The Quebec abatement (16.5%) is applied AFTER credits on the base tax
    */
-  private calculateCredits(person: Person, household: Household, taxableIncome: Decimal, contributions?: {
+  private calculateCredits(person: Person, _household: Household, netIncome: Decimal, contributions?: {
     rrq?: Decimal
     ei?: Decimal
     rqap?: Decimal
@@ -206,39 +288,36 @@ export class FederalTaxCalculator extends BaseCalculator {
     total: Decimal
   } {
     const creditAmounts = this.getCreditAmounts()
-    const lowestRate = this.getLowestTaxRate() // 15% for 2024
-    const quebecAbatementFactor = new Decimal(0.835) // 1 - 0.165
+    const lowestRate = this.getLowestTaxRate() // 15% for most years
 
-    // 1. Basic personal amount (ligne 30000) - everyone gets this
-    // $15,705 for 2024 (if net income < $173,205)
-    const basicAmount = this.toDecimal(creditAmounts.basic_amount)
-    const basicCredit = basicAmount.times(lowestRate).times(quebecAbatementFactor)
+    // 1. Basic personal amount (ligne 30000) - Variable according to net income
+    const basicAmount = this.calculateBasicPersonalAmount(netIncome)
+    const basicCredit = basicAmount.times(lowestRate)
 
-    // 2. Age 65+ credit (ligne 30100)
-    let age65Credit = new Decimal(0)
-    if (person.age >= 65) {
-      const age65Amount = this.toDecimal(creditAmounts.age_65_amount)
-      age65Credit = age65Amount.times(lowestRate).times(quebecAbatementFactor)
-    }
+    // 2. Age 65+ credit (ligne 30100) - With income-based reduction
+    const age65Amount = this.calculateAgeAmount(person, netIncome)
+    const age65Credit = age65Amount.times(lowestRate)
 
     // 3. Pension credit (ligne 31400) - for retirement income
     let pensionCredit = new Decimal(0)
     if (person.isRetired && person.grossRetirementIncome.greaterThan(0)) {
       const maxPensionAmount = this.toDecimal(creditAmounts.pension_amount)
       const eligibleAmount = Decimal.min(person.grossRetirementIncome, maxPensionAmount)
-      pensionCredit = eligibleAmount.times(lowestRate).times(quebecAbatementFactor)
+      pensionCredit = eligibleAmount.times(lowestRate)
     }
 
     // 4. Federal doesn't have a specific living alone credit (unlike Quebec)
     let livingAloneCredit = new Decimal(0)
 
     // 5. Canada employment amount (ligne 31260)
-    // Maximum $1,433 for 2024, applies to employment income only
+    // Amount varies by year - read from config
     let employmentCredit = new Decimal(0)
     if (!person.isRetired && person.grossWorkIncome.greaterThan(0)) {
-      const maxEmploymentAmount = new Decimal(1433) // 2024 value
+      const maxEmploymentAmount = creditAmounts.employment_amount
+        ? this.toDecimal(creditAmounts.employment_amount)
+        : new Decimal(1433) // Fallback to 2024 value
       const eligibleAmount = Decimal.min(person.grossWorkIncome, maxEmploymentAmount)
-      employmentCredit = eligibleAmount.times(lowestRate).times(quebecAbatementFactor)
+      employmentCredit = eligibleAmount.times(lowestRate)
     }
 
     // 6-8. Social contributions credits (lignes 30800, 31200, 31205)
@@ -250,13 +329,13 @@ export class FederalTaxCalculator extends BaseCalculator {
 
     if (contributions) {
       if (contributions.rrq) {
-        cppQppCredit = contributions.rrq.times(lowestRate).times(quebecAbatementFactor)
+        cppQppCredit = contributions.rrq.times(lowestRate)
       }
       if (contributions.ei) {
-        eiCredit = contributions.ei.times(lowestRate).times(quebecAbatementFactor)
+        eiCredit = contributions.ei.times(lowestRate)
       }
       if (contributions.rqap) {
-        qpipCredit = contributions.rqap.times(lowestRate).times(quebecAbatementFactor)
+        qpipCredit = contributions.rqap.times(lowestRate)
       }
     }
 

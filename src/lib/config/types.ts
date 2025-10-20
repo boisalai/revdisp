@@ -11,10 +11,26 @@ export interface TaxBracket {
 export interface FederalTaxConfig {
   tax_brackets: TaxBracket[]
   credits: {
-    basic_amount: number
+    // Montant personnel de base (MPB) - peut être variable selon le revenu
+    basic_amount: number                    // Valeur par défaut ou valeur maximale
+    basic_amount_min?: number               // MPB minimum (pour revenus élevés ou bas selon année)
+    basic_amount_max?: number               // MPB maximum (pour revenus bas ou élevés selon année)
+    basic_amount_threshold_low?: number     // Seuil bas pour interpolation
+    basic_amount_threshold_high?: number    // Seuil haut pour interpolation
+
+    // Crédit en raison de l'âge (65+)
     age_65_amount: number
+    age_65_threshold?: number               // Seuil de réduction
+    age_65_reduction_rate?: number          // Taux de réduction
+
+    // Crédit pour revenu de pension
     pension_amount: number
+
+    // Crédit personne seule (n'existe pas au fédéral)
     living_alone_amount: number
+
+    // Montant canadien pour emploi
+    employment_amount?: number              // Montant maximum pour emploi
   }
 }
 

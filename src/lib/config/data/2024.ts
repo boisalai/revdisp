@@ -11,14 +11,28 @@ export const config2024: TaxYearConfig = {
       { min: 0, max: 55867, rate: 0.15 },
       { min: 55867, max: 111733, rate: 0.205 },
       { min: 111733, max: 173205, rate: 0.26 },
-      { min: 173205, max: 246752, rate: 0.2932 },
+      { min: 173205, max: 246752, rate: 0.29 },
       { min: 246752, max: 999999999, rate: 0.33 }
     ],
     credits: {
-      basic_amount: 15705,
-      age_65_amount: 8790,
-      pension_amount: 2000,
-      living_alone_amount: 0
+      // Montant personnel de base (MPB) - Variable selon revenu net
+      // Si revenu net <= 173205 : 15705
+      // Si revenu net >= 246752 : 14156
+      // Entre les deux : interpolation linéaire (DÉCROISSANTE en 2024)
+      basic_amount_min: 15705,        // MPB pour revenu <= seuil bas
+      basic_amount_max: 14156,        // MPB pour revenu >= seuil haut
+      basic_amount_threshold_low: 173205,  // Seuil bas (max 3e tranche)
+      basic_amount_threshold_high: 246752, // Seuil haut (max 4e tranche)
+      basic_amount: 15705,            // Valeur par défaut (pour compatibilité)
+
+      age_65_amount: 8790,            // Montant en raison de l'âge (65+)
+      age_65_threshold: 44325,        // Seuil de réduction
+      age_65_reduction_rate: 0.15,    // Taux de réduction
+
+      pension_amount: 2000,           // Montant pour revenu de pension
+      living_alone_amount: 0,         // Pas de crédit personne seule au fédéral
+
+      employment_amount: 1433         // Montant canadien pour emploi 2024
     }
   },
   quebec_tax: {

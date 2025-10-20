@@ -17,17 +17,31 @@ export const config2025: TaxYearConfig = {
    */
   federal_tax: {
     tax_brackets: [
-      { min: 0, max: 57375, rate: 0.145 }, // Taux réduit de 15% à 14.5% en 2025
+      { min: 0, max: 57375, rate: 0.15 },
       { min: 57375, max: 114750, rate: 0.205 },
       { min: 114750, max: 177882, rate: 0.26 },
-      { min: 177882, max: 253414, rate: 0.2931 },
+      { min: 177882, max: 253414, rate: 0.29 },
       { min: 253414, max: 999999999, rate: 0.33 }
     ],
     credits: {
-      basic_amount: 16129,
-      age_65_amount: 8790,
-      pension_amount: 2000,
-      living_alone_amount: 0
+      // Montant personnel de base (MPB) - Variable selon revenu net
+      // Si revenu net <= 177882 : 16129
+      // Si revenu net >= 253414 : 14539
+      // Entre les deux : interpolation linéaire (DÉCROISSANTE en 2025)
+      basic_amount_min: 16129,        // MPB pour revenu <= seuil bas
+      basic_amount_max: 14539,        // MPB pour revenu >= seuil haut
+      basic_amount_threshold_low: 177882,  // Seuil bas (max 3e tranche)
+      basic_amount_threshold_high: 253414, // Seuil haut (max 4e tranche)
+      basic_amount: 16129,            // Valeur par défaut (pour compatibilité)
+
+      age_65_amount: 9028,            // Montant en raison de l'âge (65+)
+      age_65_threshold: 45522,        // Seuil de réduction
+      age_65_reduction_rate: 0.15,    // Taux de réduction
+
+      pension_amount: 2000,           // Montant pour revenu de pension
+      living_alone_amount: 0,         // Pas de crédit personne seule au fédéral
+
+      employment_amount: 1471         // Montant canadien pour emploi 2025
     }
   },
   

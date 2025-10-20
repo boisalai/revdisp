@@ -11,14 +11,28 @@ export const config2023: TaxYearConfig = {
       { min: 0, max: 53359, rate: 0.15 },
       { min: 53359, max: 106717, rate: 0.205 },
       { min: 106717, max: 165430, rate: 0.26 },
-      { min: 165430, max: 235675, rate: 0.2932 },
+      { min: 165430, max: 235675, rate: 0.29 },
       { min: 235675, max: 999999999, rate: 0.33 }
     ],
     credits: {
-      basic_amount: 15000,
-      age_65_amount: 8790,
-      pension_amount: 2000,
-      living_alone_amount: 0
+      // Montant personnel de base (MPB) - Variable selon revenu net
+      // Si revenu net <= 165430 : 13520
+      // Si revenu net >= 235675 : 15000
+      // Entre les deux : interpolation linéaire
+      basic_amount_min: 13520,        // MPB pour revenu <= seuil bas
+      basic_amount_max: 15000,        // MPB pour revenu >= seuil haut
+      basic_amount_threshold_low: 165430,  // Seuil bas (max 3e tranche)
+      basic_amount_threshold_high: 235675, // Seuil haut (max 4e tranche)
+      basic_amount: 15000,            // Valeur par défaut (pour compatibilité)
+
+      age_65_amount: 8396,            // Montant en raison de l'âge (65+)
+      age_65_threshold: 42335,        // Seuil de réduction
+      age_65_reduction_rate: 0.15,    // Taux de réduction
+
+      pension_amount: 2000,           // Montant pour revenu de pension
+      living_alone_amount: 0,         // Pas de crédit personne seule au fédéral
+
+      employment_amount: 1368         // Montant canadien pour emploi 2023
     }
   },
   quebec_tax: {
