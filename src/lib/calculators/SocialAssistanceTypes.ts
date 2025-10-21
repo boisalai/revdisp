@@ -9,34 +9,40 @@ export type SocialAssistanceProgram = 'aide_sociale' | 'solidarite_sociale' | 'o
 export interface SocialAssistanceInput {
   /** Type de ménage */
   household_type: 'single' | 'couple' | 'single_parent';
-  
+
+  /** Âge de la personne principale */
+  age: number;
+
+  /** Âge du conjoint (si applicable) */
+  partner_age?: number;
+
   /** Contrainte à l'emploi de la personne principale */
   employment_constraint: EmploymentConstraint;
-  
+
   /** Contrainte à l'emploi du conjoint (si applicable) */
   partner_employment_constraint?: EmploymentConstraint;
-  
+
   /** Revenu de travail de la personne principale */
   work_income: number;
-  
+
   /** Revenu de travail du conjoint */
   partner_work_income?: number;
-  
+
   /** Avoirs liquides totaux du ménage */
   liquid_assets: number;
-  
+
   /** Première demande d'aide sociale (Programme objectif emploi) */
   first_time_applicant?: boolean;
-  
+
   /** Nombre d'enfants */
   children_count?: number;
-  
+
   /** Âges des enfants (pour calculs futurs) */
   children_ages?: number[];
-  
+
   /** Vit chez ses parents (réduction des prestations) */
   living_with_parents?: boolean;
-  
+
   /** Année fiscale */
   year: 2023 | 2024 | 2025;
 }

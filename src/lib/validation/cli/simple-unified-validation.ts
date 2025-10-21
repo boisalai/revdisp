@@ -39,52 +39,126 @@ class SimpleUnifiedValidator {
   }
 
   /**
-   * Generate random test household
+   * Generate random test household according to MFQ constraints
    */
   private generateTestHousehold(year: number = 2024): Household {
-    const situations = [HouseholdType.SINGLE, HouseholdType.COUPLE] as const
+    // Select random household type from the 5 MFQ types
+    const situations = [
+      HouseholdType.SINGLE,           // Personne vivant seule
+      HouseholdType.SINGLE_PARENT,    // Famille monoparentale
+      HouseholdType.COUPLE,           // Couple
+      HouseholdType.RETIRED_SINGLE,   // Retraité vivant seul
+      HouseholdType.RETIRED_COUPLE    // Couple de retraités
+    ] as const
     const householdType = situations[Math.floor(Math.random() * situations.length)]
-    
-    // Generate primary adult
-    const primaryAge = 18 + Math.floor(Math.random() * 47) // 18-64
-    const primaryIncome = Math.floor(Math.random() * 80000) // 0-80k
-    const isRetired = primaryAge >= 65
-    
-    const primaryPersonData: PersonData = {
-      age: primaryAge,
-      grossWorkIncome: isRetired ? 0 : primaryIncome,
-      selfEmployedIncome: 0, // Always 0 for test households
-      grossRetirementIncome: isRetired ? primaryIncome : 0,
-      isRetired
+
+    let primaryPersonData: PersonData
+    let spouseData: PersonData | null = null
+    let children: PersonData[] = []
+
+    switch (householdType) {
+      case HouseholdType.SINGLE:
+        // Personne vivant seule: 18-64 ans, revenu travail 0-250k$, retraite=0, 0 enfants
+        primaryPersonData = {
+          age: 18 + Math.floor(Math.random() * 47), // 18-64
+          grossWorkIncome: Math.floor(Math.random() * 250001), // 0-250000
+          selfEmployedIncome: 0,
+          grossRetirementIncome: 0,
+          isRetired: false
+        }
+        break
+
+      case HouseholdType.SINGLE_PARENT:
+        // Famille monoparentale: 18-64 ans, revenu travail 0-250k$, retraite=0, 1-5 enfants (0-17 ans)
+        primaryPersonData = {
+          age: 18 + Math.floor(Math.random() * 47), // 18-64
+          grossWorkIncome: Math.floor(Math.random() * 250001), // 0-250000
+          selfEmployedIncome: 0,
+          grossRetirementIncome: 0,
+          isRetired: false
+        }
+        // Generate 1-5 children
+        const numChildrenSP = 1 + Math.floor(Math.random() * 5) // 1-5
+        for (let i = 0; i < numChildrenSP; i++) {
+          children.push({
+            age: Math.floor(Math.random() * 18), // 0-17
+            grossWorkIncome: 0,
+            selfEmployedIncome: 0,
+            grossRetirementIncome: 0,
+            isRetired: false
+          })
+        }
+        break
+
+      case HouseholdType.COUPLE:
+        // Couple: chaque conjoint 18-64 ans, revenu travail 0-250k$ chacun, retraite=0, 0-5 enfants (0-17 ans)
+        primaryPersonData = {
+          age: 18 + Math.floor(Math.random() * 47), // 18-64
+          grossWorkIncome: Math.floor(Math.random() * 250001), // 0-250000
+          selfEmployedIncome: 0,
+          grossRetirementIncome: 0,
+          isRetired: false
+        }
+        spouseData = {
+          age: 18 + Math.floor(Math.random() * 47), // 18-64
+          grossWorkIncome: Math.floor(Math.random() * 250001), // 0-250000
+          selfEmployedIncome: 0,
+          grossRetirementIncome: 0,
+          isRetired: false
+        }
+        // Generate 0-5 children
+        const numChildrenCouple = Math.floor(Math.random() * 6) // 0-5
+        for (let i = 0; i < numChildrenCouple; i++) {
+          children.push({
+            age: Math.floor(Math.random() * 18), // 0-17
+            grossWorkIncome: 0,
+            selfEmployedIncome: 0,
+            grossRetirementIncome: 0,
+            isRetired: false
+          })
+        }
+        break
+
+      case HouseholdType.RETIRED_SINGLE:
+        // Retraité vivant seul: 65-99 ans, travail=0, revenu retraite 0-250k$, 0 enfants
+        primaryPersonData = {
+          age: 65 + Math.floor(Math.random() * 35), // 65-99
+          grossWorkIncome: 0,
+          selfEmployedIncome: 0,
+          grossRetirementIncome: Math.floor(Math.random() * 250001), // 0-250000
+          isRetired: true
+        }
+        break
+
+      case HouseholdType.RETIRED_COUPLE:
+        // Couple de retraités: chaque conjoint 65-99 ans, travail=0, revenu retraite 0-250k$ chacun, 0 enfants
+        primaryPersonData = {
+          age: 65 + Math.floor(Math.random() * 35), // 65-99
+          grossWorkIncome: 0,
+          selfEmployedIncome: 0,
+          grossRetirementIncome: Math.floor(Math.random() * 250001), // 0-250000
+          isRetired: true
+        }
+        spouseData = {
+          age: 65 + Math.floor(Math.random() * 35), // 65-99
+          grossWorkIncome: 0,
+          selfEmployedIncome: 0,
+          grossRetirementIncome: Math.floor(Math.random() * 250001), // 0-250000
+          isRetired: true
+        }
+        break
+
+      default:
+        throw new Error(`Unknown household type: ${householdType}`)
     }
 
     const householdData: any = {
       householdType,
       primaryPerson: primaryPersonData,
-      spouse: null,
-      children: [],
+      spouse: spouseData,
+      children,
       province: 'QC'
     }
-
-    // Add spouse if couple
-    if (householdType === HouseholdType.COUPLE) {
-      const spouseAge = 18 + Math.floor(Math.random() * 47)
-      const spouseIncome = Math.floor(Math.random() * 80000)
-      const spouseIsRetired = spouseAge >= 65
-      
-      const spouseData: PersonData = {
-        age: spouseAge,
-        grossWorkIncome: spouseIsRetired ? 0 : spouseIncome,
-        selfEmployedIncome: 0, // Always 0 for test households
-        grossRetirementIncome: spouseIsRetired ? spouseIncome : 0,
-        isRetired: spouseIsRetired
-      }
-      
-      householdData.spouse = spouseData
-    }
-
-    // Add children (0-3) - for now, keep it simple with no children
-    // household.numChildren = Math.floor(Math.random() * 4)
 
     return new Household(householdData)
   }
@@ -278,21 +352,37 @@ class SimpleUnifiedValidator {
     for (let i = 0; i < config.count; i++) {
       try {
         const household = this.generateTestHousehold(config.year)
-        
+
         // Calculate detailed household info
         const primaryIncome = household.primaryPerson.grossWorkIncome.toNumber() + household.primaryPerson.grossRetirementIncome.toNumber()
-        const householdDesc = household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
-        
-        if (householdDesc === 'couple' && household.spouse) {
-          const spouseIncome = household.spouse.grossWorkIncome.toNumber() + household.spouse.grossRetirementIncome.toNumber()
-          const totalIncome = primaryIncome + spouseIncome
-          console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}`)
-          console.log(`   👤 Adulte 1: ${household.primaryPerson.age} ans, ${primaryIncome}$`)
-          console.log(`   👤 Adulte 2: ${household.spouse.age} ans, ${spouseIncome}$`)
-          console.log(`   💰 Revenu total: ${totalIncome}$`)
-        } else {
-          console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}, ${household.primaryPerson.age} ans, ${primaryIncome}$`)
+
+        // Get household type description
+        const typeDescriptions: Record<string, string> = {
+          'single': 'Personne vivant seule',
+          'single_parent': 'Famille monoparentale',
+          'couple': 'Couple',
+          'retired_single': 'Retraité vivant seul',
+          'retired_couple': 'Couple de retraités'
         }
+        const householdDesc = typeDescriptions[household.householdType] || household.householdType
+
+        console.log(`🔍 Test ${i+1}/${config.count}: ${householdDesc}`)
+        console.log(`   👤 Adulte 1: ${household.primaryPerson.age} ans, ${primaryIncome}$`)
+
+        let totalIncome = primaryIncome
+
+        if (household.spouse) {
+          const spouseIncome = household.spouse.grossWorkIncome.toNumber() + household.spouse.grossRetirementIncome.toNumber()
+          totalIncome += spouseIncome
+          console.log(`   👤 Adulte 2: ${household.spouse.age} ans, ${spouseIncome}$`)
+        }
+
+        if (household.children && household.children.length > 0) {
+          const childAges = household.children.map(c => c.age.toString()).join(', ')
+          console.log(`   👶 Enfants: ${household.children.length} (âges: ${childAges})`)
+        }
+
+        console.log(`   💰 Revenu total: ${totalIncome}$`)
         
         // Get results from both calculators
         const ourResults = await this.getOurResults(household, config.year)
@@ -387,33 +477,53 @@ class SimpleUnifiedValidator {
    * Display case table (reusable for worst case or couple case)
    */
   private displayCaseTable(caseData: any): void {
-    const householdDesc = caseData.household.householdType === HouseholdType.SINGLE ? 'single' : 'couple'
-    const primaryIncome = caseData.household.primaryPerson.grossWorkIncome.toNumber() + caseData.household.primaryPerson.grossRetirementIncome.toNumber()
-    const spouse = caseData.household.spouse
-    
+    const household = caseData.household
+    const primaryIncome = household.primaryPerson.grossWorkIncome.toNumber() + household.primaryPerson.grossRetirementIncome.toNumber()
+    const spouse = household.spouse
+
+    // Get household type description
+    const typeDescriptions: Record<string, string> = {
+      'single': 'Personne vivant seule',
+      'single_parent': 'Famille monoparentale',
+      'couple': 'Couple',
+      'retired_single': 'Retraité vivant seul',
+      'retired_couple': 'Couple de retraités'
+    }
+    const householdDesc = typeDescriptions[household.householdType] || household.householdType
+
     // Group programs by category for structured display
     const programGroups = this.groupProgramsByCategory(caseData.comparisons)
-    
-    if (householdDesc === 'couple' && spouse) {
+
+    let totalIncome = primaryIncome
+    console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}**`)
+    console.log(`👤 **Adulte 1**: ${household.primaryPerson.age} ans, ${primaryIncome}$`)
+
+    if (spouse) {
       const spouseIncome = spouse.grossWorkIncome.toNumber() + spouse.grossRetirementIncome.toNumber()
-      const totalIncome = primaryIncome + spouseIncome
-      console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}**`)
-      console.log(`👤 **Adulte 1**: ${caseData.household.primaryPerson.age} ans, ${primaryIncome}$`)
+      totalIncome += spouseIncome
       console.log(`👤 **Adulte 2**: ${spouse.age} ans, ${spouseIncome}$`)
-      console.log(`💰 **Revenu total**: ${totalIncome}$`)
-      console.log(`🎯 Précision: ${caseData.accuracy}%`)
-      console.log()
-      
-      console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
-      console.log(`**Type: ${householdDesc.toUpperCase()}** | **Adulte 1: ${caseData.household.primaryPerson.age} ans, ${primaryIncome}$** | **Adulte 2: ${spouse.age} ans, ${spouseIncome}$** | **Total: ${totalIncome}$**`)
-    } else {
-      console.log(`👥 **TYPE: ${householdDesc.toUpperCase()}** | Âge: ${caseData.household.primaryPerson.age} ans | Revenu: ${primaryIncome}$`)
-      console.log(`🎯 Précision: ${caseData.accuracy}%`)
-      console.log()
-      
-      console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
-      console.log(`**Type de ménage: ${householdDesc.toUpperCase()}** | **Âge: ${caseData.household.primaryPerson.age} ans** | **Revenu: ${primaryIncome}$**`)
     }
+
+    if (household.children && household.children.length > 0) {
+      const childAges = household.children.map((c: any) => c.age.toString()).join(', ')
+      console.log(`👶 **Enfants**: ${household.children.length} (âges: ${childAges})`)
+    }
+
+    console.log(`💰 **Revenu total**: ${totalIncome}$`)
+    console.log(`🎯 Précision: ${caseData.accuracy}%`)
+    console.log()
+
+    console.log(`## 📊 TABLEAU COMPLET DES PROGRAMMES SOCIO-FISCAUX`)
+    let headerDetails = `**Type: ${householdDesc}** | **Adulte 1: ${household.primaryPerson.age} ans, ${primaryIncome}$**`
+    if (spouse) {
+      const spouseIncome = spouse.grossWorkIncome.toNumber() + spouse.grossRetirementIncome.toNumber()
+      headerDetails += ` | **Adulte 2: ${spouse.age} ans, ${spouseIncome}$**`
+    }
+    if (household.children && household.children.length > 0) {
+      headerDetails += ` | **Enfants: ${household.children.length}**`
+    }
+    headerDetails += ` | **Total: ${totalIncome}$**`
+    console.log(headerDetails)
     console.log()
     
     // Display main result

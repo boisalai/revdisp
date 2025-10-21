@@ -304,6 +304,8 @@ export class RevenuDisponibleCalculator {
       // Create input for social assistance calculation
       const socialAssistanceInput = {
         household_type: household.isCouple ? 'couple' : household.children.length > 0 ? 'single_parent' : 'single',
+        age: household.primaryPerson.age,
+        partner_age: household.spouse?.age,
         employment_constraint: household.socialAssistance?.employmentConstraint || 'none',
         partner_employment_constraint: household.socialAssistance?.partnerEmploymentConstraint || 'none',
         work_income: household.primaryPerson.grossWorkIncome.toNumber(),

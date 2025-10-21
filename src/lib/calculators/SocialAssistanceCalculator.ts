@@ -114,9 +114,26 @@ export class SocialAssistanceCalculator extends BaseCalculator {
 
 
   private checkEligibility(input: SocialAssistanceInput, config: SocialAssistanceConfig): { eligible: boolean; reason?: string } {
+    // Vérifier l'âge : les personnes de 65 ans et plus ne sont pas admissibles à l'aide sociale
+    // Elles reçoivent plutôt la PSV/SRG (Pension de la Sécurité de la vieillesse et Supplément de revenu garanti)
+    if (input.age >= 65) {
+      return {
+        eligible: false,
+        reason: 'Les personnes de 65 ans et plus ne sont pas admissibles à l\'aide sociale (admissibles à la PSV/SRG)'
+      };
+    }
+
+    // Pour les couples, vérifier aussi l'âge du conjoint
+    if (input.household_type === 'couple' && input.partner_age && input.partner_age >= 65) {
+      return {
+        eligible: false,
+        reason: 'Les couples dont un conjoint a 65 ans et plus ne sont pas admissibles à l\'aide sociale (admissibles à la PSV/SRG)'
+      };
+    }
+
     // Vérifier les limites d'avoirs liquides
     const liquidAssetLimit = this.getLiquidAssetLimit(input, config);
-    
+
     if (input.liquid_assets > liquidAssetLimit) {
       return {
         eligible: false,
