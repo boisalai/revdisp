@@ -346,41 +346,55 @@ export const config2025: TaxYearConfig = {
 
   /**
    * Allocation canadienne pour les travailleurs (ACT) - Canada Workers Benefit (CWB) 2025
-   * Source: https://www.canada.ca/fr/agence-revenu/services/prestations-enfants-familles/allocation-canadienne-travailleurs.html
+   * Paramètres spécifiques au Québec
+   * Sources:
+   * - https://cffp.recherche.usherbrooke.ca/outils-ressources/guide-mesures-fiscales/allocation-canadienne-travailleurs/
+   * - Tableau des paramètres officiels 2025
    */
   canada_workers: {
     basic_amount: {
-      single_max: 1633,             // Montant maximal pour célibataires
-      family_max: 2813,             // Montant maximal pour familles
-      single_parent_max: 1633,      // Montant maximal parent seul (estimation)
-      family_with_children_max: 2813 // Montant maximal couple avec enfants (estimation)
+      single_max: 3812.06,          // Personne seule - Québec 2025
+      family_max: 5943.38,          // Couple sans enfant - Québec 2025
+      single_parent_max: 2044,      // Famille monoparentale - Québec 2025
+      family_with_children_max: 3808.23 // Couple avec enfant - Québec 2025
     },
     disability_supplement: {
       max_amount: 843               // Supplément maximal pour personnes handicapées
     },
     income_thresholds: {
-      minimum_work_income: 3000,    // Revenu minimum de travail requis
-      minimum_work_income_couple: 3000, // Revenu minimum de travail couples (estimation)
-      phase_in_start: 0,            // Début de l'accumulation
-      phase_out_start_single: 26855, // Début de réduction pour célibataires
-      phase_out_start_family: 30639, // Début de réduction pour familles
-      phase_out_start_single_parent: 26855, // Début de réduction parent seul (estimation)
-      phase_out_start_family_children: 30639, // Début de réduction couple avec enfants (estimation)
-      phase_out_end_single: 37740,   // Fin d'admissibilité pour célibataires (supplément invalidité)
-      phase_out_end_family: 49389,   // Fin d'admissibilité pour familles (supplément invalidité)
-      disability_phase_out_start_single: 37740, // Début réduction supplément invalidité (célibataires)
-      disability_phase_out_start_family: 49389,  // Début réduction supplément invalidité (familles)
-      disability_phase_out_end_single: 49011,    // Fin supplément invalidité (célibataires)
-      disability_phase_out_end_family: 60620     // Fin supplément invalidité (familles)
+      // Revenus exclus (phase_in_start) - Québec 2025
+      minimum_work_income: 2400,    // Personne seule
+      minimum_work_income_couple: 3600, // Couple
+      phase_in_start: 2400,         // Début de l'accumulation (personne seule et couple)
+
+      // Seuils de réduction (phase_out_start) - Québec 2025
+      phase_out_start_single: 14170.05, // Personne seule
+      phase_out_start_family: 21787.19, // Couple sans enfant
+      phase_out_start_single_parent: 14341.56, // Famille monoparentale
+      phase_out_start_family_children: 22007.75, // Couple avec enfant
+
+      // Seuils de sortie (phase_out_end) - Québec 2025
+      // Note: single_parent et family_children utilisent les seuils single et family
+      phase_out_end_single: 33230.35,   // Personne seule (et famille monoparentale: 24561.56)
+      phase_out_end_family: 51504.09,   // Couple sans enfant (et avec enfants: 41048.9)
+
+      // Supplément invalidité (non implémenté actuellement)
+      disability_phase_out_start_single: 37740,
+      disability_phase_out_start_family: 49389,
+      disability_phase_out_end_single: 49011,
+      disability_phase_out_end_family: 60620
     },
     calculation_rates: {
-      phase_in_rate: 0.27,          // Taux d'accumulation de 27%
-      phase_in_rate_single_parent: 0.27, // Taux pour parent seul (estimation)
-      phase_in_rate_family_children: 0.27, // Taux couple avec enfants (estimation)
-      phase_out_rate: 0.15,         // Taux de réduction de 15%
-      disability_phase_out_rate: 0.075 // Taux de réduction du supplément invalidité 7.5%
+      // Taux de majoration (phase_in_rate) - Québec 2025
+      phase_in_rate: 0.373,         // Personne seule et couple sans enfant
+      phase_in_rate_single_parent: 0.2, // Famille monoparentale
+      phase_in_rate_family_children: 0.239, // Couple avec enfant
+
+      // Taux de réduction (phase_out_rate) - Québec 2025
+      phase_out_rate: 0.2,          // Taux uniforme 20% pour tous au Québec
+      disability_phase_out_rate: 0.075
     },
-    secondary_earner_exemption: 14000 // Exemption conjoint secondaire
+    secondary_earner_exemption: 15955 // Exemption conjoint secondaire 2025
   },
 
   /**

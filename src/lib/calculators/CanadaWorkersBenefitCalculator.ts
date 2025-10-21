@@ -86,6 +86,10 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
 
   /**
    * Calculate basic Canada Workers Benefit amount
+   * Formule Québec:
+   * 1. Phase-in: Montant = taux_majoration × (revenu_travail - revenus_exclus), max = montant_max
+   * 2. Phase-out: Réduction = 20% × (revenu_net_rajusté - seuil_réduction)
+   * 3. Montant final = max(0, Montant_phase_in - Réduction)
    */
   private calculateBasicBenefit(
     workIncome: Decimal,
@@ -97,13 +101,13 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
     const childrenCount = 0; // TODO: Get actual children count from household
     const isSingleParent = !hasSpouse && childrenCount > 0;
     const isFamilyWithChildren = hasSpouse && childrenCount > 0;
-    
+
     // Determine family type and corresponding parameters
     let maxAmount: Decimal;
     let phaseInRate: Decimal;
     let phaseOutThreshold: number;
     let baseWorkingIncome: number;
-    
+
     if (isSingleParent) {
       maxAmount = new Decimal(params.basic_amount.single_parent_max);
       phaseInRate = new Decimal(params.calculation_rates.phase_in_rate_single_parent);
@@ -125,17 +129,18 @@ export class CanadaWorkersBenefitCalculator extends BaseCalculator {
       maxAmount = new Decimal(params.basic_amount.single_max);
       phaseInRate = new Decimal(params.calculation_rates.phase_in_rate);
       phaseOutThreshold = params.income_thresholds.phase_out_start_single;
-      baseWorkingIncome = params.income_thresholds.minimum_work_income;
+      baseWorkingIncome = params.income_thresholds.phase_in_start || params.income_thresholds.minimum_work_income;
     }
 
-    // Phase-in calculation: rate of work income above base working income
+    // Phase-in calculation: taux_majoration × (revenu_travail - revenus_exclus)
     const phaseInIncome = Decimal.max(0, workIncome.minus(baseWorkingIncome));
     const phaseInAmount = phaseInIncome.times(phaseInRate);
-    
-    // Calculate benefit before phase-out
+
+    // Calculate benefit before phase-out (capped at maximum)
     let benefit = Decimal.min(maxAmount, phaseInAmount);
 
-    // Phase-out calculation based on total income
+    // Phase-out calculation: 20% × (revenu_net_rajusté - seuil_réduction)
+    // Note: totalIncome already has secondary earner exemption applied
     if (totalIncome.greaterThan(phaseOutThreshold)) {
       const incomeAboveThreshold = totalIncome.minus(phaseOutThreshold);
       const reduction = incomeAboveThreshold.times(params.calculation_rates.phase_out_rate);
