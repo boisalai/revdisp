@@ -346,7 +346,7 @@ export class RevenuDisponibleCalculator {
     // Canada Child Benefit (ACE)
     if (this.calculators.canada_child_benefit) {
       const ccbResult = (this.calculators.canada_child_benefit as any).calculateDetailed(household, {
-        federal_net_income: results.canada.net_income?.individual || results.canada.net_income || new Decimal(0)
+        federal_net_income: results.canada.net_income.family
       })
       
       // Store detailed result

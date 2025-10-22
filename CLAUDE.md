@@ -160,13 +160,14 @@ La validation progressive est la méthode recommandée pour vérifier l'exactitu
 # Étape 1: Validation de base (10-25 ménages)
 npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=25 --year=2024
 # → Identifier les écarts par programme
-# → Analyser le pire cas dans le tableau détaillé
+# → OBLIGATOIRE: Présenter le tableau détaillé complet pour le pire cas (voir section "📊 PRÉSENTATION TABLEAU DÉTAILLÉ")
 # → Suivre les recommandations de corrections
 
-# Étape 2: Validation étendue (100+ ménages)  
+# Étape 2: Validation étendue (100+ ménages)
 npx tsx src/lib/validation/cli/simple-unified-validation.ts --count=100 --year=2024
 # → Tester cas particuliers avec variabilité
 # → Détecter régressions sur gros volume
+# → OBLIGATOIRE: Tableau détaillé pour le ménage avec plus grand écart
 # → Valider stabilité et cohérence
 ```
 
@@ -461,10 +462,16 @@ Lors de l'analyse des écarts avec le calculateur MFQ, **TOUJOURS** présenter l
 
 ### Instructions Importantes
 
-1. **Distinguer systématiquement** "Impôt sur le revenu des particuliers" (brut) vs "Régime fiscal" (net)
-2. **Inclure tous les programmes** même ceux à 0$ pour vision complète
-3. **Identifier les 2-3 plus grands écarts** pour prioriser corrections
-4. **Indiquer montants indisponibles** avec mention explicite
+**🚨 RÈGLE OBLIGATOIRE** : Lors de toute évaluation ou analyse d'écarts, **TOUJOURS** présenter le tableau complet ci-dessus pour le ménage présentant le **plus grand écart de revenu disponible**. Ce tableau doit inclure :
+
+1. **Caractéristiques complètes du ménage** : Type, âges, revenus de chaque adulte, nombre et âges des enfants
+2. **Tous les programmes socio-fiscaux** : Même ceux à 0$ pour vision complète
+3. **Trois colonnes obligatoires** : Notre Calculateur, MFQ Officiel, Écart
+4. **Distinction systématique** : "Impôt sur le revenu des particuliers" (brut) vs "Régime fiscal" (net)
+5. **Identification explicite** : Mettre en évidence les 2-3 programmes avec les plus grands écarts
+6. **Mention explicite** : Indiquer "N/D" pour les montants indisponibles
+
+**Contexte d'application** : Commandes `/evaluate`, analyses de validation, investigations de bugs, rapports de précision
 
 ## 🧹 Historique des Changements Récents
 
