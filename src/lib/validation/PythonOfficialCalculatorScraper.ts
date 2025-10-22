@@ -115,6 +115,9 @@ export class PythonOfficialCalculatorScraper {
         isRetired: household.spouse.isRetired
       } : null,
       numChildren: household.numChildren,
+      children: household.children ? household.children.map(child => ({
+        age: child.age
+      })) : [],
       taxYear: year
     }
   }

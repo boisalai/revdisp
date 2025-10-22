@@ -148,34 +148,56 @@ class QuebecCalculatorScraper:
             self._fill_field('#Revenu2', str(spouse_revenus))
             self._fill_field('#AgeAdulte2', str(spouse['age']))
         
-        # 5. Nombre d'enfants
-        num_children = household_data.get('numChildren', 0)
+        # 5. Nombre d'enfants et leurs âges
+        children = household_data.get('children', [])
+        num_children = len(children) if children else household_data.get('numChildren', 0)
+
         if num_children > 0:
             try:
+                # Mapper le nombre d'enfants aux options du select
+                children_options = {
+                    1: "Un enfant",
+                    2: "Deux enfants",
+                    3: "Trois enfants",
+                    4: "Quatre enfants",
+                    5: "Cinq enfants"
+                }
+
                 children_select = Select(self.driver.find_element(By.ID, "NbEnfants"))
-                
-                # Essayer d'abord select_by_value
-                try:
-                    children_select.select_by_value(str(num_children))
-                    print(f"   ✅ #NbEnfants: {num_children} (select_by_value)")
-                except:
-                    # Si échec, essayer select_by_visible_text
-                    try:
-                        children_select.select_by_visible_text(str(num_children))
-                        print(f"   ✅ #NbEnfants: {num_children} (select_by_visible_text)")
-                    except:
-                        # Si échec, essayer select_by_index (1=1 enfant, 2=2 enfants, etc.)
-                        if num_children <= 10:  # Limiter à 10 enfants max
-                            children_select.select_by_index(num_children)
-                            print(f"   ✅ #NbEnfants: {num_children} (select_by_index)")
-                        else:
-                            print(f"   ⚠️  Impossible de sélectionner {num_children} enfants")
-                
-                time.sleep(0.5)
+
+                # Sélectionner le nombre d'enfants
+                if num_children in children_options:
+                    children_select.select_by_visible_text(children_options[num_children])
+                    print(f"   ✅ #NbEnfants: {num_children} enfant(s)")
+                else:
+                    print(f"   ⚠️  Nombre d'enfants non supporté: {num_children}")
+
+                # Attendre que les champs d'âge apparaissent
+                time.sleep(1)
+
+                # Remplir l'âge de chaque enfant si disponible
+                if children:
+                    for i, child in enumerate(children, start=1):
+                        if i > 5:  # Maximum 5 enfants supportés par le formulaire
+                            print(f"   ⚠️  Enfant {i} ignoré (max 5 enfants)")
+                            break
+
+                        age = child.get('age', 0)
+                        age_selector = f'#AgeEnfant{i}'
+
+                        try:
+                            self._fill_field(age_selector, str(age))
+                            print(f"   ✅ Enfant {i}: {age} ans")
+                        except Exception as e:
+                            print(f"   ⚠️  Erreur âge enfant {i}: {e}")
+
+                # Attendre que les calculs se mettent à jour après la saisie des âges
+                time.sleep(1)
+
             except Exception as e:
-                print(f"   ❌ Erreur sélection enfants: {e}")
+                print(f"   ❌ Erreur gestion enfants: {e}")
                 raise
-        
+
         print("✅ Formulaire rempli")
     
     def _fill_field(self, selector: str, value: str):
@@ -226,15 +248,68 @@ class QuebecCalculatorScraper:
             
         except Exception as e:
             print(f"   ❌ Erreur remplissage {selector}: {e}")
-    
+
+    def _wait_for_calculation_complete(self, max_wait: int = 10) -> bool:
+        """
+        Attendre que le calculateur ait terminé ses calculs.
+        Vérifie que la valeur du revenu disponible est calculée et stable.
+
+        Args:
+            max_wait: Temps maximum d'attente en secondes
+
+        Returns:
+            True si le calcul est terminé, False si timeout
+        """
+        print("   ⏳ Attente de la fin des calculs...")
+
+        # Déterminer le sélecteur selon l'année fiscale
+        tax_year = 2025  # Par défaut
+        rd_selector = '#RD_new' if tax_year >= 2025 else '#RD_old'
+
+        previous_value = None
+        stable_count = 0
+        start_time = time.time()
+
+        while (time.time() - start_time) < max_wait:
+            try:
+                # Extraire la valeur actuelle du revenu disponible
+                element = self.driver.find_element(By.CSS_SELECTOR, rd_selector)
+                current_value = element.get_attribute('value')
+
+                # Vérifier si la valeur a changé
+                if current_value and current_value != '0' and current_value != '':
+                    # Enlever les espaces pour comparer
+                    clean_value = current_value.replace(' ', '').replace('\u202f', '')
+
+                    # Si la valeur est stable pendant 2 vérifications consécutives
+                    if clean_value == previous_value:
+                        stable_count += 1
+                        if stable_count >= 2:
+                            print(f"   ✅ Calcul terminé - Valeur stable: {current_value}")
+                            # Attendre encore un peu pour être sûr que tous les champs sont mis à jour
+                            time.sleep(1)
+                            return True
+                    else:
+                        stable_count = 0
+                        previous_value = clean_value
+
+                time.sleep(0.5)
+
+            except Exception as e:
+                print(f"   ⚠️  Erreur pendant l'attente: {e}")
+                time.sleep(0.5)
+
+        print(f"   ⚠️  Timeout après {max_wait}s - utilisation des valeurs actuelles")
+        return False
+
     def _extract_results(self, household_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extraire les résultats du calculateur"""
         print("📊 Extraction des résultats...")
-        
+
         results = {}
-        
-        # Attendre que les calculs se terminent
-        time.sleep(3)
+
+        # Attendre intelligemment que les calculs se terminent
+        self._wait_for_calculation_complete()
         
         # Chercher spécifiquement dans le tableau des résultats
         print("   🎯 Recherche dans le tableau des résultats...")
