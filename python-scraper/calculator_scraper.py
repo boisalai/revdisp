@@ -21,7 +21,14 @@ class QuebecCalculatorScraper:
         self.timeout = timeout
         self.driver = None
         self.setup_driver(headless)
-    
+        # Enable debug mode - prints logs to stderr instead of stdout
+        self.debug_enabled = True
+
+    def _log(self, message: str):
+        """Log messages to stderr to avoid polluting stdout (which is used for JSON output)"""
+        if self.debug_enabled:
+            print(message, file=sys.stderr)
+
     def setup_driver(self, headless: bool):
         """Configure le driver Chrome avec les bonnes options"""
         chrome_options = Options()
@@ -54,10 +61,10 @@ class QuebecCalculatorScraper:
             }
         """
         try:
-            print(f"🔍 Scraping pour: {household_data.get('householdType', 'N/A')}")
-            print(f"   Personne principale: {household_data['primaryPerson']['age']} ans")
-            print(f"   Revenus: {household_data['primaryPerson'].get('grossWorkIncome', 0)}$ (travail)")
-            print(f"   Revenus: {household_data['primaryPerson'].get('grossRetirementIncome', 0)}$ (retraite)")
+            self._log(f"🔍 Scraping pour: {household_data.get('householdType', 'N/A')}")
+            self._log(f"   Personne principale: {household_data['primaryPerson']['age']} ans")
+            self._log(f"   Revenus: {household_data['primaryPerson'].get('grossWorkIncome', 0)}$ (travail)")
+            self._log(f"   Revenus: {household_data['primaryPerson'].get('grossRetirementIncome', 0)}$ (retraite)")
             
             # Navigation vers le calculateur
             self.driver.get('https://www.finances.gouv.qc.ca/ministere/outils_services/outils_calcul/revenu_disponible/outil_revenu.asp')
@@ -79,11 +86,11 @@ class QuebecCalculatorScraper:
             # Extraire les résultats
             results = self._extract_results(household_data)
             
-            print(f"✅ Résultats extraits: RD={results.get('revenu_disponible', 'N/A')}")
+            self._log(f"✅ Résultats extraits: RD={results.get('revenu_disponible', 'N/A')}")
             return results
             
         except Exception as e:
-            print(f"❌ Erreur lors du scraping: {e}")
+            self._log(f"❌ Erreur lors du scraping: {e}")
             return {"error": str(e)}
     
     def _handle_cookies(self):
@@ -110,7 +117,7 @@ class QuebecCalculatorScraper:
                         button = self.driver.find_element(By.CSS_SELECTOR, selector)
                     
                     if button and button.is_displayed():
-                        print("🍪 Acceptation des cookies...")
+                        self._log("🍪 Acceptation des cookies...")
                         button.click()
                         time.sleep(1)
                         return
@@ -119,11 +126,11 @@ class QuebecCalculatorScraper:
                     continue
                     
         except Exception as e:
-            print(f"ℹ️  Gestion cookies: {e}")
+            self._log(f"ℹ️  Gestion cookies: {e}")
     
     def _fill_form(self, household_data: Dict[str, Any]):
         """Remplir le formulaire avec les données du ménage"""
-        print("📝 Remplissage du formulaire...")
+        self._log("📝 Remplissage du formulaire...")
         
         # 1. Situation familiale
         situation = self._map_household_type(household_data['householdType'])
@@ -168,9 +175,9 @@ class QuebecCalculatorScraper:
                 # Sélectionner le nombre d'enfants
                 if num_children in children_options:
                     children_select.select_by_visible_text(children_options[num_children])
-                    print(f"   ✅ #NbEnfants: {num_children} enfant(s)")
+                    self._log(f"   ✅ #NbEnfants: {num_children} enfant(s)")
                 else:
-                    print(f"   ⚠️  Nombre d'enfants non supporté: {num_children}")
+                    self._log(f"   ⚠️  Nombre d'enfants non supporté: {num_children}")
 
                 # Attendre que les champs d'âge apparaissent
                 time.sleep(1)
@@ -179,7 +186,7 @@ class QuebecCalculatorScraper:
                 if children:
                     for i, child in enumerate(children, start=1):
                         if i > 5:  # Maximum 5 enfants supportés par le formulaire
-                            print(f"   ⚠️  Enfant {i} ignoré (max 5 enfants)")
+                            self._log(f"   ⚠️  Enfant {i} ignoré (max 5 enfants)")
                             break
 
                         age = child.get('age', 0)
@@ -187,18 +194,18 @@ class QuebecCalculatorScraper:
 
                         try:
                             self._fill_field(age_selector, str(age))
-                            print(f"   ✅ Enfant {i}: {age} ans")
+                            self._log(f"   ✅ Enfant {i}: {age} ans")
                         except Exception as e:
-                            print(f"   ⚠️  Erreur âge enfant {i}: {e}")
+                            self._log(f"   ⚠️  Erreur âge enfant {i}: {e}")
 
                 # Attendre que les calculs se mettent à jour après la saisie des âges
                 time.sleep(1)
 
             except Exception as e:
-                print(f"   ❌ Erreur gestion enfants: {e}")
+                self._log(f"   ❌ Erreur gestion enfants: {e}")
                 raise
 
-        print("✅ Formulaire rempli")
+        self._log("✅ Formulaire rempli")
     
     def _fill_field(self, selector: str, value: str):
         """Remplir un champ avec une valeur en utilisant plusieurs méthodes robustes"""
@@ -215,10 +222,10 @@ class QuebecCalculatorScraper:
             # Vérifier que la valeur a été saisie
             actual_value = element.get_attribute('value')
             if actual_value != value:
-                print(f"   ⚠️  Méthode 1 échouée pour {selector}: attendu '{value}', obtenu '{actual_value}'")
+                self._log(f"   ⚠️  Méthode 1 échouée pour {selector}: attendu '{value}', obtenu '{actual_value}'")
                 
                 # Méthode 2: JavaScript direct
-                print(f"   🔄 Tentative méthode JavaScript pour {selector}")
+                self._log(f"   🔄 Tentative méthode JavaScript pour {selector}")
                 self.driver.execute_script(f"document.querySelector('{selector}').value = '{value}';")
                 time.sleep(0.2)
                 
@@ -237,17 +244,17 @@ class QuebecCalculatorScraper:
                 # Vérifier à nouveau
                 actual_value = element.get_attribute('value')
                 if actual_value != value:
-                    print(f"   ❌ Méthode 2 aussi échouée pour {selector}: obtenu '{actual_value}'")
+                    self._log(f"   ❌ Méthode 2 aussi échouée pour {selector}: obtenu '{actual_value}'")
                 else:
-                    print(f"   ✅ {selector}: {value} (méthode JavaScript)")
+                    self._log(f"   ✅ {selector}: {value} (méthode JavaScript)")
             else:
                 # Déclencher onchange pour méthode 1
                 element.send_keys(Keys.TAB)
                 time.sleep(0.3)
-                print(f"   ✅ {selector}: {value} (méthode standard)")
+                self._log(f"   ✅ {selector}: {value} (méthode standard)")
             
         except Exception as e:
-            print(f"   ❌ Erreur remplissage {selector}: {e}")
+            self._log(f"   ❌ Erreur remplissage {selector}: {e}")
 
     def _wait_for_calculation_complete(self, max_wait: int = 10) -> bool:
         """
@@ -260,7 +267,7 @@ class QuebecCalculatorScraper:
         Returns:
             True si le calcul est terminé, False si timeout
         """
-        print("   ⏳ Attente de la fin des calculs...")
+        self._log("   ⏳ Attente de la fin des calculs...")
 
         # Déterminer le sélecteur selon l'année fiscale
         tax_year = 2025  # Par défaut
@@ -285,7 +292,7 @@ class QuebecCalculatorScraper:
                     if clean_value == previous_value:
                         stable_count += 1
                         if stable_count >= 2:
-                            print(f"   ✅ Calcul terminé - Valeur stable: {current_value}")
+                            self._log(f"   ✅ Calcul terminé - Valeur stable: {current_value}")
                             # Attendre encore un peu pour être sûr que tous les champs sont mis à jour
                             time.sleep(1)
                             return True
@@ -296,15 +303,15 @@ class QuebecCalculatorScraper:
                 time.sleep(0.5)
 
             except Exception as e:
-                print(f"   ⚠️  Erreur pendant l'attente: {e}")
+                self._log(f"   ⚠️  Erreur pendant l'attente: {e}")
                 time.sleep(0.5)
 
-        print(f"   ⚠️  Timeout après {max_wait}s - utilisation des valeurs actuelles")
+        self._log(f"   ⚠️  Timeout après {max_wait}s - utilisation des valeurs actuelles")
         return False
 
     def _extract_results(self, household_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extraire les résultats du calculateur"""
-        print("📊 Extraction des résultats...")
+        self._log("📊 Extraction des résultats...")
 
         results = {}
 
@@ -312,7 +319,7 @@ class QuebecCalculatorScraper:
         self._wait_for_calculation_complete()
         
         # Chercher spécifiquement dans le tableau des résultats
-        print("   🎯 Recherche dans le tableau des résultats...")
+        self._log("   🎯 Recherche dans le tableau des résultats...")
         try:
             # D'abord, attendre que les résultats soient calculés
             import re
@@ -323,7 +330,7 @@ class QuebecCalculatorScraper:
             
             # Essayer de trouver les cellules de tableau contenant les valeurs
             table_cells = self.driver.find_elements(By.CSS_SELECTOR, "td, th")
-            print(f"   📋 Trouvé {len(table_cells)} cellules de tableau")
+            self._log(f"   📋 Trouvé {len(table_cells)} cellules de tableau")
             
             for cell in table_cells:
                 try:
@@ -346,20 +353,20 @@ class QuebecCalculatorScraper:
                         # Identifier le type de résultat basé sur le contexte de la ligne
                         if "disponible" in parent_text.lower():
                             results['revenu_disponible'] = number
-                            print(f"   💰 Revenu disponible: {number}")
+                            self._log(f"   💰 Revenu disponible: {number}")
                             results_found = True
                         elif "québec" in parent_text.lower() and "régime" in parent_text.lower():
                             results['qc_regime_fiscal_total'] = number
-                            print(f"   🏛️  Régime fiscal QC: {number}")
+                            self._log(f"   🏛️  Régime fiscal QC: {number}")
                             results_found = True
                         elif "fédéral" in parent_text.lower() and "régime" in parent_text.lower():
                             results['ca_regime_fiscal_total'] = number
-                            print(f"   🍁 Régime fiscal fédéral: {number}")
+                            self._log(f"   🍁 Régime fiscal fédéral: {number}")
                             results_found = True
                         elif "cotisations" in parent_text.lower():
                             # Les cotisations sont négatives, mais le tableau peut montrer la valeur positive
                             results['cotisations_total'] = -abs(number)  # Force negative
-                            print(f"   💼 Cotisations: -{number}")
+                            self._log(f"   💼 Cotisations: -{number}")
                             results_found = True
                     
                     # Aussi chercher les tirets pour les valeurs nulles
@@ -373,21 +380,21 @@ class QuebecCalculatorScraper:
                         
                         if "garde" in parent_text.lower():
                             results['frais_garde'] = 0
-                            print(f"   👶 Frais de garde: 0 (tiret)")
+                            self._log(f"   👶 Frais de garde: 0 (tiret)")
                             
                 except Exception:
                     continue
             
             if not results_found:
-                print("   ⚠️  Aucune valeur trouvée dans le tableau, recherche alternative...")
+                self._log("   ⚠️  Aucune valeur trouvée dans le tableau, recherche alternative...")
                 
         except Exception as e:
-            print(f"   ❌ Erreur recherche automatique: {e}")
+            self._log(f"   ❌ Erreur recherche automatique: {e}")
 
         # TOUJOURS utiliser les sélecteurs CSS pour garantir que tous les champs sont capturés
         # Utiliser *_old pour 2024 et *_new pour 2025
         # La recherche automatique peut manquer des champs, donc on complète avec CSS
-        print("   🎯 Extraction via sélecteurs CSS...")
+        self._log("   🎯 Extraction via sélecteurs CSS...")
 
         # Pour 2024, utiliser les sélecteurs _old
         selectors_2024 = {
@@ -451,19 +458,19 @@ class QuebecCalculatorScraper:
         tax_year = household_data.get('taxYear', 2024)
         selectors = selectors_2025 if tax_year >= 2025 else selectors_2024
 
-        print(f"   📅 Année fiscale: {tax_year}, sélecteurs: {'2025 (_new)' if tax_year >= 2025 else '2024 (_old)'}")
+        self._log(f"   📅 Année fiscale: {tax_year}, sélecteurs: {'2025 (_new)' if tax_year >= 2025 else '2024 (_old)'}")
 
         for key, selector in selectors.items():
             try:
                 value = self._extract_numeric_value(selector)
                 if value is not None:
                     results[key] = value
-                    print(f"   📋 {key}: {value} (CSS: {selector})")
+                    self._log(f"   📋 {key}: {value} (CSS: {selector})")
             except Exception as e:
-                print(f"   ⚠️  {key}: {e}")
+                self._log(f"   ⚠️  {key}: {e}")
                 results[key] = None
         
-        print(f"   📊 Résultats finaux: {results}")
+        self._log(f"   📊 Résultats finaux: {results}")
         return results
     
     def _extract_numeric_value(self, selector: str) -> Optional[float]:
@@ -517,7 +524,7 @@ class QuebecCalculatorScraper:
 def main():
     """Fonction principale pour utilisation en ligne de commande"""
     if len(sys.argv) != 2:
-        print("Usage: python calculator_scraper.py <json_data>")
+        print("Usage: python calculator_scraper.py <json_data>", file=sys.stderr)
         sys.exit(1)
     
     try:
