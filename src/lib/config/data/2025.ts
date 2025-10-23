@@ -135,16 +135,24 @@ export const config2025: TaxYearConfig = {
 
   /**
    * Fonds des services de santé (FSS)
-   * Applicable aux personnes de 65 ans et plus
-   * 
-   * Note: Paramètres 2025 non annoncés, estimation indexée
+   * Applicable aux personnes de 65 ans et plus avec revenus de retraite
+   *
+   * Structure FSS 2025 (paramètres officiels):
+   * - 0$ à 18,130$: 0$
+   * - 18,130$ à 33,130$: 1% de l'excédent de 18,130$ (max 150$)
+   * - 33,130$ à 63,060$: 150$ fixe
+   * - 63,060$ à 148,060$: 150$ + 1% de l'excédent de 63,060$ (max 1,000$)
+   * - 148,060$+: 1,000$ maximum
+   *
+   * Source: Paramètres fiscaux officiels Gouvernement du Québec 2025
+   * Validé contre calculateur MFQ: couple retraités 394k$ → 2,000$ (1,000$ × 2)
    */
   fss: {
-    first_threshold: 17500, // Estimation indexée
-    second_threshold: 127000, // Estimation indexée
-    rate: 0.01, // 1.0%
-    base_contribution: 0,
-    max_contribution: 1000
+    first_threshold: 18130,       // Seuil début cotisation (tranche 1)
+    second_threshold: 63060,      // Seuil début tranche 2
+    rate: 0.01,                   // 1.0% pour les deux tranches
+    base_contribution: 150,       // Contribution fixe zone intermédiaire
+    max_contribution: 1000        // Maximum total pour revenus > 148,060$
   },
 
   /**
