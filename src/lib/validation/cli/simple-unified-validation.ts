@@ -192,7 +192,7 @@ class SimpleUnifiedValidator {
       (results.canada?.gst_credit?.amount?.toNumber() || 0) +  // Crédit TPS
       (results.canada?.canada_workers?.amount?.toNumber() || 0) +  // ACT (Allocation canadienne pour les travailleurs)
       (results.canada?.child_benefit?.net_benefit?.toNumber() || 0) +  // ACE (Allocation canadienne pour enfants)
-      (results.canada?.old_age_security?.total_benefit?.toNumber() || 0) +  // PSV + SRG
+      (results.canada?.old_age_security?.total_amount?.toNumber() || 0) +  // PSV + SRG (CORRIGÉ: total_benefit → total_amount)
       (results.canada?.medical_expense?.amount?.toNumber() || 0)  // Frais médicaux fédéral
     )
   }
