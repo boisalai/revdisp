@@ -58,8 +58,8 @@ export const config2025: TaxYearConfig = {
     ],
     credits: {
       basic_amount: 18571, // Montant officiel 2025
-      age_65_amount: 3395, // À confirmer avec sources officielles
-      pension_amount: 3017, // À confirmer avec sources officielles
+      age_65_amount: 3908, // Montant de base 2025 - Source: CFFP
+      pension_amount: 3470, // Montant maximal 2025 - Source: CFFP
       living_alone: {
         base_amount: 2128,           // Montant de base pour personne seule 2025
         single_parent_supplement: 2627 // Supplément famille monoparentale 2025
